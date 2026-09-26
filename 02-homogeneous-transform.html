@@ -222,9 +222,9 @@
   <p>已知从坐标系 \(\{B\}\) 到 \(\{A\}\) 的齐次变换为 \({}^A_B\boldsymbol{T} = \begin{bmatrix} {}^A_B\boldsymbol{R} & {}^A\boldsymbol{P}_{BORG} \\ \boldsymbol{0} & 1 \end{bmatrix}\)，如何快速求出反向逆变换 \({}^B_A\boldsymbol{T} = ({}^A_B\boldsymbol{T})^{-1}\)？</p>
   
   <div class="derive">
-    <p><strong>严谨代数推导（利用正交矩阵性质 \(\boldsymbol{R}^T\boldsymbol{R} = \boldsymbol{I}\)）：</strong></p>
+    <p><strong>严谨代数推导（利用<a href="ref-linear-algebra-orthogonality.html#orthogonal-matrix">正交矩阵性质</a> \(\boldsymbol{R}^T\boldsymbol{R} = \boldsymbol{I}\)）：</strong></p>
     <p>1. 由一般坐标变换公式：\({}^A\boldsymbol{P} = {}^A\boldsymbol{P}_{BORG} + {}^A_B\boldsymbol{R} {}^B\boldsymbol{P}\)</p>
-    <p>2. 两边同时左乘转置矩阵 \({}^A_B\boldsymbol{R}^T\)：</p>
+    <p>2. 两边同时左乘<a href="ref-linear-algebra-orthogonality.html#transpose">转置矩阵</a> \({}^A_B\boldsymbol{R}^T\)：</p>
     \[{}^A_B\boldsymbol{R}^T {}^A\boldsymbol{P} = {}^A_B\boldsymbol{R}^T {}^A\boldsymbol{P}_{BORG} + \underbrace{{}^A_B\boldsymbol{R}^T {}^A_B\boldsymbol{R}}_{\boldsymbol{I}} {}^B\boldsymbol{P} \]
     <p>3. 移项整理，解出 \({}^B\boldsymbol{P}\)：</p>
     \[{}^B\boldsymbol{P} = {}^A_B\boldsymbol{R}^T {}^A\boldsymbol{P} - {}^A_B\boldsymbol{R}^T {}^A\boldsymbol{P}_{BORG}\]

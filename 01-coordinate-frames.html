@@ -365,7 +365,7 @@
               右上标 · 代数操作 / 状态
             </div>
             <div class="fc-card-desc">
-              “做了什么运算”（转置 <span data-tex="R^T"></span>、求逆 <span data-tex="R^{-1}"></span>）
+              “做了什么运算”（<a href="ref-linear-algebra-orthogonality.html#transpose">转置</a> <span data-tex="R^T"></span>、<a href="ref-linear-algebra-orthogonality.html#inverse">求逆</a> <span data-tex="R^{-1}"></span>）
             </div>
           </div>
           <div class="fc-card fc-card-p">
@@ -427,8 +427,8 @@
             <span style="color:#fbbf24;font-size:1.15rem;"><span data-tex="({}^A_B R)^T = {}^B_A R"></span></span>
           </div>
           <div style="font-size:0.87rem;color:#cbd5e1;line-height:1.6;">
-            • <strong style="color:#fbbf24;">右上 T</strong>：施加矩阵转置操作<br>
-            • <strong>物理本质</strong>：旋转矩阵是正交阵（<span data-tex="R^T = R^{-1}"></span>），求逆后源系与目标系自然颠倒。
+            • <strong style="color:#fbbf24;">右上 T</strong>：施加<a href="ref-linear-algebra-orthogonality.html#transpose">矩阵转置</a>操作<br>
+            • <strong>物理本质</strong>：旋转矩阵是<a href="ref-linear-algebra-orthogonality.html#orthogonal-matrix">正交阵</a>（<span data-tex="R^T = R^{-1}"></span>），求逆后源系与目标系自然颠倒。
           </div>
         </div>
       </div>
@@ -636,7 +636,7 @@
     <h2>反向转换：为什么要转置</h2>
     <p>从 B 写到 A 用 <code>ᴬR<sub>B</sub></code>；从 A 写回 B 必须使用反方向的旋转：</p>
     <div class="formula">\[{}^B p={}^B R_A\,{}^A p=({}^A R_B)^T\,{}^A p\]</div>
-    <p>旋转矩阵的列都是互相垂直、长度为 1 的单位向量，因此它的逆矩阵恰好等于转置矩阵。现在只需会用；“为何正交矩阵满足 R⁻¹ = Rᵀ”会在后续补一页直觉证明。</p>
+    <p>旋转矩阵的列构成<a href="ref-linear-algebra-orthogonality.html#orthonormal-basis">单位正交基</a>：互相垂直且长度为 1。因此它的逆矩阵恰好等于转置矩阵。想知道为什么？看<a href="ref-linear-algebra-orthogonality.html#orthogonal-matrix">正交矩阵的点积推导</a>。</p>
 
     <h2>三维空间三大主轴基本旋转矩阵速查（Craig 原书 §2.2 式 2.6 ~ 2.8）</h2>
     <div class="card">
@@ -742,9 +742,9 @@
         </summary>
         <div style="padding:14px 18px; border-top:1px solid #1e293b; background:#070d1e; font-size:0.9rem; line-height:1.75; color:#cbd5e1;">
           <strong style="color:#38bdf8; display:block; margin-bottom:6px;">🎯 一句话直击目的：</strong>
-          在 1kHz 的高速实时伺服控制循环中，把<strong>极其消耗算力的矩阵求逆 $O(n^3)$</strong>，直接降维成<strong>零计算开销的行变列转置 $O(1)$</strong>。<br>
+          对已知正交的旋转矩阵，反向变换可直接用转置，省去一般矩阵求逆的计算与额外数值风险。<br>
           <strong style="color:#10b981; display:block; margin-top:10px; margin-bottom:4px;">🔍 工程师实战直觉：</strong>
-          普通 $3\times 3$ 矩阵求逆需要计算行列式与伴随矩阵，在嵌入式控制器中耗时且容易因浮点舍入发散；而旋转矩阵的列都是互相正交的单位向量（标准正交阵）。“转置即求逆”不仅让坐标变换反向时极速无延迟，而且具有绝对的数值保真度。
+          一般 $3\times 3$ 矩阵求逆要做更多运算；旋转矩阵的列构成<a href="ref-linear-algebra-orthogonality.html#orthonormal-basis">单位正交基</a>，故 $R^TR=I$、$R^{-1}=R^T$。转置也需要读取并重排元素，并非零开销；浮点误差仍存在，矩阵若已偏离正交条件，就不能把转置无条件当成逆。
         </div>
       </details>
     </div>

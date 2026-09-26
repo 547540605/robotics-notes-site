@@ -139,6 +139,7 @@
           ['39', '伺服三环级联与驱动器接口限幅', '39-servo-cascade-and-limits.html']
         ] },
         { name: '专题专栏 · 基础支撑', items: [
+          ['线代速查', '点积、转置与正交矩阵', 'ref-linear-algebra-orthogonality.html'],
           ['理论支撑', '线性代数与齐次坐标', 'linear-algebra-homogeneous-coordinates.html'],
           ['基础专栏', '矩阵乘向量列视角与坐标变换本质', 'ref-matrix-multiplication-and-frame-transform.html'],
           ['基础专栏', '刚体转动本质与四角记号法字典', 'ref-rigid-body-rotation-foundations.html'],
@@ -177,7 +178,7 @@
       const openPage = document.getElementById('open-page');
       const menu = document.getElementById('menu');
 
-      function itemFor(file) { return entries.find(item => item.file === file) || entries[0]; }
+      function itemFor(file) { return entries.find(item => item.file === file.split('#')[0]) || entries[0]; }
       function requestedFile() { const match = location.hash.match(/^#note=(.+)$/); return match ? decodeURIComponent(match[1]) : '00-progress.html'; }
       function renderNav() {
         nav.innerHTML = chapters.map((chapter, index) => `<details data-chapter="${chapter.name}" ${index === 0 ? 'open' : ''}><summary>${chapter.name}</summary>${chapter.items.map(([number, label, file]) => `<a class="nav-link" href="#note=${encodeURIComponent(file)}" data-file="${file}"><span class="number">${number}</span>${label}</a>`).join('')}</details>`).join('');
@@ -187,7 +188,7 @@
         const file = requestedFile();
         const item = itemFor(file);
         document.querySelectorAll('.nav-link').forEach(link => {
-          const isActive = link.dataset.file === file;
+          const isActive = link.dataset.file === file.split('#')[0];
           link.classList.toggle('active', isActive);
           if (isActive) {
             const parentDetails = link.closest('details');
@@ -209,8 +210,9 @@
           const basePath = new URL('.', location.href).pathname;
           if (!frameLocation.pathname.startsWith(basePath)) return;
           const currentFrameFile = decodeURIComponent(frameLocation.pathname.slice(basePath.length));
-          if (currentFrameFile && currentFrameFile !== requestedFile()) {
-            location.hash = `#note=${encodeURIComponent(currentFrameFile)}`;
+          const currentFrameTarget = currentFrameFile + frameLocation.hash;
+          if (currentFrameFile && currentFrameTarget !== requestedFile()) {
+            location.hash = `#note=${encodeURIComponent(currentFrameTarget)}`;
           }
         } catch (_) {}
       }
