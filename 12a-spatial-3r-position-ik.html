@@ -7,12 +7,31 @@
   <style>
     :root{--bg:#080e1c;--panel:#111c30;--line:#30415d;--text:#edf5ff;--muted:#a5b8d3;--blue:#58c7ff;--yellow:#ffc44b;--green:#45dbb0;--pink:#ff75b9;--violet:#b7a0ff;--bad:#ff8b98}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1180px;margin:auto;padding:28px 20px 80px}h1,h2,h3{line-height:1.3}h1{font-size:clamp(1.8rem,3vw,2.5rem);margin:.4rem 0}h2{margin:2.4rem 0 .8rem;border-bottom:1px solid var(--line);padding-bottom:.4rem}h3{margin:.2rem 0 .6rem}a{color:var(--blue)}p{margin:.7rem 0}.muted{color:var(--muted)}.lead{font-size:1.08rem}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:15px 0}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.callout{border-left:5px solid var(--blue)}.warning{border-left:5px solid var(--yellow)}.stage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.view{background:#060d19;border:1px solid var(--line);border-radius:10px;overflow:hidden}.view h3{font-size:1rem;margin:0;padding:10px 13px;background:#0d1b30}.view svg{display:block;width:100%;height:auto;touch-action:none;user-select:none}.view .hint{padding:6px 12px;color:var(--muted);font-size:.86rem}.axes{stroke:#647b9e;stroke-width:2}.gridline{stroke:#263a55;stroke-width:1;stroke-dasharray:5 5}.guide{stroke:var(--violet);stroke-width:1.5;stroke-dasharray:5 5}.zero{stroke:#69819e;stroke-width:5;stroke-dasharray:6 6;opacity:.6}.arm1{stroke:var(--yellow);stroke-width:10;stroke-linecap:round}.arm2{stroke:var(--green);stroke-width:9;stroke-linecap:round}.joint{fill:var(--blue);stroke:#06101e;stroke-width:2}.elbow{fill:var(--yellow);stroke:#06101e;stroke-width:2}.target{fill:var(--pink);stroke:white;stroke-width:2;cursor:grab}.target:active{cursor:grabbing}.arc{fill:none;stroke:var(--violet);stroke-width:2}.axis-label{fill:var(--muted);font-size:16px}.label{fill:var(--text);font-size:15px}.angle-label{fill:var(--violet);font-size:16px;font-weight:700}.part-label{fill:var(--yellow);font-size:16px;font-weight:700}.tool-label{fill:var(--pink);font-size:16px}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.controls label{display:block;color:var(--muted);font-size:.88rem}.controls input{width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#07101f;color:var(--text);font:inherit}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.row label{padding:6px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}.row button{padding:7px 12px;border:1px solid var(--blue);border-radius:7px;background:#10314b;color:var(--text);font:inherit;cursor:pointer}.readout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.datum{padding:10px 12px;background:#081326;border-radius:8px}.datum b{display:block;color:var(--muted);font-size:.82rem}.datum span{font:600 .98rem/1.5 ui-monospace,Consolas,monospace}.status{border-radius:8px;padding:9px 12px;background:#103126;color:#b5ffdb}.status.bad{background:#3c1c29;color:#ffd0d6}.formula{overflow:auto;background:#07101e;border:1px solid var(--line);border-radius:8px;padding:11px 14px;font:15px/1.7 ui-monospace,Consolas,monospace;white-space:nowrap}.steps{padding-left:1.5rem}.steps li{margin:.5rem 0}.mini{font-size:.88rem;color:var(--muted)}@media(max-width:800px){main{padding:18px 12px 70px}.two,.stage,.readout{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}}
+    .prereq{border-left:5px solid var(--violet)}
+    .prereq-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
+    .prereq-list a{display:block;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#081326;text-decoration:none}
+    .prereq-list a:hover,.prereq-list a:focus-visible{border-color:var(--blue);background:#12314a}
+    .prereq-list strong{display:block;color:var(--text)}
+    .prereq-list small{display:block;color:var(--muted);line-height:1.5}
+    .prereq-tag{color:var(--violet);font-size:.82rem;font-weight:700}
+    @media(max-width:800px){.prereq-list{grid-template-columns:1fr}}
   </style>
 </head>
 <body><main>
   <p class="mini"><a href="12-planar-two-link-inverse-kinematics.html">← 12 二维两连杆逆运动学</a> · <a href="ros2/04-3r-analytic-ik.html">接着看 ROS2-04 的具体 URDF →</a></p>
   <h1>12a 空间 3R：先选方位，再解肩肘</h1>
   <p class="lead">你已经会解平面两连杆。现在只增加一个绕竖直轴转的底座关节，就能把三维目标的位置问题拆成两个你看得见的步骤。</p>
+  <section class="card prereq" aria-label="前置知识跳转">
+    <h2 style="margin:0;border:0;padding:0">看不懂时，先复习这几讲</h2>
+    <p class="mini">按顺序看前三项就能接上本课；第 05 讲只在“绕 Z 轴转”不直观时补看。点击章节会在右侧阅读区打开，读完用浏览器后退回到这里。</p>
+    <nav class="prereq-list" aria-label="前置知识章节">
+      <a href="01-coordinate-frames.html"><span class="prereq-tag">① 必看</span><strong>01 坐标系中的点</strong><small>弄清目标 (x,y,z) 是相对底座量的。</small></a>
+      <a href="04-planar-two-link-forward-kinematics.html"><span class="prereq-tag">② 必看</span><strong>04 二维两连杆正运动学</strong><small>复习定长连杆转动后，水平与竖直分量怎么来。</small></a>
+      <a href="12-planar-two-link-inverse-kinematics.html"><span class="prereq-tag">③ 必看</span><strong>12 二维两连杆逆运动学</strong><small>重点看 atan2、余弦定理和两支肘部解。</small></a>
+      <a href="05-3d-single-axis-rotations.html"><span class="prereq-tag">按需补看</span><strong>05 三维单轴旋转</strong><small>如果不明白底座绕竖直 Z 轴转，再看这一讲。</small></a>
+    </nav>
+    <p class="mini"><strong>先防两个同名陷阱：</strong>旧二维课的 q1/q2 是肩/肘；本课的 q1/q2/q3 是底座/肩/肘。旧课的 r 是平面内基座到目标的距离；本课的 r 只是 XY 水平距离，肩到目标的距离另记 s=√(r²+h²)。</p>
+  </section>
   <div class="card callout"><strong>先认清 3R：</strong>R = Revolute（转动关节），这里是 <strong>3 个转动自由度</strong>，不是“三根杆”。下图讨论的是一种特定的“底座偏航 + 肩部俯仰 + 肘部俯仰”结构；别的 3R 构型未必能直接套用这些公式。本课只指定末端<strong>位置</strong>，不要求末端同时达到任意姿态。</div>
 
   <h2>1. 先在同一个目标点上认两个视图</h2>
