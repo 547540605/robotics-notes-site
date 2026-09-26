@@ -440,6 +440,9 @@
       写成 <span data-tex="{}^A P = [p_x, p_y, p_z]^T"></span>，表示“点 P 的空间位置，用 A 坐标系的分量来写”。
     </div>
     <p>本页先假设 A 与 B 的原点重合。以后原点不重合时，再额外加入平移。</p>
+    <div class="card" style="border-left:4px solid var(--accent)">
+      <strong>和 ROS 2 怎么对应？</strong>教材写 <span data-tex="{}^{base\_link}P=[0.4,\ 0.2,\ 0.6]^T"></span>，是在说“点 P 的这三个数由 <code>base_link</code> 坐标系量出”。ROS 2 的 <code>PointStamped</code> 通常把同一层意思拆开写：<code>header.frame_id = "base_link"</code> 指明参考坐标系，<code>point.x/y/z = 0.4/0.2/0.6</code> 保存坐标值。<code>frame_id</code> 不是点的名字；只有三个数、没有参考坐标系，就不能安全地和其他坐标系的点混用。这里先认对应关系，跨坐标系转换与时间戳留到 <a href="ros2/10-tf2-workcell-frames.html">ROS2-10：TF2 工位坐标</a>再学。
+    </div>
 
     <h2>交互图：用 B 的两根轴拼出点 P</h2>
     <div class="visual">
