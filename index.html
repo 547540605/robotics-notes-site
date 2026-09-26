@@ -201,7 +201,11 @@
 
       function syncReaderHash() {
         try {
-          const currentFrameFile = reader.contentWindow.location.pathname.split('/').pop();
+          const frameLocation = reader.contentWindow.location;
+          if (frameLocation.origin !== location.origin) return;
+          const basePath = new URL('.', location.href).pathname;
+          if (!frameLocation.pathname.startsWith(basePath)) return;
+          const currentFrameFile = decodeURIComponent(frameLocation.pathname.slice(basePath.length));
           if (currentFrameFile && currentFrameFile !== requestedFile()) {
             location.hash = `#note=${encodeURIComponent(currentFrameFile)}`;
           }
