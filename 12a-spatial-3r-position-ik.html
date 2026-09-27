@@ -7,6 +7,7 @@
   <style>
     :root{--bg:#080e1c;--panel:#111c30;--line:#30415d;--text:#edf5ff;--muted:#a5b8d3;--blue:#58c7ff;--yellow:#ffc44b;--green:#45dbb0;--pink:#ff75b9;--violet:#b7a0ff;--bad:#ff8b98}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1180px;margin:auto;padding:28px 20px 80px}h1,h2,h3{line-height:1.3}h1{font-size:clamp(1.8rem,3vw,2.5rem);margin:.4rem 0}h2{margin:2.4rem 0 .8rem;border-bottom:1px solid var(--line);padding-bottom:.4rem}h3{margin:.2rem 0 .6rem}a{color:var(--blue)}p{margin:.7rem 0}.muted{color:var(--muted)}.lead{font-size:1.08rem}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:15px 0}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.callout{border-left:5px solid var(--blue)}.warning{border-left:5px solid var(--yellow)}.stage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.view{background:#060d19;border:1px solid var(--line);border-radius:10px;overflow:hidden}.view h3{font-size:1rem;margin:0;padding:10px 13px;background:#0d1b30}.view svg{display:block;width:100%;height:auto;touch-action:none;user-select:none}.view .hint{padding:6px 12px;color:var(--muted);font-size:.86rem}.axes{stroke:#647b9e;stroke-width:2}.gridline{stroke:#263a55;stroke-width:1;stroke-dasharray:5 5}.guide{stroke:var(--violet);stroke-width:1.5;stroke-dasharray:5 5}.zero{stroke:#69819e;stroke-width:5;stroke-dasharray:6 6;opacity:.6}.arm1{stroke:var(--yellow);stroke-width:10;stroke-linecap:round}.arm2{stroke:var(--green);stroke-width:9;stroke-linecap:round}.joint{fill:var(--blue);stroke:#06101e;stroke-width:2}.elbow{fill:var(--yellow);stroke:#06101e;stroke-width:2}.target{fill:var(--pink);stroke:white;stroke-width:2;cursor:grab}.target:active{cursor:grabbing}.arc{fill:none;stroke:var(--violet);stroke-width:2}.axis-label{fill:var(--muted);font-size:16px}.label{fill:var(--text);font-size:15px}.angle-label{fill:var(--violet);font-size:16px;font-weight:700}.part-label{fill:var(--yellow);font-size:16px;font-weight:700}.tool-label{fill:var(--pink);font-size:16px}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.controls label{display:block;color:var(--muted);font-size:.88rem}.controls input{width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#07101f;color:var(--text);font:inherit}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.row label{padding:6px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}.row button{padding:7px 12px;border:1px solid var(--blue);border-radius:7px;background:#10314b;color:var(--text);font:inherit;cursor:pointer}.readout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.datum{padding:10px 12px;background:#081326;border-radius:8px}.datum b{display:block;color:var(--muted);font-size:.82rem}.datum span{font:600 .98rem/1.5 ui-monospace,Consolas,monospace}.status{border-radius:8px;padding:9px 12px;background:#103126;color:#b5ffdb}.status.bad{background:#3c1c29;color:#ffd0d6}.formula{overflow:auto;background:#07101e;border:1px solid var(--line);border-radius:8px;padding:11px 14px;font:15px/1.7 ui-monospace,Consolas,monospace;white-space:nowrap}.steps{padding-left:1.5rem}.steps li{margin:.5rem 0}.mini{font-size:.88rem;color:var(--muted)}@media(max-width:800px){main{padding:18px 12px 70px}.two,.stage,.readout{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}}
+    .arc-q2{stroke:#fbbf24;stroke-width:3}.arc-q3{stroke:#67e8f9;stroke-width:3}.angle-label{font-size:19px;paint-order:stroke fill;stroke:#060d19;stroke-width:5px;stroke-linejoin:round}.angle-q2{fill:#fbbf24}.angle-q3{fill:#67e8f9}.angle-ref{stroke:#67e8f9;stroke-width:1.7;stroke-dasharray:5 5;opacity:.85}.angle-key{display:grid;gap:6px;padding:8px 12px}.angle-key div{background:#102036;border-radius:6px;padding:5px 9px;border-left:4px solid var(--violet);font-size:.9rem;line-height:1.45}.angle-key b{font-size:1rem}.angle-key .q2{border-color:#fbbf24}.angle-key .q3{border-color:#67e8f9}.angle-key .q2 b{color:#fbbf24}.angle-key .q3 b{color:#67e8f9}.angle-key .q1 b{color:var(--violet)}
     .prereq{border-left:5px solid var(--violet)}
     .prereq-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
     .prereq-list a{display:block;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#081326;text-decoration:none}
@@ -48,26 +49,26 @@
           <circle id="top-target" class="target" r="12" tabindex="0" aria-label="俯视目标点，可拖动"/>
           <text x="246" y="252" class="label">底座</text><text id="top-q1" class="angle-label" x="281" y="198">q1</text>
           <text id="top-target-label" class="tool-label">目标 (x,y)</text>
-        </svg><div class="hint">拖粉色点改 x、y；灰色横线是全局 +X，紫色弧才是 q1。</div>
+        </svg><div class="angle-key"><div class="q1"><b id="top-q1-value">q1</b>　底座角：从灰色 +X 轴转到目标方位（紫弧）</div></div><div class="hint">俯视只看水平投影：黄、绿杆看起来短，不代表实际杆长变短。拖粉点可改 x、y。</div>
       </div>
       <div class="view"><h3>肩部剖面 r–h：看 q2、q3 和零位</h3>
         <svg id="side-view" viewBox="0 0 480 420" role="img" aria-label="肩肘平面、零位参考和目标位置">
           <line class="axes" x1="105" y1="390" x2="105" y2="30"/><line class="axes" x1="55" y1="340" x2="448" y2="340"/>
           <text class="axis-label" x="112" y="33">+Z</text><text class="axis-label" x="444" y="330">+r</text>
-          <line class="zero" x1="105" y1="285" x2="105" y2="87"/><text class="axis-label" x="115" y="91">虚线：q2=q3=0</text>
+          <line class="zero" x1="105" y1="285" x2="105" y2="87"/><text class="axis-label" x="292" y="52">灰虚线：零位</text>
           <line id="side-r" class="guide"/><line id="side-h" class="guide"/>
-          <path id="side-q2-arc" class="arc"/><path id="side-q3-arc" class="arc"/>
+          <line id="side-q3-ref" class="angle-ref"/><path id="side-q2-arc" class="arc arc-q2"/><path id="side-q3-arc" class="arc arc-q3"/>
           <line id="side-arm1" class="arm1"/><line id="side-arm2" class="arm2"/>
           <circle cx="105" cy="340" r="7" class="joint"/><circle cx="105" cy="285" r="9" class="joint"/><circle id="side-elbow" r="8" class="elbow"/>
           <circle id="side-target" class="target" r="12" tabindex="0" aria-label="剖面目标点，可拖动"/>
           <text x="115" y="359" class="label">base</text><text x="116" y="278" class="label">肩</text><text x="65" y="318" class="axis-label">d</text>
           <text id="side-l1" class="part-label">L1</text><text id="side-l2" class="part-label" style="fill:var(--green)">L2</text>
-          <text id="side-q2" class="angle-label">q2</text><text id="side-q3" class="angle-label">q3</text>
+          <text id="side-q2" class="angle-label angle-q2">q2</text><text id="side-q3" class="angle-label angle-q3">q3</text>
           <text id="side-r-label" class="angle-label">r</text><text id="side-h-label" class="angle-label">h</text>
-        </svg><div class="hint">拖粉色点改 r、h；灰色虚线是两杆竖直向上的零位，不是当前姿态。</div>
+        </svg><div class="angle-key"><div class="q2"><b id="side-q2-value">q2</b>　肩角：竖直零位 → 黄杆（黄弧）</div><div class="q3"><b id="side-q3-value">q3</b>　肘角：黄杆延长虚线 → 绿杆（青弧）</div></div><div class="hint">拖粉色点改 r、h；灰色竖虚线是两杆的零位。</div>
       </div>
     </div>
-    <p class="mini">可用鼠标或触屏拖动目标；也可直接输入坐标。图按下面的示例长度计算，非绘图软件里的随意折线。</p>
+    <p class="mini">可用鼠标或触屏拖动目标，也可直接输入坐标。两图为各自角度独立取景，别按屏幕像素比较杆长；真实长度是固定的 L1、L2，右图按示例长度绘制。</p>
     <div class="controls">
       <label>x（m）<input id="x" type="number" min="-0.9" max="0.9" step="0.01" value="0.41"></label>
       <label>y（m）<input id="y" type="number" min="-0.9" max="0.9" step="0.01" value="0.29"></label>
@@ -103,7 +104,7 @@
 </main>
 <script>
 (() => {
-  const d=.25, l1=.50, l2=.40, scale=220, topOrigin={x:240,y:230}, shoulder={x:105,y:285};
+  const d=.25, l1=.50, l2=.40, topScale=220, sideScale=300, topOrigin={x:240,y:230}, shoulder={x:105,y:285};
   const $=id=>document.getElementById(id);
   const inputs=[$('x'),$('y'),$('z')];
   const fmt=n=>Number.isFinite(n)?n.toFixed(3):'—';
@@ -111,8 +112,8 @@
   const setLine=(id,x1,y1,x2,y2)=>{const e=$(id);for(const [k,v] of Object.entries({x1,y1,x2,y2}))e.setAttribute(k,String(v));};
   const setCircle=(id,x,y)=>{const e=$(id);e.setAttribute('cx',String(x));e.setAttribute('cy',String(y));};
   const setText=(id,x,y,value)=>{const e=$(id);e.setAttribute('x',String(x));e.setAttribute('y',String(y));e.textContent=value;};
-  const top=(x,y)=>({x:topOrigin.x+scale*x,y:topOrigin.y-scale*y});
-  const side=(r,h)=>({x:shoulder.x+scale*r,y:shoulder.y-scale*h});
+  const top=(x,y)=>({x:topOrigin.x+topScale*x,y:topOrigin.y-topScale*y});
+  const side=(r,h)=>({x:shoulder.x+sideScale*r,y:shoulder.y-sideScale*h});
   const anglePoint=(origin,radius,angle)=>({x:origin.x+radius*Math.sin(angle),y:origin.y-radius*Math.cos(angle)});
   const angleArc=(origin,radius,from,to)=>{const a=anglePoint(origin,radius,from),b=anglePoint(origin,radius,to),delta=to-from;return `M ${a.x} ${a.y} A ${radius} ${radius} 0 ${Math.abs(delta)>Math.PI?1:0} ${delta>=0?1:0} ${b.x} ${b.y}`;};
   const branch=()=>document.querySelector('input[name="branch"]:checked').value;
@@ -130,14 +131,16 @@
     setText('side-h-label',v.x+12,(shoulder.y+v.y)/2,'h');
     $('xyz').textContent=`(${fmt(x)}, ${fmt(y)}, ${fmt(z)}) m`;
     $('rh').textContent=`r=${fmt(r)}, h=z−d=${fmt(h)} m`;
-    const q1R=Math.max(25,Math.min(r*scale*.65,55)),arcEnd={x:topOrigin.x+q1R*Math.cos(q1),y:topOrigin.y-q1R*Math.sin(q1)};
+    const q1R=Math.max(34,Math.min(r*topScale*.65,60)),arcEnd={x:topOrigin.x+q1R*Math.cos(q1),y:topOrigin.y-q1R*Math.sin(q1)};
     $('top-arc').setAttribute('d',`M ${topOrigin.x+q1R} ${topOrigin.y} A ${q1R} ${q1R} 0 0 ${q1>=0?0:1} ${arcEnd.x} ${arcEnd.y}`);
-    setText('top-q1',topOrigin.x+q1R+7,topOrigin.y-10,`q1=${degrees(q1)}`);
+    setText('top-q1',topOrigin.x+27,topOrigin.y+(q1>=0?-68:75),'q1');
+    $('top-q1-value').textContent=`q1=${degrees(q1)}`;
     const ok=r>1e-8&&s>=Math.abs(l1-l2)-1e-9&&s<=l1+l2+1e-9;
-    for(const id of ['top-arm1','top-arm2','side-arm1','side-arm2','top-elbow','side-elbow','side-l1','side-l2','side-q2','side-q3','side-q2-arc','side-q3-arc'])$(id).style.visibility=ok?'visible':'hidden';
+    for(const id of ['top-arm1','top-arm2','side-arm1','side-arm2','top-elbow','side-elbow','side-l1','side-l2','side-q2','side-q3','side-q2-arc','side-q3-arc','side-q3-ref'])$(id).style.visibility=ok?'visible':'hidden';
     const status=$('status');status.classList.toggle('bad',!ok);
     if(!ok){
       status.textContent=r<=1e-8?'目标在底座 Z 轴上：q1 不唯一；请稍微拖离中心。':`肩到目标距离 ${fmt(s)} m，不在 [${fmt(Math.abs(l1-l2))}, ${fmt(l1+l2)}] m 内：几何不可达。`;
+      $('side-q2-value').textContent='q2=—';$('side-q3-value').textContent='q3=—';
       $('angles').textContent='无唯一可画候选';$('fk').textContent='—';return;
     }
     const c3=Math.max(-1,Math.min(1,(r*r+h*h-l1*l1-l2*l2)/(2*l1*l2)));
@@ -149,12 +152,16 @@
     setLine('top-arm1',topOrigin.x,topOrigin.y,et.x,et.y);
     setLine('top-arm2',et.x,et.y,t.x,t.y);
     setCircle('side-elbow',elbow.x,elbow.y);setCircle('top-elbow',et.x,et.y);
-    $('side-q2-arc').setAttribute('d',angleArc(shoulder,29,0,q2));
-    $('side-q3-arc').setAttribute('d',angleArc(elbow,28,q2,q2+q3));
+    $('side-q2-arc').setAttribute('d',angleArc(shoulder,42,0,q2));
+    $('side-q3-arc').setAttribute('d',angleArc(elbow,42,q2,q2+q3));
+    const q3Ref=anglePoint(elbow,78,q2);
+    setLine('side-q3-ref',elbow.x,elbow.y,q3Ref.x,q3Ref.y);
     setText('side-l1',(shoulder.x+elbow.x)/2-30,(shoulder.y+elbow.y)/2,'L1');
     setText('side-l2',(elbow.x+v.x)/2+4,(elbow.y+v.y)/2-10,'L2');
-    setText('side-q2',shoulder.x+17,shoulder.y-32,`q2=${degrees(q2)}`);
-    setText('side-q3',Math.min(elbow.x+12,327),elbow.y+28,`q3=${degrees(q3)}`);
+    setText('side-q2',shoulder.x-48,shoulder.y-28,'q2');
+    setText('side-q3',Math.min(elbow.x+30,432),Math.min(elbow.y+52,400),'q3');
+    $('side-q2-value').textContent=`q2=${degrees(q2)}`;
+    $('side-q3-value').textContent=`q3=${degrees(q3)}`;
     const rho=l1*Math.sin(q2)+l2*Math.sin(q2+q3);
     const fk=[rho*Math.cos(q1),rho*Math.sin(q1),d+l1*Math.cos(q2)+l2*Math.cos(q2+q3)];
     const error=Math.hypot(fk[0]-x,fk[1]-y,fk[2]-z);
@@ -173,8 +180,8 @@
     target.addEventListener('pointerup',()=>{active=false;});
     target.addEventListener('pointercancel',()=>{active=false;});
   }
-  draggable('top-view',p=>{inputs[0].value=((p.x-topOrigin.x)/scale).toFixed(3);inputs[1].value=((topOrigin.y-p.y)/scale).toFixed(3);});
-  draggable('side-view',p=>{const r=Math.max(0,(p.x-shoulder.x)/scale),h=(shoulder.y-p.y)/scale,angle=Math.atan2(Number(inputs[1].value),Number(inputs[0].value));inputs[0].value=(r*Math.cos(angle)).toFixed(3);inputs[1].value=(r*Math.sin(angle)).toFixed(3);inputs[2].value=(h+d).toFixed(3);});
+  draggable('top-view',p=>{inputs[0].value=((p.x-topOrigin.x)/topScale).toFixed(3);inputs[1].value=((topOrigin.y-p.y)/topScale).toFixed(3);});
+  draggable('side-view',p=>{const r=Math.max(0,(p.x-shoulder.x)/sideScale),h=(shoulder.y-p.y)/sideScale,angle=Math.atan2(Number(inputs[1].value),Number(inputs[0].value));inputs[0].value=(r*Math.cos(angle)).toFixed(3);inputs[1].value=(r*Math.sin(angle)).toFixed(3);inputs[2].value=(h+d).toFixed(3);});
   render();
 })();
 </script>
