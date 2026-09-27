@@ -7,7 +7,7 @@
   <style>
     :root{--bg:#080e1c;--panel:#111c30;--line:#30415d;--text:#edf5ff;--muted:#a5b8d3;--blue:#58c7ff;--yellow:#ffc44b;--green:#45dbb0;--pink:#ff75b9;--violet:#b7a0ff;--bad:#ff8b98}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1180px;margin:auto;padding:28px 20px 80px}h1,h2,h3{line-height:1.3}h1{font-size:clamp(1.8rem,3vw,2.5rem);margin:.4rem 0}h2{margin:2.4rem 0 .8rem;border-bottom:1px solid var(--line);padding-bottom:.4rem}h3{margin:.2rem 0 .6rem}a{color:var(--blue)}p{margin:.7rem 0}.muted{color:var(--muted)}.lead{font-size:1.08rem}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:15px 0}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.callout{border-left:5px solid var(--blue)}.warning{border-left:5px solid var(--yellow)}.stage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.view{background:#060d19;border:1px solid var(--line);border-radius:10px;overflow:hidden}.view h3{font-size:1rem;margin:0;padding:10px 13px;background:#0d1b30}.view svg{display:block;width:100%;height:auto;touch-action:none;user-select:none}.view .hint{padding:6px 12px;color:var(--muted);font-size:.86rem}.axes{stroke:#647b9e;stroke-width:2}.gridline{stroke:#263a55;stroke-width:1;stroke-dasharray:5 5}.guide{stroke:var(--violet);stroke-width:1.5;stroke-dasharray:5 5}.zero{stroke:#69819e;stroke-width:5;stroke-dasharray:6 6;opacity:.6}.arm1{stroke:var(--yellow);stroke-width:10;stroke-linecap:round}.arm2{stroke:var(--green);stroke-width:9;stroke-linecap:round}.joint{fill:var(--blue);stroke:#06101e;stroke-width:2}.elbow{fill:var(--yellow);stroke:#06101e;stroke-width:2}.target{fill:var(--pink);stroke:white;stroke-width:2;cursor:grab}.target:active{cursor:grabbing}.arc{fill:none;stroke:var(--violet);stroke-width:2}.axis-label{fill:var(--muted);font-size:16px}.label{fill:var(--text);font-size:15px}.angle-label{fill:var(--violet);font-size:16px;font-weight:700}.part-label{fill:var(--yellow);font-size:16px;font-weight:700}.tool-label{fill:var(--pink);font-size:16px}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.controls label{display:block;color:var(--muted);font-size:.88rem}.controls input{width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#07101f;color:var(--text);font:inherit}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.row label{padding:6px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}.row button{padding:7px 12px;border:1px solid var(--blue);border-radius:7px;background:#10314b;color:var(--text);font:inherit;cursor:pointer}.readout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.datum{padding:10px 12px;background:#081326;border-radius:8px}.datum b{display:block;color:var(--muted);font-size:.82rem}.datum span{font:600 .98rem/1.5 ui-monospace,Consolas,monospace}.status{border-radius:8px;padding:9px 12px;background:#103126;color:#b5ffdb}.status.bad{background:#3c1c29;color:#ffd0d6}.formula{overflow:auto;background:#07101e;border:1px solid var(--line);border-radius:8px;padding:11px 14px;font:15px/1.7 ui-monospace,Consolas,monospace;white-space:nowrap}.steps{padding-left:1.5rem}.steps li{margin:.5rem 0}.mini{font-size:.88rem;color:var(--muted)}@media(max-width:800px){main{padding:18px 12px 70px}.two,.stage,.readout{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}}
-    .arc-q2{stroke:#fbbf24;stroke-width:3}.arc-q3{stroke:#67e8f9;stroke-width:3}.angle-label{font-size:19px;paint-order:stroke fill;stroke:#060d19;stroke-width:5px;stroke-linejoin:round}.angle-q2{fill:#fbbf24}.angle-q3{fill:#67e8f9}.angle-ref{stroke:#67e8f9;stroke-width:1.7;stroke-dasharray:5 5;opacity:.85}.angle-key{display:grid;gap:6px;padding:8px 12px}.angle-key div{background:#102036;border-radius:6px;padding:5px 9px;border-left:4px solid var(--violet);font-size:.9rem;line-height:1.45}.angle-key b{font-size:1rem}.angle-key .q2{border-color:#fbbf24}.angle-key .q3{border-color:#67e8f9}.angle-key .q2 b{color:#fbbf24}.angle-key .q3 b{color:#67e8f9}.angle-key .q1 b{color:var(--violet)}
+    .arc-q2{stroke:#fbbf24;stroke-width:3}.arc-q3{stroke:#67e8f9;stroke-width:3}.angle-label{font-size:19px;paint-order:stroke fill;stroke:#060d19;stroke-width:5px;stroke-linejoin:round}.angle-q2{fill:#fbbf24}.angle-q3{fill:#67e8f9}.angle-ref{stroke:#67e8f9;stroke-width:1.7;stroke-dasharray:5 5;opacity:.85}.reach-line{stroke:var(--muted);stroke-width:2;stroke-dasharray:6 5;opacity:.9;pointer-events:none}.angle-key{display:grid;gap:6px;padding:8px 12px}.angle-key div{background:#102036;border-radius:6px;padding:5px 9px;border-left:4px solid var(--violet);font-size:.9rem;line-height:1.45}.angle-key b{font-size:1rem}.angle-key .q2{border-color:#fbbf24}.angle-key .q3{border-color:#67e8f9}.angle-key .q2 b{color:#fbbf24}.angle-key .q3 b{color:#67e8f9}.angle-key .q1 b{color:var(--violet)}
     .prereq{border-left:5px solid var(--violet)}
     .prereq-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
     .prereq-list a{display:block;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#081326;text-decoration:none}
@@ -52,12 +52,13 @@
         </svg><div class="angle-key"><div class="q1"><b id="top-q1-value">q1</b>　底座角：从灰色 +X 轴转到目标方位（紫弧）</div></div><div class="hint">俯视只看水平投影：黄、绿杆看起来短，不代表实际杆长变短。拖粉点可改 x、y。</div>
       </div>
       <div class="view"><h3>肩部剖面 r–h：看 q2、q3 和零位</h3>
-        <svg id="side-view" viewBox="0 0 480 420" role="img" aria-label="肩肘平面、零位参考和目标位置">
+        <svg id="side-view" viewBox="0 0 480 420" role="img" aria-label="肩肘平面、肩到目标的虚线距离 s、零位参考和目标位置">
           <line class="axes" x1="105" y1="390" x2="105" y2="30"/><line class="axes" x1="55" y1="340" x2="448" y2="340"/>
           <text class="axis-label" x="112" y="33">+Z</text><text class="axis-label" x="444" y="330">+r</text>
           <line class="zero" x1="105" y1="285" x2="105" y2="87"/><text class="axis-label" x="292" y="52">灰虚线：零位</text>
           <text class="axis-label" x="292" y="77">⊗ +Y 入屏幕</text>
           <line id="side-r" class="guide"/><line id="side-h" class="guide"/>
+          <line id="side-s" class="reach-line"/>
           <line id="side-q3-ref" class="angle-ref"/><path id="side-q2-arc" class="arc arc-q2"/><path id="side-q3-arc" class="arc arc-q3"/>
           <line id="side-arm1" class="arm1"/><line id="side-arm2" class="arm2"/>
           <circle cx="105" cy="340" r="7" class="joint"/><circle cx="105" cy="285" r="9" class="joint"/><circle id="side-elbow" r="8" class="elbow"/>
@@ -65,8 +66,8 @@
           <text x="115" y="359" class="label">base</text><text x="116" y="278" class="label">肩</text><text x="65" y="318" class="axis-label">d</text>
           <text id="side-l1" class="part-label">L1</text><text id="side-l2" class="part-label" style="fill:var(--green)">L2</text>
           <text id="side-q2" class="angle-label angle-q2">q2</text><text id="side-q3" class="angle-label angle-q3">q3</text>
-          <text id="side-r-label" class="angle-label">r</text><text id="side-h-label" class="angle-label">h</text>
-        </svg><div class="angle-key"><div class="q2"><b id="side-q2-value">q2</b>　肩角：竖直零位 → 黄杆（黄弧）</div><div class="q3"><b id="side-q3-value">q3</b>　肘角：黄杆延长虚线 → 绿杆（青弧）</div></div><div class="hint">拖粉色点改 r、h；灰色竖虚线是两杆的零位。⊗ 表示局部 +Y 指向屏幕内：从正面看顺时针弯，绕 +Y 仍可为正角。<a href="05-3d-single-axis-rotations.html#rotation-y-viewpoint">看 05 的右手定则解释 →</a></div>
+          <text id="side-r-label" class="angle-label">r</text><text id="side-h-label" class="angle-label">h</text><text id="side-s-label" class="axis-label">s</text>
+        </svg><div class="angle-key"><div class="q2"><b id="side-q2-value">q2</b>　肩角：竖直零位 → 黄杆（黄弧）</div><div class="q3"><b id="side-q3-value">q3</b>　肘角：黄杆延长虚线 → 绿杆（青弧）</div></div><div class="hint">拖粉色点改 r、h；斜灰虚线 s 是肩到目标的距离，不是真实连杆；竖灰虚线是两杆的零位。⊗ 表示局部 +Y 指向屏幕内：从正面看顺时针弯，绕 +Y 仍可为正角。<a href="05-3d-single-axis-rotations.html#rotation-y-viewpoint">看 05 的右手定则解释 →</a></div>
       </div>
     </div>
     <p class="mini">可用鼠标或触屏拖动目标，也可直接输入坐标。两图为各自角度独立取景，别按屏幕像素比较杆长；真实长度是固定的 L1、L2，右图按示例长度绘制。</p>
@@ -128,8 +129,11 @@
     setLine('top-ray',topOrigin.x,topOrigin.y,t.x,t.y);
     setLine('side-r',shoulder.x,shoulder.y,v.x,shoulder.y);
     setLine('side-h',v.x,shoulder.y,v.x,v.y);
+    setLine('side-s',shoulder.x,shoulder.y,v.x,v.y);
     setText('side-r-label',(shoulder.x+v.x)/2,shoulder.y+20,'r');
     setText('side-h-label',v.x+12,(shoulder.y+v.y)/2,'h');
+    const sx=v.x-shoulder.x,sy=v.y-shoulder.y,sPixels=Math.hypot(sx,sy)||1;
+    setText('side-s-label',(shoulder.x+v.x)/2+12*sy/sPixels,(shoulder.y+v.y)/2-12*sx/sPixels,'s');
     $('xyz').textContent=`(${fmt(x)}, ${fmt(y)}, ${fmt(z)}) m`;
     $('rh').textContent=`r=${fmt(r)}, h=z−d=${fmt(h)} m`;
     const q1R=Math.max(34,Math.min(r*topScale*.65,60)),arcEnd={x:topOrigin.x+q1R*Math.cos(q1),y:topOrigin.y-q1R*Math.sin(q1)};
