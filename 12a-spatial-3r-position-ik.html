@@ -29,7 +29,7 @@
       <a href="01-coordinate-frames.html"><span class="prereq-tag">① 必看</span><strong>01 坐标系中的点</strong><small>弄清目标 (x,y,z) 是相对底座量的。</small></a>
       <a href="04-planar-two-link-forward-kinematics.html"><span class="prereq-tag">② 必看</span><strong>04 二维两连杆正运动学</strong><small>复习定长连杆转动后，水平与竖直分量怎么来。</small></a>
       <a href="12-planar-two-link-inverse-kinematics.html"><span class="prereq-tag">③ 必看</span><strong>12 二维两连杆逆运动学</strong><small>重点看 atan2、余弦定理和两支肘部解。</small></a>
-      <a href="05-3d-single-axis-rotations.html"><span class="prereq-tag">按需补看</span><strong>05 三维单轴旋转</strong><small>如果不明白底座绕竖直 Z 轴转，再看这一讲。</small></a>
+      <a href="05-3d-single-axis-rotations.html#rotation-y-viewpoint"><span class="prereq-tag">按需补看</span><strong>05 三维单轴旋转</strong><small>正负角看不懂？重点看绕 Y 轴时观察方向怎么影响纸面顺逆。</small></a>
     </nav>
     <p class="mini"><strong>先防两个同名陷阱：</strong>旧二维课的 q1/q2 是肩/肘；本课的 q1/q2/q3 是底座/肩/肘。旧课的 r 是平面内基座到目标的距离；本课的 r 只是 XY 水平距离，肩到目标的距离另记 s=√(r²+h²)。</p>
   </section>
@@ -56,6 +56,7 @@
           <line class="axes" x1="105" y1="390" x2="105" y2="30"/><line class="axes" x1="55" y1="340" x2="448" y2="340"/>
           <text class="axis-label" x="112" y="33">+Z</text><text class="axis-label" x="444" y="330">+r</text>
           <line class="zero" x1="105" y1="285" x2="105" y2="87"/><text class="axis-label" x="292" y="52">灰虚线：零位</text>
+          <text class="axis-label" x="292" y="77">⊗ +Y 入屏幕</text>
           <line id="side-r" class="guide"/><line id="side-h" class="guide"/>
           <line id="side-q3-ref" class="angle-ref"/><path id="side-q2-arc" class="arc arc-q2"/><path id="side-q3-arc" class="arc arc-q3"/>
           <line id="side-arm1" class="arm1"/><line id="side-arm2" class="arm2"/>
@@ -65,7 +66,7 @@
           <text id="side-l1" class="part-label">L1</text><text id="side-l2" class="part-label" style="fill:var(--green)">L2</text>
           <text id="side-q2" class="angle-label angle-q2">q2</text><text id="side-q3" class="angle-label angle-q3">q3</text>
           <text id="side-r-label" class="angle-label">r</text><text id="side-h-label" class="angle-label">h</text>
-        </svg><div class="angle-key"><div class="q2"><b id="side-q2-value">q2</b>　肩角：竖直零位 → 黄杆（黄弧）</div><div class="q3"><b id="side-q3-value">q3</b>　肘角：黄杆延长虚线 → 绿杆（青弧）</div></div><div class="hint">拖粉色点改 r、h；灰色竖虚线是两杆的零位。</div>
+        </svg><div class="angle-key"><div class="q2"><b id="side-q2-value">q2</b>　肩角：竖直零位 → 黄杆（黄弧）</div><div class="q3"><b id="side-q3-value">q3</b>　肘角：黄杆延长虚线 → 绿杆（青弧）</div></div><div class="hint">拖粉色点改 r、h；灰色竖虚线是两杆的零位。⊗ 表示局部 +Y 指向屏幕内：从正面看顺时针弯，绕 +Y 仍可为正角。<a href="05-3d-single-axis-rotations.html#rotation-y-viewpoint">看 05 的右手定则解释 →</a></div>
       </div>
     </div>
     <p class="mini">可用鼠标或触屏拖动目标，也可直接输入坐标。两图为各自角度独立取景，别按屏幕像素比较杆长；真实长度是固定的 L1、L2，右图按示例长度绘制。</p>
@@ -96,7 +97,7 @@
   <p>从肩到目标的距离 <code>s=√(r²+h²)</code> 必须满足 <code>|L1−L2| ≤ s ≤ L1+L2</code>。否则两根定长杆连不到目标。能连到时，余弦定理通常给两种弯肘方式：</p>
   <div class="formula">c3 = (r²+h²−L1²−L2²)/(2 L1 L2)　　q3 = ±acos(c3)</div>
   <div class="formula">q2 = atan2(r,h) − atan2(L2 sin(q3), L1+L2 cos(q3))</div>
-  <p>切换实验台的“正支/负支”，你会看到两种肘位置，但粉色目标不变。到底哪支可执行，还要看实际关节限位；这里先学几何，不偷偷把某一支叫作永远的“肘上”。</p>
+  <p>切换实验台的“q3 正支/负支”，你会看到两种肘位置，但粉色目标不变。到底哪支可执行，还要看实际关节限位；这里和 12 一样用角度正负命名，避免把纸面上肘点的上下位置误当成关节角符号。</p>
   <div class="formula">ρ = L1 sin(q2)+L2 sin(q2+q3)<br>x′=ρ cos(q1),　y′=ρ sin(q1),　z′=d+L1 cos(q2)+L2 cos(q2+q3)</div>
   <p>最后用正运动学得到 <code>(x′,y′,z′)</code>，和输入目标核对。实验台右下角显示的就是这个回代误差。</p>
   <div class="card warning"><strong>两个特殊处：</strong>目标落在底座竖直轴上（<code>r=0</code>）时，<code>q1</code> 没有唯一方位，本实验台不擅自指定它；目标超出可达环时不画“假机械臂”。此外，本页只展示 <code>q1=atan2(y,x)</code> 所选的正向径向分支；真实机构若允许杆跨过底座轴，还可能有底座转半圈、径向取负的其他候选，需按实际限位检查。</div>

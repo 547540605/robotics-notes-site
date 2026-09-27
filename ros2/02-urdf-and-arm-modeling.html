@@ -495,7 +495,7 @@
           <td>revolute/prismatic 必填</td>
           <td>关节运动自由度单位向量</td>
           <td>
-            定义关节绕哪条轴转动或沿哪条轴滑动（在<strong>子坐标系自身</strong>中定义）：<br>
+            定义关节绕哪条轴转动或沿哪条轴滑动（在<strong>关节局部坐标系</strong>中定义）：<br>
             • <code>xyz="0 0 1"</code>：绕自身 $Z$ 轴（如回转腰部）；<br>
             • <code>xyz="0 1 0"</code>：绕自身 $Y$ 轴（如俯仰大臂/小臂）；<br>
             • <code>xyz="1 0 0"</code>：绕自身 $X$ 轴（如翻滚腕部）。
@@ -656,6 +656,7 @@
   &lt;/link&gt;
 
 &lt;/robot&gt;</code></pre>
+    <p><strong>读关节角正负，先读 <code>&lt;axis&gt;</code>：</strong>上面的 <code>joint2</code>、<code>joint3</code> 都写了 <code>xyz="0 1 0"</code>，表示各自绕局部 <code>+Y</code> 正向旋转。按 <a href="../12a-spatial-3r-position-ik.html">12a 的 r–Z 正面剖视图</a>，这个 <code>+Y</code> 指向屏幕里面（⊗）；因此绿色小臂从黄色大臂的延长线看起来顺时针转时，<code>q3</code> 仍可能是正值。正负不是 ROS 2 与教材用了两套规则，而是要先看转轴指向哪边；<a href="../05-3d-single-axis-rotations.html#rotation-y-viewpoint">05 的绕 Y 轴示例</a>专门解释了这一点。</p>
 
     <!-- 正文 3 -->
     <h2>三、一键起飞：Launch 编排与大交响架构</h2>

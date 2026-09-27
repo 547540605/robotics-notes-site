@@ -82,8 +82,9 @@
     <span class="math-block" data-tex="R_x(+90^\circ)=\begin{bmatrix}1&0&0\\0&0&-1\\0&1&0\end{bmatrix}"></span>
     用新 z 轴的单位向量检验：<span data-tex="R_x(+90^\circ)[0,0,1]^T=[0,-1,0]^T"></span>。这表示新 z 轴在旧坐标系中指向负 y；矩阵里的 <span data-tex="-1"></span> 就是这个“负 y”。</div>
 
-  <h2>绕 y 轴：<span data-tex="R_y(\theta)"></span></h2>
+  <h2 id="rotation-y-viewpoint">绕 y 轴：<span data-tex="R_y(\theta)"></span></h2>
   <p>这次 y 不动，在 x–z 平面转。采用右手定则的正方向：</p>
+  <div class="card key"><strong>先看转轴朝哪边，不能只看纸面顺逆时针。</strong><p>把 <span data-tex="+x"></span> 画向右、<span data-tex="+z"></span> 画向上时，按右手坐标系，<span data-tex="+y"></span> 必须指向屏幕里面（⊗）。右手拇指指向屏幕内的 <span data-tex="+y"></span>，四指弯曲的正方向，从你这一侧看恰好是<strong>顺时针</strong>；如果站到屏幕背面、从 <span data-tex="+y"></span> 方向看回来，同一转动才呈逆时针。</p><p>例如竖直向上的杆绕 <span data-tex="+y"></span> 转 <span data-tex="+90^\circ"></span>，杆端会指向右边的 <span data-tex="+x"></span>：<span data-tex="R_y(+90^\circ)[0,0,1]^T=[1,0,0]^T"></span>。在正面画出的 x–z 剖面里，这就是顺时针；角度仍为正。反过来，x–y 平面若 <span data-tex="+z"></span> 朝向你（⊙），从正面看逆时针才是正。<a href="12a-spatial-3r-position-ik.html">12a 的肩肘图</a>用的正是这里的 <span data-tex="+y"></span> 轴。</p></div>
   <span class="math-block" data-tex="\begin{aligned}x'&=\cos\theta\,x+\sin\theta\,z\\y'&=y\\z'&=-\sin\theta\,x+\cos\theta\,z\end{aligned}"></span>
   <span class="math-block" data-tex="R_y(\theta)=\begin{bmatrix}\cos\theta&0&\sin\theta\\0&1&0\\-\sin\theta&0&\cos\theta\end{bmatrix}"></span>
   <div class="card"><strong>代入 <span data-tex="-90^\circ"></span>：</strong><span data-tex="\cos(-90^\circ)=0,\ \sin(-90^\circ)=-1"></span>。
