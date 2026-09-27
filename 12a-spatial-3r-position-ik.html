@@ -24,6 +24,7 @@
     .explain-grid text{fill:var(--text);font:14px system-ui,"Microsoft YaHei",sans-serif}
     .sketch-axis{stroke:#647b9e;stroke-width:2}.sketch-guide{stroke:var(--violet);stroke-width:2;stroke-dasharray:5 5}.sketch-s{stroke:var(--muted);stroke-width:2;stroke-dasharray:6 5}.sketch-l1{stroke:var(--yellow);stroke-width:7;stroke-linecap:round}.sketch-l2{stroke:var(--green);stroke-width:7;stroke-linecap:round}.sketch-base{fill:var(--blue)}.sketch-elbow{fill:var(--yellow)}.sketch-target{fill:var(--pink)}.sketch-arc{fill:none;stroke:var(--violet);stroke-width:2}
     .proof-arc-q2{fill:none;stroke:var(--yellow);stroke-width:2.5}.proof-arc-q3{fill:none;stroke:#67e8f9;stroke-width:2.5}.proof-arc-beta{fill:none;stroke:var(--blue);stroke-width:2.5}.proof-arc-phi{fill:none;stroke:var(--violet);stroke-width:2.5}.explain-grid .proof-q2{fill:var(--yellow)}.explain-grid .proof-q3{fill:#67e8f9}.explain-grid .proof-beta{fill:var(--blue)}.explain-grid .proof-phi{fill:var(--violet)}
+    .explain-grid figure.current-branch{border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
     .fk3d{max-width:650px;margin:16px auto}.fk3d svg{display:block;width:100%;height:auto;background:#060d19;border:1px solid var(--line);border-radius:10px}.fk3d .axis{stroke:#7186a6;stroke-width:2}.fk3d .component{stroke:var(--violet);stroke-width:2;stroke-dasharray:6 5}.fk3d .radial{stroke:var(--blue);stroke-width:2.5;stroke-dasharray:7 5}.fk3d .height{stroke:var(--pink);stroke-width:2;stroke-dasharray:6 5}.fk3d .arm-a{stroke:var(--yellow);stroke-width:7;stroke-linecap:round}.fk3d .arm-b{stroke:var(--green);stroke-width:7;stroke-linecap:round}.fk3d text{fill:var(--text);font:16px system-ui,"Microsoft YaHei",sans-serif;paint-order:stroke fill;stroke:#060d19;stroke-width:4px;stroke-linejoin:round}.fk3d .value-label{font-size:14px}.fk3d .control{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:10px 0}.fk3d .control input{width:min(230px,55vw);accent-color:var(--blue)}.fk3d .values{text-align:center;margin:6px 0;color:var(--text)}
     @media(max-width:800px){.prereq-list{grid-template-columns:1fr}}
     @media(max-width:800px){.explain-grid{grid-template-columns:1fr}}
@@ -105,7 +106,7 @@
   </ol>
   <div class="explain-grid" aria-label="从三维目标拆出底座方位与肩部平面">
     <figure><figcaption>① 俯视：q1 选工作平面的方位</figcaption>
-      <svg viewBox="0 0 320 220" role="img" aria-label="从上往下看，底座到目标水平投影的方向由 q1 决定，水平距离为 r">
+      <svg id="step-top" viewBox="0 0 320 220" role="img" aria-label="从上往下看，底座到目标水平投影的方向由 q1 决定，水平距离为 r">
         <line class="sketch-axis" x1="26" y1="165" x2="294" y2="165"/><line class="sketch-axis" x1="55" y1="198" x2="55" y2="24"/>
         <text x="281" y="158">+X</text><text x="63" y="33">+Y</text>
         <line class="sketch-guide" x1="55" y1="165" x2="235" y2="75"/><path class="sketch-arc" d="M 95 165 A 40 40 0 0 0 91 147"/>
@@ -114,7 +115,7 @@
       </svg>
     </figure>
     <figure><figcaption>② 沿 q1 切开：只留下 r 与 h</figcaption>
-      <svg viewBox="0 0 320 220" role="img" aria-label="肩部剖面中，肩到目标的水平距离 r 与相对高度 h 组成直角三角形，斜边为 s，底座到肩的固定高度为 d">
+      <svg id="step-side" viewBox="0 0 320 220" role="img" aria-label="肩部剖面中，肩到目标的水平距离 r 与相对高度 h 组成直角三角形，斜边为 s，底座到肩的固定高度为 d">
         <line class="sketch-axis" x1="25" y1="198" x2="294" y2="198"/><line class="sketch-axis" x1="55" y1="210" x2="55" y2="24"/>
         <text x="282" y="191">+r</text><text x="63" y="33">+Z</text>
         <line class="sketch-guide" x1="55" y1="165" x2="245" y2="165"/><line class="sketch-guide" x1="245" y1="165" x2="245" y2="70"/>
@@ -124,14 +125,14 @@
       </svg>
     </figure>
   </div>
-  <p class="mini">这两幅是关系示意，不随上方目标点实时变化；拖动后的实际方位、距离和机械臂姿态请看上面的实验台。</p>
+  <p class="mini">这两幅是当前目标的简化投影，会随上方坐标一起变化；各图会独立缩放以看清角度，不能拿屏幕像素当真实长度。它们与实验台的粉色点代表同一个目标。若只改变方位 q1 而保持 r、h 不变，右边的剖面形状本来就不会变。</p>
   <div class="card warning"><strong>这是建模约定，不是所有 3R 的定律：</strong>这里两根杆在 <span data-tex="q_2=q_3=0">q2=q3=0</span> 时沿 <span data-tex="+Z">+Z</span> 竖直向上，角度从竖直方向计。之前的二维两连杆课把零位放在水平轴，余弦定理相同，但肩角公式的参考方向不同。下方示例取 <span data-tex="d=0.25\,\mathrm{m}">d=0.25 m</span>、<span data-tex="L_1=0.50\,\mathrm{m}">L1=0.50 m</span>、<span data-tex="L_2=0.40\,\mathrm{m}">L2=0.40 m</span>，与后面的 ROS 教学模型一致；具体机器人必须以它自己的 URDF 为准。</div>
 
   <h2>3. 两支解从哪来？为什么要回代？</h2>
   <p>从肩到目标的距离 <span data-tex="s=\sqrt{r^2+h^2}">s=√(r²+h²)</span> 必须满足 <span data-tex="|L_1-L_2|\le s\le L_1+L_2">|L1−L2| ≤ s ≤ L1+L2</span>。否则两根定长杆连不到目标。能连到时，余弦定理通常给两种弯肘方式：</p>
   <div class="explain-grid" aria-label="同一目标的两种弯肘方式">
-    <figure><figcaption>q3 正支：一种肘点位置</figcaption>
-      <svg viewBox="0 0 320 235" role="img" aria-label="q3 正支：黄色 L1 与绿色 L2 经上侧肘点连接，从肩到达同一目标，虚线 s 直接连接肩和目标">
+    <figure id="branch-positive-figure"><figcaption>q3 正支：一种肘点位置</figcaption>
+      <svg id="branch-positive-svg" viewBox="0 0 320 235" role="img" aria-label="q3 正支：黄色 L1 与绿色 L2 经一侧肘点连接，从肩到达当前目标，虚线 s 直接连接肩和目标">
         <line class="sketch-s" x1="42" y1="180" x2="245" y2="92"/>
         <line class="sketch-l1" x1="42" y1="180" x2="123" y2="66"/><line class="sketch-l2" x1="123" y1="66" x2="245" y2="92"/>
         <circle class="sketch-base" cx="42" cy="180" r="7"/><circle class="sketch-elbow" cx="123" cy="66" r="7"/><circle class="sketch-target" cx="245" cy="92" r="8"/>
@@ -139,8 +140,8 @@
         <text x="64" y="111">L1</text><text x="174" y="73">L2</text><text x="151" y="148">s</text><text x="105" y="225">q3 &gt; 0</text>
       </svg>
     </figure>
-    <figure><figcaption>q3 负支：肘点换侧，目标不变</figcaption>
-      <svg viewBox="0 0 320 235" role="img" aria-label="q3 负支：同样长度的 L1 与 L2 经下侧肘点连接，肩和目标仍与正支相同">
+    <figure id="branch-negative-figure"><figcaption>q3 负支：肘点换侧，目标不变</figcaption>
+      <svg id="branch-negative-svg" viewBox="0 0 320 235" role="img" aria-label="q3 负支：同样长度的 L1 与 L2 经另一侧肘点连接，肩和目标仍与正支相同">
         <line class="sketch-s" x1="42" y1="180" x2="245" y2="92"/>
         <line class="sketch-l1" x1="42" y1="180" x2="181" y2="199"/><line class="sketch-l2" x1="181" y1="199" x2="245" y2="92"/>
         <circle class="sketch-base" cx="42" cy="180" r="7"/><circle class="sketch-elbow" cx="181" cy="199" r="7"/><circle class="sketch-target" cx="245" cy="92" r="8"/>
@@ -149,12 +150,12 @@
       </svg>
     </figure>
   </div>
-  <p class="mini">两图的肩 S、目标 P 和 L1、L2 长度完全相同，只有肘点位于虚线 s 的哪一侧不同；图是示意，不表示上方实验台的实时比例或关节限位。</p>
+  <p class="mini">两图始终使用上方同一个目标和同样的 L1、L2；蓝色边框是当前选中的分支。两图共用一套缩放比例，但不代表已经通过实际机器人的关节限位检查。</p>
   <div class="formula" data-tex="\begin{aligned}c_3 &amp;= \frac{r^2+h^2-L_1^2-L_2^2}{2L_1L_2}\\q_3 &amp;= \pm\arccos(c_3)\end{aligned}">c₃ = (r²+h²−L₁²−L₂²)/(2L₁L₂)；q₃ = ±acos(c₃)</div>
-  <p><strong>接下来求肩角，先把角拆开看。</strong>只看 <span data-tex="q_3>0">q3&gt;0</span> 这一支的示意图；另一支仍按带符号的角计算。</p>
+  <p><strong>接下来求肩角，先把角拆开看。</strong>左图跟随当前选中的分支；右图是把<strong>同一组关节角</strong>搬到黄杆竖直的局部参考方向，不是机械臂又跳到另一个目标。</p>
   <div class="explain-grid" aria-label="肩角公式的两个角度与直角三角形推导">
     <figure><figcaption>① 肩角 = 目标方向 − 局部偏角</figcaption>
-      <svg viewBox="0 0 340 300" role="img" aria-label="肩 S 的竖直零位到黄杆是 q2，到目标虚线是 φ，两者之间的夹角是 β，所以 q2 等于 φ 减 β">
+      <svg id="proof-angle" viewBox="0 0 340 300" role="img" aria-label="肩 S 的竖直零位到黄杆是 q2，到目标虚线是 φ，两者之间的夹角是 β，所以 q2 等于 φ 减 β">
         <line class="sketch-axis" x1="70" y1="255" x2="70" y2="46"/><text x="78" y="53">+Z 零位</text>
         <line class="sketch-s" x1="70" y1="255" x2="225" y2="171"/>
         <line class="sketch-l1" x1="70" y1="255" x2="120" y2="155"/><line class="sketch-l2" x1="120" y1="155" x2="225" y2="171"/>
@@ -165,9 +166,10 @@
         <text x="35" y="278">肩 S</text><text x="113" y="138">肘</text><text x="232" y="176">目标 P</text><text x="84" y="174">L1</text><text x="171" y="150">L2</text>
         <text class="proof-q2" x="90" y="235">q2</text><text class="proof-phi" x="139" y="246">φ</text><text class="proof-beta" x="135" y="184">β</text>
       </svg>
+      <p class="mini" id="proof-angle-values">黄弧 q2；紫弧 φ；蓝弧 β。</p>
     </figure>
-    <figure><figcaption>② 暂把黄杆摆正：求出 β</figcaption>
-      <svg viewBox="0 0 340 300" role="img" aria-label="把黄色 L1 暂时摆竖直，绿色 L2 的横向分量 a 等于 L2 sin q3，肩到目标的纵向分量 b 等于 L1 加 L2 cos q3，故 β 等于 atan2(a,b)">
+    <figure><figcaption>② 换局部参考方向：黄杆摆正求 β</figcaption>
+      <svg id="proof-local" viewBox="0 0 340 300" role="img" aria-label="同一组关节角在黄杆竖直的局部参考方向下，绿色 L2 的横向分量 a 等于 L2 sin q3，纵向分量 b 等于 L1 加 L2 cos q3，故 β 等于 atan2(a,b)">
         <line class="sketch-axis" x1="68" y1="255" x2="68" y2="39"/><text x="77" y="46">局部 +Z</text>
         <line class="sketch-s" x1="68" y1="255" x2="188" y2="74"/>
         <line class="sketch-guide" x1="68" y1="74" x2="188" y2="74"/><line class="sketch-guide" x1="68" y1="130" x2="188" y2="130"/><line class="sketch-guide" x1="188" y1="74" x2="188" y2="130"/>
@@ -178,10 +180,11 @@
         <text x="34" y="278">肩 S</text><text x="77" y="148">肘</text><text x="195" y="79">目标 P</text><text x="20" y="182">L1</text><text x="129" y="120">L2</text>
         <text class="proof-q3" x="102" y="106">q3</text><text class="proof-beta" x="105" y="227">β</text><text x="115" y="65">a</text><text x="120" y="148">L₂ sin q₃</text><text x="200" y="113">L₂ cos q₃</text><text x="39" y="214">b</text>
       </svg>
+      <p class="mini" id="proof-local-values">这是局部参考方向，不是底座中的实际位置。</p>
     </figure>
   </div>
   <p>左图中，从竖直零位到目标虚线的角 <span data-tex="\phi=\operatorname{atan2}(r,h)">φ=atan2(r,h)</span>，正好由肩角和局部偏角组成：<span data-tex="\phi=q_2+\beta">φ=q₂+β</span>。右图只是把黄杆暂时摆正来量偏角：横边 <span data-tex="a=L_2\sin q_3">a=L₂sin q₃</span>，竖边 <span data-tex="b=L_1+L_2\cos q_3">b=L₁+L₂cos q₃</span>，因此 <span data-tex="\beta=\operatorname{atan2}(a,b)">β=atan2(a,b)</span>。两式相减才得到下面的 <span data-tex="q_2">q₂</span> 公式。</p>
-  <p class="mini">两幅角度图只示意 <span data-tex="q_3>0">q3&gt;0</span>。若取负支，<span data-tex="L_2\sin q_3">L₂sin q₃</span> 与 <span data-tex="\beta">β</span> 可为负；公式仍用带符号的 <span data-tex="\operatorname{atan2}">atan2</span>，不用把角度取绝对值。</p>
+  <p class="mini">切换正负支时，两图都会更新；右图的粉点是旋到局部参考方向后的同一个末端，不在底座原坐标位置。负支时 <span data-tex="L_2\sin q_3">L₂sin q₃</span> 与 <span data-tex="\beta">β</span> 可为负，公式仍用带符号的 <span data-tex="\operatorname{atan2}">atan2</span>。</p>
   <div class="formula" data-tex="\begin{aligned}q_2 &amp;=\operatorname{atan2}(r,h)\\ &amp;\quad-\operatorname{atan2}\!\left(L_2\sin q_3,\,L_1+L_2\cos q_3\right)\end{aligned}">q₂ = atan2(r,h) − atan2(L₂ sin(q₃), L₁+L₂ cos(q₃))</div>
   <p>切换实验台的“q3 正支/负支”，你会看到两种肘位置，但粉色目标不变。到底哪支可执行，还要看实际关节限位；这里和 12 一样用角度正负命名，避免把纸面上肘点的上下位置误当成关节角符号。</p>
   <div class="card callout">
@@ -225,6 +228,46 @@
   const side=(r,h)=>({x:shoulder.x+sideScale*r,y:shoulder.y-sideScale*h});
   const anglePoint=(origin,radius,angle)=>({x:origin.x+radius*Math.sin(angle),y:origin.y-radius*Math.cos(angle)});
   const angleArc=(origin,radius,from,to)=>{const a=anglePoint(origin,radius,from),b=anglePoint(origin,radius,to),delta=to-from;return `M ${a.x} ${a.y} A ${radius} ${radius} 0 ${Math.abs(delta)>Math.PI?1:0} ${delta>=0?1:0} ${b.x} ${b.y}`;};
+  const n=v=>Number(v.toFixed(1));
+  const seg=(a,b,cls)=>`<line class="${cls}" x1="${n(a.x)}" y1="${n(a.y)}" x2="${n(b.x)}" y2="${n(b.y)}"/>`;
+  const dot=(p,cls,r=7)=>`<circle class="${cls}" cx="${n(p.x)}" cy="${n(p.y)}" r="${r}"/>`;
+  const tag=(p,value,cls='')=>`<text class="${cls}" x="${n(p.x)}" y="${n(p.y)}">${value}</text>`;
+  const curve=(o,r,from,to,vertical=false)=>{
+    const points=Array.from({length:25},(_,i)=>{const a=from+(to-from)*i/24;return vertical?anglePoint(o,r,a):{x:o.x+r*Math.cos(a),y:o.y-r*Math.sin(a)};});
+    return `M ${points.map(p=>`${n(p.x)} ${n(p.y)}`).join(' L ')}`;
+  };
+  function drawExplanations({r,h,q1,solutions,selected}){
+    const topO={x:160,y:110},topScale=95/Math.max(r,.4),topP={x:topO.x+topScale*r*Math.cos(q1),y:topO.y-topScale*r*Math.sin(q1)};
+    $('step-top').innerHTML=`${seg({x:25,y:110},{x:295,y:110},'sketch-axis')}${seg({x:160,y:18},{x:160,y:203},'sketch-axis')}${tag({x:280,y:102},'+X')}${tag({x:169,y:29},'+Y')}${seg(topO,topP,'sketch-guide')}<path class="sketch-arc" d="${curve(topO,34,0,q1)}"/>${dot(topO,'sketch-base')}${dot(topP,'sketch-target',8)}${tag({x:topO.x-54,y:topO.y+21},'底座')}${tag({x:Math.min(topP.x+10,275),y:Math.max(topP.y-7,20)},'Pxy')}${tag({x:Math.min(Math.max(topO.x+50*Math.cos(q1/2),18),278),y:Math.min(Math.max(topO.y-50*Math.sin(q1/2),25),205)},'q1')}${tag({x:(topO.x+topP.x)/2+8,y:(topO.y+topP.y)/2-8},'r')}`;
+    const sideS={x:70,y:155},sideScale=Math.min(190/Math.max(r,.01),115/Math.max(h,.01),50/Math.max(-h+d,.01),240);
+    const sideP={x:sideS.x+r*sideScale,y:sideS.y-h*sideScale},sideB={x:70,y:sideS.y+d*sideScale},sideQ={x:sideP.x,y:sideS.y};
+    $('step-side').innerHTML=`${seg({x:25,y:sideB.y},{x:295,y:sideB.y},'sketch-axis')}${seg({x:70,y:19},{x:70,y:212},'sketch-axis')}${tag({x:279,y:sideB.y-7},'+r')}${tag({x:79,y:31},'+Z')}${seg(sideS,sideQ,'sketch-guide')}${seg(sideQ,sideP,'sketch-guide')}${seg(sideS,sideP,'sketch-s')}${dot(sideB,'sketch-base',5)}${dot(sideS,'sketch-base')}${dot(sideP,'sketch-target',8)}${tag({x:79,y:sideS.y-9},'肩')}${tag({x:Math.min(sideP.x+10,288),y:Math.max(sideP.y-7,18)},'P')}${tag({x:(sideS.x+sideQ.x)/2,y:sideS.y+19},'r')}${tag({x:Math.min(sideP.x+10,263),y:(sideQ.y+sideP.y)/2},'h=z−d')}${tag({x:(sideS.x+sideP.x)/2+5,y:(sideS.y+sideP.y)/2-8},'s')}${tag({x:43,y:(sideB.y+sideS.y)/2},'d')}`;
+    for(const [name,sign] of [['positive','正'],['negative','负']])$('branch-'+name+'-figure').classList.toggle('current-branch',selected===name);
+    if(!solutions){
+      for(const id of ['branch-positive-svg','branch-negative-svg','proof-angle','proof-local'])$(id).innerHTML=tag({x:38,y:110},'当前目标不可达：没有可画的关节解');
+      $('proof-angle-values').textContent='当前目标不可达，无法求肩角和偏角。';
+      $('proof-local-values').textContent='当前目标不可达，无法建立这组关节角的局部参考图。';
+      return;
+    }
+    const values=[{r:0,h:0},{r,h},...Object.values(solutions).map(a=>({r:l1*Math.sin(a.q2),h:l1*Math.cos(a.q2)}))];
+    const minR=Math.min(...values.map(v=>v.r)),maxR=Math.max(...values.map(v=>v.r)),minH=Math.min(...values.map(v=>v.h)),maxH=Math.max(...values.map(v=>v.h));
+    const sc=Math.min(230/Math.max(maxR-minR,.1),145/Math.max(maxH-minH,.1),240),midR=(minR+maxR)/2,midH=(minH+maxH)/2;
+    const map=(rr,hh)=>({x:155+(rr-midR)*sc,y:115-(hh-midH)*sc}),bs=map(0,0),bp=map(r,h);
+    for(const [name,mark] of [['positive','&gt;'],['negative','&lt;']]){
+      const a=solutions[name],be=map(l1*Math.sin(a.q2),l1*Math.cos(a.q2));
+      $('branch-'+name+'-svg').innerHTML=`${seg(bs,bp,'sketch-s')}${seg(bs,be,'sketch-l1')}${seg(be,bp,'sketch-l2')}${dot(bs,'sketch-base')}${dot(be,'sketch-elbow')}${dot(bp,'sketch-target',8)}${tag({x:bs.x-25,y:bs.y+23},'肩 S')}${tag({x:be.x+8,y:be.y-9},'肘')}${tag({x:Math.min(bp.x+9,274),y:bp.y-7},'P')}${tag({x:(bs.x+be.x)/2-18,y:(bs.y+be.y)/2-7},'L1')}${tag({x:(be.x+bp.x)/2+5,y:(be.y+bp.y)/2-8},'L2')}${tag({x:(bs.x+bp.x)/2+5,y:(bs.y+bp.y)/2+16},'s')}${tag({x:23,y:224},`q3 ${mark} 0`)}`;
+    }
+    const current=solutions[selected],er=l1*Math.sin(current.q2),eh=l1*Math.cos(current.q2);
+    const proofValues=[{r:0,h:0},{r,h},{r:er,h:eh}],pr0=Math.min(...proofValues.map(v=>v.r)),pr1=Math.max(...proofValues.map(v=>v.r)),ph0=Math.min(...proofValues.map(v=>v.h)),ph1=Math.max(...proofValues.map(v=>v.h));
+    const ps=Math.min(230/Math.max(pr1-pr0,.1),175/Math.max(ph1-ph0,.1),240),pmr=(pr0+pr1)/2,pmh=(ph0+ph1)/2;
+    const proofMap=(rr,hh)=>({x:165+(rr-pmr)*ps,y:150-(hh-pmh)*ps}),S=proofMap(0,0),E=proofMap(er,eh),P=proofMap(r,h),phi=Math.atan2(r,h),beta=phi-current.q2;
+    const arcRadius=Math.max(27,Math.min(64,S.x-23,315-S.x,S.y-23,275-S.y));
+    $('proof-angle').innerHTML=`${seg({x:S.x,y:29},{x:S.x,y:275},'sketch-axis')}${tag({x:S.x+8,y:40},'+Z 零位')}${seg(S,P,'sketch-s')}${seg(S,E,'sketch-l1')}${seg(E,P,'sketch-l2')}<path class="proof-arc-q2" d="${curve(S,arcRadius*.55,0,current.q2,true)}"/><path class="proof-arc-phi" d="${curve(S,arcRadius,0,phi,true)}"/><path class="proof-arc-beta" d="${curve(S,arcRadius*.8,current.q2,phi,true)}"/>${dot(S,'sketch-base')}${dot(E,'sketch-elbow')}${dot(P,'sketch-target',8)}${tag({x:S.x-28,y:S.y+23},'肩 S')}${tag({x:E.x+7,y:E.y-9},'肘')}${tag({x:Math.min(P.x+9,285),y:P.y-8},'P')}${tag({x:(S.x+E.x)/2+10,y:(S.y+E.y)/2-5},'L1')}${tag({x:(E.x+P.x)/2+5,y:(E.y+P.y)/2-8},'L2')}`;
+    $('proof-angle-values').textContent=`黄弧 q2=${degrees(current.q2)}；紫弧 φ=${degrees(phi)}；蓝弧 β=${degrees(beta)}。`;
+    const localS={x:170,y:252},localE={x:170,y:252-l1*180},a=l2*Math.sin(current.q3),b=l1+l2*Math.cos(current.q3),localP={x:170+a*180,y:252-b*180},localTop={x:170,y:localP.y},localFoot={x:localP.x,y:localE.y},localBeta=Math.atan2(a,b);
+    $('proof-local').innerHTML=`${seg({x:170,y:22},{x:170,y:270},'sketch-axis')}${tag({x:177,y:35},'局部 +Z')}${seg(localS,localP,'sketch-s')}${seg(localTop,localP,'sketch-guide')}${seg(localE,localFoot,'sketch-guide')}${seg(localFoot,localP,'sketch-guide')}${seg(localS,localE,'sketch-l1')}${seg(localE,localP,'sketch-l2')}<path class="proof-arc-beta" d="${curve(localS,42,0,localBeta,true)}"/><path class="proof-arc-q3" d="${curve(localE,29,0,current.q3,true)}"/>${dot(localS,'sketch-base')}${dot(localE,'sketch-elbow')}${dot(localP,'sketch-target',8)}${tag({x:localS.x-29,y:localS.y+23},'肩 S')}${tag({x:localE.x+7,y:localE.y-8},'肘')}${tag({x:localP.x+(a>=0?9:-24),y:localP.y-8},'P*')}${tag({x:(localTop.x+localP.x)/2,y:localP.y-8},'a')}${tag({x:localS.x-24,y:(localS.y+localP.y)/2},'b')}`;
+    $('proof-local-values').textContent=`局部参考图：a=${fmt(a)} m，b=${fmt(b)} m；青弧 q3=${degrees(current.q3)}，蓝弧 β=${degrees(localBeta)}。P* 不是底座坐标中的原位置。`;
+  }
   const fk3dMoving=['fk3d-x-part','fk3d-y-part','fk3d-rho','fk3d-height','fk3d-base-arm','fk3d-arm1','fk3d-arm2','fk3d-shoulder','fk3d-elbow','fk3d-ground','fk3d-end','fk3d-x-label','fk3d-y-label','fk3d-rho-label','fk3d-z-label','fk3d-d-label','fk3d-end-label'];
   function render3d(fk,elbow3d){
     const angle=Number($('fk3d-angle').value),a=angle*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);
@@ -277,6 +320,7 @@
     for(const id of ['top-arm1','top-arm2','side-arm1','side-arm2','top-elbow','side-elbow','side-l1','side-l2','side-q2','side-q3','side-q2-arc','side-q3-arc','side-q3-ref'])$(id).style.visibility=ok?'visible':'hidden';
     const status=$('status');status.classList.toggle('bad',!ok);
     if(!ok){
+      drawExplanations({r,h,q1,solutions:null,selected:branch()});
       render3d(null,null);
       status.textContent=r<=1e-8?'目标在底座 Z 轴上：q1 不唯一；请稍微拖离中心。':`肩到目标距离 ${fmt(s)} m，不在 [${fmt(Math.abs(l1-l2))}, ${fmt(l1+l2)}] m 内：几何不可达。`;
       $('side-q2-value').textContent='q2=—';$('side-q3-value').textContent='q3=—';
@@ -285,6 +329,9 @@
     const c3=Math.max(-1,Math.min(1,(r*r+h*h-l1*l1-l2*l2)/(2*l1*l2)));
     const q3=(branch()==='positive'?1:-1)*Math.acos(c3);
     const q2=Math.atan2(r,h)-Math.atan2(l2*Math.sin(q3),l1+l2*Math.cos(q3));
+    const otherQ3=-q3,otherQ2=Math.atan2(r,h)-Math.atan2(l2*Math.sin(otherQ3),l1+l2*Math.cos(otherQ3));
+    const chosen={q2,q3},other={q2:otherQ2,q3:otherQ3};
+    drawExplanations({r,h,q1,solutions:branch()==='positive'?{positive:chosen,negative:other}:{positive:other,negative:chosen},selected:branch()});
     const er=l1*Math.sin(q2),eh=l1*Math.cos(q2),elbow=side(er,eh),et=top(er*Math.cos(q1),er*Math.sin(q1));
     setLine('side-arm1',shoulder.x,shoulder.y,elbow.x,elbow.y);
     setLine('side-arm2',elbow.x,elbow.y,v.x,v.y);
