@@ -4,9 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>12a 空间 3R 机械臂：从三维目标到两连杆逆解</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
   <style>
     :root{--bg:#080e1c;--panel:#111c30;--line:#30415d;--text:#edf5ff;--muted:#a5b8d3;--blue:#58c7ff;--yellow:#ffc44b;--green:#45dbb0;--pink:#ff75b9;--violet:#b7a0ff;--bad:#ff8b98}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1180px;margin:auto;padding:28px 20px 80px}h1,h2,h3{line-height:1.3}h1{font-size:clamp(1.8rem,3vw,2.5rem);margin:.4rem 0}h2{margin:2.4rem 0 .8rem;border-bottom:1px solid var(--line);padding-bottom:.4rem}h3{margin:.2rem 0 .6rem}a{color:var(--blue)}p{margin:.7rem 0}.muted{color:var(--muted)}.lead{font-size:1.08rem}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:15px 0}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.callout{border-left:5px solid var(--blue)}.warning{border-left:5px solid var(--yellow)}.stage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.view{background:#060d19;border:1px solid var(--line);border-radius:10px;overflow:hidden}.view h3{font-size:1rem;margin:0;padding:10px 13px;background:#0d1b30}.view svg{display:block;width:100%;height:auto;touch-action:none;user-select:none}.view .hint{padding:6px 12px;color:var(--muted);font-size:.86rem}.axes{stroke:#647b9e;stroke-width:2}.gridline{stroke:#263a55;stroke-width:1;stroke-dasharray:5 5}.guide{stroke:var(--violet);stroke-width:1.5;stroke-dasharray:5 5}.zero{stroke:#69819e;stroke-width:5;stroke-dasharray:6 6;opacity:.6}.arm1{stroke:var(--yellow);stroke-width:10;stroke-linecap:round}.arm2{stroke:var(--green);stroke-width:9;stroke-linecap:round}.joint{fill:var(--blue);stroke:#06101e;stroke-width:2}.elbow{fill:var(--yellow);stroke:#06101e;stroke-width:2}.target{fill:var(--pink);stroke:white;stroke-width:2;cursor:grab}.target:active{cursor:grabbing}.arc{fill:none;stroke:var(--violet);stroke-width:2}.axis-label{fill:var(--muted);font-size:16px}.label{fill:var(--text);font-size:15px}.angle-label{fill:var(--violet);font-size:16px;font-weight:700}.part-label{fill:var(--yellow);font-size:16px;font-weight:700}.tool-label{fill:var(--pink);font-size:16px}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.controls label{display:block;color:var(--muted);font-size:.88rem}.controls input{width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#07101f;color:var(--text);font:inherit}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.row label{padding:6px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}.row button{padding:7px 12px;border:1px solid var(--blue);border-radius:7px;background:#10314b;color:var(--text);font:inherit;cursor:pointer}.readout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.datum{padding:10px 12px;background:#081326;border-radius:8px}.datum b{display:block;color:var(--muted);font-size:.82rem}.datum span{font:600 .98rem/1.5 ui-monospace,Consolas,monospace}.status{border-radius:8px;padding:9px 12px;background:#103126;color:#b5ffdb}.status.bad{background:#3c1c29;color:#ffd0d6}.formula{overflow:auto;background:#07101e;border:1px solid var(--line);border-radius:8px;padding:11px 14px;font:15px/1.7 ui-monospace,Consolas,monospace;white-space:nowrap}.steps{padding-left:1.5rem}.steps li{margin:.5rem 0}.mini{font-size:.88rem;color:var(--muted)}@media(max-width:800px){main{padding:18px 12px 70px}.two,.stage,.readout{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif}main{max-width:1180px;margin:auto;padding:28px 20px 80px}h1,h2,h3{line-height:1.3}h1{font-size:clamp(1.8rem,3vw,2.5rem);margin:.4rem 0}h2{margin:2.4rem 0 .8rem;border-bottom:1px solid var(--line);padding-bottom:.4rem}h3{margin:.2rem 0 .6rem}a{color:var(--blue)}p{margin:.7rem 0}.muted{color:var(--muted)}.lead{font-size:1.08rem}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:15px 0}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.callout{border-left:5px solid var(--blue)}.warning{border-left:5px solid var(--yellow)}.stage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.view{background:#060d19;border:1px solid var(--line);border-radius:10px;overflow:hidden}.view h3{font-size:1rem;margin:0;padding:10px 13px;background:#0d1b30}.view svg{display:block;width:100%;height:auto;touch-action:none;user-select:none}.view .hint{padding:6px 12px;color:var(--muted);font-size:.86rem}.axes{stroke:#647b9e;stroke-width:2}.gridline{stroke:#263a55;stroke-width:1;stroke-dasharray:5 5}.guide{stroke:var(--violet);stroke-width:1.5;stroke-dasharray:5 5}.zero{stroke:#69819e;stroke-width:5;stroke-dasharray:6 6;opacity:.6}.arm1{stroke:var(--yellow);stroke-width:10;stroke-linecap:round}.arm2{stroke:var(--green);stroke-width:9;stroke-linecap:round}.joint{fill:var(--blue);stroke:#06101e;stroke-width:2}.elbow{fill:var(--yellow);stroke:#06101e;stroke-width:2}.target{fill:var(--pink);stroke:white;stroke-width:2;cursor:grab}.target:active{cursor:grabbing}.arc{fill:none;stroke:var(--violet);stroke-width:2}.axis-label{fill:var(--muted);font-size:16px}.label{fill:var(--text);font-size:15px}.angle-label{fill:var(--violet);font-size:16px;font-weight:700}.part-label{fill:var(--yellow);font-size:16px;font-weight:700}.tool-label{fill:var(--pink);font-size:16px}.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.controls label{display:block;color:var(--muted);font-size:.88rem}.controls input{width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:7px;background:#07101f;color:var(--text);font:inherit}.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.row label{padding:6px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer}.row button{padding:7px 12px;border:1px solid var(--blue);border-radius:7px;background:#10314b;color:var(--text);font:inherit;cursor:pointer}.readout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.datum{padding:10px 12px;background:#081326;border-radius:8px}.datum b{display:block;color:var(--muted);font-size:.82rem}.datum span{font:600 .98rem/1.5 ui-monospace,Consolas,monospace}.status{border-radius:8px;padding:9px 12px;background:#103126;color:#b5ffdb}.status.bad{background:#3c1c29;color:#ffd0d6}.formula{overflow-x:auto;background:#07101e;border:1px solid var(--line);border-radius:8px;padding:12px 16px;font:inherit;white-space:normal}.formula .katex-display{margin:.2em 0}.steps{padding-left:1.5rem}.steps li{margin:.5rem 0}.mini{font-size:.88rem;color:var(--muted)}@media(max-width:800px){main{padding:18px 12px 70px}.two,.stage,.readout{grid-template-columns:1fr}.controls{grid-template-columns:1fr 1fr}}
     .arc-q2{stroke:#fbbf24;stroke-width:3}.arc-q3{stroke:#67e8f9;stroke-width:3}.angle-label{font-size:19px;paint-order:stroke fill;stroke:#060d19;stroke-width:5px;stroke-linejoin:round}.angle-q2{fill:#fbbf24}.angle-q3{fill:#67e8f9}.angle-ref{stroke:#67e8f9;stroke-width:1.7;stroke-dasharray:5 5;opacity:.85}.reach-line{stroke:var(--muted);stroke-width:2;stroke-dasharray:6 5;opacity:.9;pointer-events:none}.angle-key{display:grid;gap:6px;padding:8px 12px}.angle-key div{background:#102036;border-radius:6px;padding:5px 9px;border-left:4px solid var(--violet);font-size:.9rem;line-height:1.45}.angle-key b{font-size:1rem}.angle-key .q2{border-color:#fbbf24}.angle-key .q3{border-color:#67e8f9}.angle-key .q2 b{color:#fbbf24}.angle-key .q3 b{color:#67e8f9}.angle-key .q1 b{color:var(--violet)}
     .prereq{border-left:5px solid var(--violet)}
     .prereq-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}
@@ -95,9 +97,9 @@
 
   <h2>2. 为什么能拆：先选竖直平面，再在里面解三角形</h2>
   <ol class="steps">
-    <li>目标在底座坐标系是 <code>P=(x,y,z)</code>。先从俯视图求方位 <code>q1=atan2(y,x)</code>。这一步只决定竖直工作平面朝哪边。</li>
-    <li>目标离竖直底座轴的水平距离 <code>r=√(x²+y²)</code>；肩在底座上方 <code>d</code>，所以目标相对肩的高度 <code>h=z−d</code>。注意 <code>h</code> 不是绝对高度 <code>z</code>。</li>
-    <li>固定 q1 后，只在右图的 <code>r–h</code> 平面里求肩角 q2、肘角 q3。黄色 L1、绿色 L2 长度不变，目标点移动时它们只能绕关节转。</li>
+    <li>目标在底座坐标系是 <span data-tex="P=(x,y,z)">P=(x,y,z)</span>。先从俯视图求方位 <span data-tex="q_1=\operatorname{atan2}(y,x)">q1=atan2(y,x)</span>。这一步只决定竖直工作平面朝哪边。</li>
+    <li>目标离竖直底座轴的水平距离 <span data-tex="r=\sqrt{x^2+y^2}">r=√(x²+y²)</span>；肩在底座上方 <span data-tex="d">d</span>，所以目标相对肩的高度 <span data-tex="h=z-d">h=z−d</span>。注意 <span data-tex="h">h</span> 不是绝对高度 <span data-tex="z">z</span>。</li>
+    <li>固定 <span data-tex="q_1">q1</span> 后，只在右图的 <span data-tex="r\text{–}h">r–h</span> 平面里求肩角 <span data-tex="q_2">q2</span>、肘角 <span data-tex="q_3">q3</span>。黄色 <span data-tex="L_1">L1</span>、绿色 <span data-tex="L_2">L2</span> 长度不变，目标点移动时它们只能绕关节转。</li>
   </ol>
   <div class="explain-grid" aria-label="从三维目标拆出底座方位与肩部平面">
     <figure><figcaption>① 俯视：q1 选工作平面的方位</figcaption>
@@ -121,10 +123,10 @@
     </figure>
   </div>
   <p class="mini">这两幅是关系示意，不随上方目标点实时变化；拖动后的实际方位、距离和机械臂姿态请看上面的实验台。</p>
-  <div class="card warning"><strong>这是建模约定，不是所有 3R 的定律：</strong>这里两根杆在 <code>q2=q3=0</code> 时沿 <code>+Z</code> 竖直向上，角度从竖直方向计。之前的二维两连杆课把零位放在水平轴，余弦定理相同，但肩角公式的参考方向不同。下方示例取 <code>d=0.25 m、L1=0.50 m、L2=0.40 m</code>，与后面的 ROS 教学模型一致；具体机器人必须以它自己的 URDF 为准。</div>
+  <div class="card warning"><strong>这是建模约定，不是所有 3R 的定律：</strong>这里两根杆在 <span data-tex="q_2=q_3=0">q2=q3=0</span> 时沿 <span data-tex="+Z">+Z</span> 竖直向上，角度从竖直方向计。之前的二维两连杆课把零位放在水平轴，余弦定理相同，但肩角公式的参考方向不同。下方示例取 <span data-tex="d=0.25\,\mathrm{m}">d=0.25 m</span>、<span data-tex="L_1=0.50\,\mathrm{m}">L1=0.50 m</span>、<span data-tex="L_2=0.40\,\mathrm{m}">L2=0.40 m</span>，与后面的 ROS 教学模型一致；具体机器人必须以它自己的 URDF 为准。</div>
 
   <h2>3. 两支解从哪来？为什么要回代？</h2>
-  <p>从肩到目标的距离 <code>s=√(r²+h²)</code> 必须满足 <code>|L1−L2| ≤ s ≤ L1+L2</code>。否则两根定长杆连不到目标。能连到时，余弦定理通常给两种弯肘方式：</p>
+  <p>从肩到目标的距离 <span data-tex="s=\sqrt{r^2+h^2}">s=√(r²+h²)</span> 必须满足 <span data-tex="|L_1-L_2|\le s\le L_1+L_2">|L1−L2| ≤ s ≤ L1+L2</span>。否则两根定长杆连不到目标。能连到时，余弦定理通常给两种弯肘方式：</p>
   <div class="explain-grid" aria-label="同一目标的两种弯肘方式">
     <figure><figcaption>q3 正支：一种肘点位置</figcaption>
       <svg viewBox="0 0 320 235" role="img" aria-label="q3 正支：黄色 L1 与绿色 L2 经上侧肘点连接，从肩到达同一目标，虚线 s 直接连接肩和目标">
@@ -146,12 +148,12 @@
     </figure>
   </div>
   <p class="mini">两图的肩 S、目标 P 和 L1、L2 长度完全相同，只有肘点位于虚线 s 的哪一侧不同；图是示意，不表示上方实验台的实时比例或关节限位。</p>
-  <div class="formula">c3 = (r²+h²−L1²−L2²)/(2 L1 L2)　　q3 = ±acos(c3)</div>
-  <div class="formula">q2 = atan2(r,h) − atan2(L2 sin(q3), L1+L2 cos(q3))</div>
+  <div class="formula" data-tex="\begin{aligned}c_3 &amp;= \frac{r^2+h^2-L_1^2-L_2^2}{2L_1L_2}\\q_3 &amp;= \pm\arccos(c_3)\end{aligned}">c₃ = (r²+h²−L₁²−L₂²)/(2L₁L₂)；q₃ = ±acos(c₃)</div>
+  <div class="formula" data-tex="\begin{aligned}q_2 &amp;=\operatorname{atan2}(r,h)\\ &amp;\quad-\operatorname{atan2}\!\left(L_2\sin q_3,\,L_1+L_2\cos q_3\right)\end{aligned}">q₂ = atan2(r,h) − atan2(L₂ sin(q₃), L₁+L₂ cos(q₃))</div>
   <p>切换实验台的“q3 正支/负支”，你会看到两种肘位置，但粉色目标不变。到底哪支可执行，还要看实际关节限位；这里和 12 一样用角度正负命名，避免把纸面上肘点的上下位置误当成关节角符号。</p>
-  <div class="formula">ρ = L1 sin(q2)+L2 sin(q2+q3)<br>x′=ρ cos(q1),　y′=ρ sin(q1),　z′=d+L1 cos(q2)+L2 cos(q2+q3)</div>
-  <p>最后用正运动学得到 <code>(x′,y′,z′)</code>，和输入目标核对。实验台右下角显示的就是这个回代误差。</p>
-  <div class="card warning"><strong>两个特殊处：</strong>目标落在底座竖直轴上（<code>r=0</code>）时，<code>q1</code> 没有唯一方位，本实验台不擅自指定它；目标超出可达环时不画“假机械臂”。此外，本页只展示 <code>q1=atan2(y,x)</code> 所选的正向径向分支；真实机构若允许杆跨过底座轴，还可能有底座转半圈、径向取负的其他候选，需按实际限位检查。</div>
+  <div class="formula" data-tex="\begin{aligned}\rho &amp;=L_1\sin q_2+L_2\sin(q_2+q_3)\\x' &amp;=\rho\cos q_1,\qquad y'=\rho\sin q_1\\z' &amp;=d+L_1\cos q_2+L_2\cos(q_2+q_3)\end{aligned}">ρ = L₁ sin(q₂)+L₂ sin(q₂+q₃)；x′=ρ cos(q₁)，y′=ρ sin(q₁)，z′=d+L₁ cos(q₂)+L₂ cos(q₂+q₃)</div>
+  <p>最后用正运动学得到 <span data-tex="(x',y',z')">(x′,y′,z′)</span>，和输入目标核对。实验台右下角显示的就是这个回代误差。</p>
+  <div class="card warning"><strong>两个特殊处：</strong>目标落在底座竖直轴上（<span data-tex="r=0">r=0</span>）时，<span data-tex="q_1">q1</span> 没有唯一方位，本实验台不擅自指定它；目标超出可达环时不画“假机械臂”。此外，本页只展示 <span data-tex="q_1=\operatorname{atan2}(y,x)">q1=atan2(y,x)</span> 所选的正向径向分支；真实机构若允许杆跨过底座轴，还可能有底座转半圈、径向取负的其他候选，需按实际限位检查。</div>
   <section class="card callout"><h3>学完再去 ROS2-04</h3><p>现在你应当能用两张图解释 <code>q1、q2、q3、d、r、h</code>，并分清零位与当前姿态。<a href="ros2/04-3r-analytic-ik.html">ROS2-04</a> 再把这些通用关系代入那台 3R 的 URDF、限位和 Python 求解器。网页实验台不是 RViz，也不会自动驱动 ROS 节点。</p></section>
 </main>
 <script>
@@ -239,5 +241,20 @@
   draggable('side-view',p=>{const r=Math.max(0,(p.x-shoulder.x)/sideScale),h=(shoulder.y-p.y)/sideScale,angle=Math.atan2(Number(inputs[1].value),Number(inputs[0].value));inputs[0].value=(r*Math.cos(angle)).toFixed(3);inputs[1].value=(r*Math.sin(angle)).toFixed(3);inputs[2].value=(h+d).toFixed(3);});
   render();
 })();
+</script>
+<script>
+  addEventListener('load', () => {
+    if (!window.katex) return; // Keep the readable text fallback if the CDN is unavailable.
+    document.querySelectorAll('[data-tex]').forEach(element => {
+      try {
+        katex.render(element.dataset.tex, element, {
+          displayMode: element.classList.contains('formula'),
+          throwOnError: true
+        });
+      } catch (error) {
+        console.error('12a math rendering failed:', error);
+      }
+    });
+  });
 </script>
 </body></html>
