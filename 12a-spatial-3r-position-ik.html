@@ -23,6 +23,7 @@
     .explain-grid svg{display:block;width:100%;max-width:420px;height:auto;margin:auto}
     .explain-grid text{fill:var(--text);font:14px system-ui,"Microsoft YaHei",sans-serif}
     .sketch-axis{stroke:#647b9e;stroke-width:2}.sketch-guide{stroke:var(--violet);stroke-width:2;stroke-dasharray:5 5}.sketch-s{stroke:var(--muted);stroke-width:2;stroke-dasharray:6 5}.sketch-l1{stroke:var(--yellow);stroke-width:7;stroke-linecap:round}.sketch-l2{stroke:var(--green);stroke-width:7;stroke-linecap:round}.sketch-base{fill:var(--blue)}.sketch-elbow{fill:var(--yellow)}.sketch-target{fill:var(--pink)}.sketch-arc{fill:none;stroke:var(--violet);stroke-width:2}
+    .proof-arc-q2{fill:none;stroke:var(--yellow);stroke-width:2.5}.proof-arc-q3{fill:none;stroke:#67e8f9;stroke-width:2.5}.proof-arc-beta{fill:none;stroke:var(--blue);stroke-width:2.5}.proof-arc-phi{fill:none;stroke:var(--violet);stroke-width:2.5}.explain-grid .proof-q2{fill:var(--yellow)}.explain-grid .proof-q3{fill:#67e8f9}.explain-grid .proof-beta{fill:var(--blue)}.explain-grid .proof-phi{fill:var(--violet)}
     @media(max-width:800px){.prereq-list{grid-template-columns:1fr}}
     @media(max-width:800px){.explain-grid{grid-template-columns:1fr}}
   </style>
@@ -149,6 +150,37 @@
   </div>
   <p class="mini">两图的肩 S、目标 P 和 L1、L2 长度完全相同，只有肘点位于虚线 s 的哪一侧不同；图是示意，不表示上方实验台的实时比例或关节限位。</p>
   <div class="formula" data-tex="\begin{aligned}c_3 &amp;= \frac{r^2+h^2-L_1^2-L_2^2}{2L_1L_2}\\q_3 &amp;= \pm\arccos(c_3)\end{aligned}">c₃ = (r²+h²−L₁²−L₂²)/(2L₁L₂)；q₃ = ±acos(c₃)</div>
+  <p><strong>接下来求肩角，先把角拆开看。</strong>只看 <span data-tex="q_3>0">q3&gt;0</span> 这一支的示意图；另一支仍按带符号的角计算。</p>
+  <div class="explain-grid" aria-label="肩角公式的两个角度与直角三角形推导">
+    <figure><figcaption>① 肩角 = 目标方向 − 局部偏角</figcaption>
+      <svg viewBox="0 0 340 300" role="img" aria-label="肩 S 的竖直零位到黄杆是 q2，到目标虚线是 φ，两者之间的夹角是 β，所以 q2 等于 φ 减 β">
+        <line class="sketch-axis" x1="70" y1="255" x2="70" y2="46"/><text x="78" y="53">+Z 零位</text>
+        <line class="sketch-s" x1="70" y1="255" x2="225" y2="171"/>
+        <line class="sketch-l1" x1="70" y1="255" x2="120" y2="155"/><line class="sketch-l2" x1="120" y1="155" x2="225" y2="171"/>
+        <path class="proof-arc-q2" d="M 70 217 A 38 38 0 0 1 87 221"/>
+        <path class="proof-arc-phi" d="M 70 185 A 70 70 0 0 1 132 222"/>
+        <path class="proof-arc-beta" d="M 108 179 A 85 85 0 0 1 145 215"/>
+        <circle class="sketch-base" cx="70" cy="255" r="7"/><circle class="sketch-elbow" cx="120" cy="155" r="7"/><circle class="sketch-target" cx="225" cy="171" r="8"/>
+        <text x="35" y="278">肩 S</text><text x="113" y="138">肘</text><text x="232" y="176">目标 P</text><text x="84" y="174">L1</text><text x="171" y="150">L2</text>
+        <text class="proof-q2" x="90" y="235">q2</text><text class="proof-phi" x="139" y="246">φ</text><text class="proof-beta" x="135" y="184">β</text>
+      </svg>
+    </figure>
+    <figure><figcaption>② 暂把黄杆摆正：求出 β</figcaption>
+      <svg viewBox="0 0 340 300" role="img" aria-label="把黄色 L1 暂时摆竖直，绿色 L2 的横向分量 a 等于 L2 sin q3，肩到目标的纵向分量 b 等于 L1 加 L2 cos q3，故 β 等于 atan2(a,b)">
+        <line class="sketch-axis" x1="68" y1="255" x2="68" y2="39"/><text x="77" y="46">局部 +Z</text>
+        <line class="sketch-s" x1="68" y1="255" x2="188" y2="74"/>
+        <line class="sketch-guide" x1="68" y1="74" x2="188" y2="74"/><line class="sketch-guide" x1="68" y1="130" x2="188" y2="130"/><line class="sketch-guide" x1="188" y1="74" x2="188" y2="130"/>
+        <line class="sketch-l1" x1="68" y1="255" x2="68" y2="130"/><line class="sketch-l2" x1="68" y1="130" x2="188" y2="74"/>
+        <path class="proof-arc-beta" d="M 68 210 A 45 45 0 0 1 93 218"/>
+        <path class="proof-arc-q3" d="M 68 99 A 31 31 0 0 1 96 117"/>
+        <circle class="sketch-base" cx="68" cy="255" r="7"/><circle class="sketch-elbow" cx="68" cy="130" r="7"/><circle class="sketch-target" cx="188" cy="74" r="8"/>
+        <text x="34" y="278">肩 S</text><text x="77" y="148">肘</text><text x="195" y="79">目标 P</text><text x="20" y="182">L1</text><text x="129" y="120">L2</text>
+        <text class="proof-q3" x="102" y="106">q3</text><text class="proof-beta" x="105" y="227">β</text><text x="115" y="65">a</text><text x="120" y="148">L₂ sin q₃</text><text x="200" y="113">L₂ cos q₃</text><text x="39" y="214">b</text>
+      </svg>
+    </figure>
+  </div>
+  <p>左图中，从竖直零位到目标虚线的角 <span data-tex="\phi=\operatorname{atan2}(r,h)">φ=atan2(r,h)</span>，正好由肩角和局部偏角组成：<span data-tex="\phi=q_2+\beta">φ=q₂+β</span>。右图只是把黄杆暂时摆正来量偏角：横边 <span data-tex="a=L_2\sin q_3">a=L₂sin q₃</span>，竖边 <span data-tex="b=L_1+L_2\cos q_3">b=L₁+L₂cos q₃</span>，因此 <span data-tex="\beta=\operatorname{atan2}(a,b)">β=atan2(a,b)</span>。两式相减才得到下面的 <span data-tex="q_2">q₂</span> 公式。</p>
+  <p class="mini">两幅角度图只示意 <span data-tex="q_3>0">q3&gt;0</span>。若取负支，<span data-tex="L_2\sin q_3">L₂sin q₃</span> 与 <span data-tex="\beta">β</span> 可为负；公式仍用带符号的 <span data-tex="\operatorname{atan2}">atan2</span>，不用把角度取绝对值。</p>
   <div class="formula" data-tex="\begin{aligned}q_2 &amp;=\operatorname{atan2}(r,h)\\ &amp;\quad-\operatorname{atan2}\!\left(L_2\sin q_3,\,L_1+L_2\cos q_3\right)\end{aligned}">q₂ = atan2(r,h) − atan2(L₂ sin(q₃), L₁+L₂ cos(q₃))</div>
   <p>切换实验台的“q3 正支/负支”，你会看到两种肘位置，但粉色目标不变。到底哪支可执行，还要看实际关节限位；这里和 12 一样用角度正负命名，避免把纸面上肘点的上下位置误当成关节角符号。</p>
   <div class="formula" data-tex="\begin{aligned}\rho &amp;=L_1\sin q_2+L_2\sin(q_2+q_3)\\x' &amp;=\rho\cos q_1,\qquad y'=\rho\sin q_1\\z' &amp;=d+L_1\cos q_2+L_2\cos(q_2+q_3)\end{aligned}">ρ = L₁ sin(q₂)+L₂ sin(q₂+q₃)；x′=ρ cos(q₁)，y′=ρ sin(q₁)，z′=d+L₁ cos(q₂)+L₂ cos(q₂+q₃)</div>
