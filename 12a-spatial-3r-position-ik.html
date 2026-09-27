@@ -183,8 +183,13 @@
   <p class="mini">两幅角度图只示意 <span data-tex="q_3>0">q3&gt;0</span>。若取负支，<span data-tex="L_2\sin q_3">L₂sin q₃</span> 与 <span data-tex="\beta">β</span> 可为负；公式仍用带符号的 <span data-tex="\operatorname{atan2}">atan2</span>，不用把角度取绝对值。</p>
   <div class="formula" data-tex="\begin{aligned}q_2 &amp;=\operatorname{atan2}(r,h)\\ &amp;\quad-\operatorname{atan2}\!\left(L_2\sin q_3,\,L_1+L_2\cos q_3\right)\end{aligned}">q₂ = atan2(r,h) − atan2(L₂ sin(q₃), L₁+L₂ cos(q₃))</div>
   <p>切换实验台的“q3 正支/负支”，你会看到两种肘位置，但粉色目标不变。到底哪支可执行，还要看实际关节限位；这里和 12 一样用角度正负命名，避免把纸面上肘点的上下位置误当成关节角符号。</p>
+  <div class="card callout">
+    <strong>最后一步是验算：把求出的角度代回去，看机械臂是否真的到达目标。</strong>
+    <p>前面的 <span data-tex="r=\sqrt{x^2+y^2}">r=√(x²+y²)</span> 是<strong>输入目标</strong>离底座竖直轴的水平距离。下面新出现的 <span data-tex="\rho">ρ</span> 是希腊字母 rho（不是字母 p），表示<strong>由关节角重新算出</strong>的水平径向坐标：黄杆贡献 <span data-tex="L_1\sin q_2">L₁ sin q₂</span>，绿杆贡献 <span data-tex="L_2\sin(q_2+q_3)">L₂ sin(q₂+q₃)</span>。</p>
+    <p><span data-tex="x',y',z'">x′、y′、z′</span> 上的撇号表示“回算结果”，不是另一个目标。用 <span data-tex="q_1">q₁</span> 把 <span data-tex="\rho">ρ</span> 分到 X、Y 方向，再算出高度 <span data-tex="z'">z′</span>；最后比较 <span data-tex="(x',y',z')">(x′,y′,z′)</span> 与输入的 <span data-tex="(x,y,z)">(x,y,z)</span>。在本页选择的正向径向分支上，正确解应有 <span data-tex="\rho\approx r">ρ≈r</span>；<span data-tex="\rho">ρ</span> 本身是带符号的径向坐标，不能在所有分支都当成非负距离。</p>
+  </div>
   <div class="formula" data-tex="\begin{aligned}\rho &amp;=L_1\sin q_2+L_2\sin(q_2+q_3)\\x' &amp;=\rho\cos q_1,\qquad y'=\rho\sin q_1\\z' &amp;=d+L_1\cos q_2+L_2\cos(q_2+q_3)\end{aligned}">ρ = L₁ sin(q₂)+L₂ sin(q₂+q₃)；x′=ρ cos(q₁)，y′=ρ sin(q₁)，z′=d+L₁ cos(q₂)+L₂ cos(q₂+q₃)</div>
-  <p>最后用正运动学得到 <span data-tex="(x',y',z')">(x′,y′,z′)</span>，和输入目标核对。实验台右下角显示的就是这个回代误差。</p>
+  <p>实验台右下角显示回算位置与输入目标之间的误差；误差接近零，才说明这组角度确实能到达目标。</p>
   <div class="card warning"><strong>两个特殊处：</strong>目标落在底座竖直轴上（<span data-tex="r=0">r=0</span>）时，<span data-tex="q_1">q1</span> 没有唯一方位，本实验台不擅自指定它；目标超出可达环时不画“假机械臂”。此外，本页只展示 <span data-tex="q_1=\operatorname{atan2}(y,x)">q1=atan2(y,x)</span> 所选的正向径向分支；真实机构若允许杆跨过底座轴，还可能有底座转半圈、径向取负的其他候选，需按实际限位检查。</div>
   <section class="card callout"><h3>学完再去 ROS2-04</h3><p>现在你应当能用两张图解释 <code>q1、q2、q3、d、r、h</code>，并分清零位与当前姿态。<a href="ros2/04-3r-analytic-ik.html">ROS2-04</a> 再把这些通用关系代入那台 3R 的 URDF、限位和 Python 求解器。网页实验台不是 RViz，也不会自动驱动 ROS 节点。</p></section>
 </main>
