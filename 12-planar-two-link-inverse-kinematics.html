@@ -36,6 +36,13 @@
     .derive { background: var(--card-sub); border: 1px solid var(--line); border-radius: 6px; padding: 14px 18px; margin: 14px 0; }
         
   </style>
+  <style>
+    /* Keep feedback legible regardless of the browser's light/dark system Canvas color. */
+    .status.ok { background: #12332e; color: #e6fff5; border: 1px solid #2f8b70; }
+    .status.bad { background: #3a2028; color: #ffe7ec; border: 1px solid #c46979; }
+    .solution { background: #142b38; }
+    .solution.down { background: #332717; }
+  </style>
 </head>
 <body>
 <main>
