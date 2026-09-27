@@ -24,6 +24,7 @@
     .explain-grid text{fill:var(--text);font:14px system-ui,"Microsoft YaHei",sans-serif}
     .sketch-axis{stroke:#647b9e;stroke-width:2}.sketch-guide{stroke:var(--violet);stroke-width:2;stroke-dasharray:5 5}.sketch-s{stroke:var(--muted);stroke-width:2;stroke-dasharray:6 5}.sketch-l1{stroke:var(--yellow);stroke-width:7;stroke-linecap:round}.sketch-l2{stroke:var(--green);stroke-width:7;stroke-linecap:round}.sketch-base{fill:var(--blue)}.sketch-elbow{fill:var(--yellow)}.sketch-target{fill:var(--pink)}.sketch-arc{fill:none;stroke:var(--violet);stroke-width:2}
     .proof-arc-q2{fill:none;stroke:var(--yellow);stroke-width:2.5}.proof-arc-q3{fill:none;stroke:#67e8f9;stroke-width:2.5}.proof-arc-beta{fill:none;stroke:var(--blue);stroke-width:2.5}.proof-arc-phi{fill:none;stroke:var(--violet);stroke-width:2.5}.explain-grid .proof-q2{fill:var(--yellow)}.explain-grid .proof-q3{fill:#67e8f9}.explain-grid .proof-beta{fill:var(--blue)}.explain-grid .proof-phi{fill:var(--violet)}
+    .fk3d{max-width:650px;margin:16px auto}.fk3d svg{display:block;width:100%;height:auto;background:#060d19;border:1px solid var(--line);border-radius:10px}.fk3d .axis{stroke:#7186a6;stroke-width:2}.fk3d .component{stroke:var(--violet);stroke-width:2;stroke-dasharray:6 5}.fk3d .radial{stroke:var(--blue);stroke-width:2.5;stroke-dasharray:7 5}.fk3d .height{stroke:var(--pink);stroke-width:2;stroke-dasharray:6 5}.fk3d .arm-a{stroke:var(--yellow);stroke-width:7;stroke-linecap:round}.fk3d .arm-b{stroke:var(--green);stroke-width:7;stroke-linecap:round}.fk3d text{fill:var(--text);font:16px system-ui,"Microsoft YaHei",sans-serif;paint-order:stroke fill;stroke:#060d19;stroke-width:4px;stroke-linejoin:round}.fk3d .value-label{font-size:14px}.fk3d .control{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:10px 0}.fk3d .control input{width:min(230px,55vw);accent-color:var(--blue)}.fk3d .values{text-align:center;margin:6px 0;color:var(--text)}
     @media(max-width:800px){.prereq-list{grid-template-columns:1fr}}
     @media(max-width:800px){.explain-grid{grid-template-columns:1fr}}
   </style>
@@ -188,6 +189,23 @@
     <p>前面的 <span data-tex="r=\sqrt{x^2+y^2}">r=√(x²+y²)</span> 是<strong>输入目标</strong>离底座竖直轴的水平距离。下面新出现的 <span data-tex="\rho">ρ</span> 是希腊字母 rho（不是字母 p），表示<strong>由关节角重新算出</strong>的水平径向坐标：黄杆贡献 <span data-tex="L_1\sin q_2">L₁ sin q₂</span>，绿杆贡献 <span data-tex="L_2\sin(q_2+q_3)">L₂ sin(q₂+q₃)</span>。</p>
     <p><span data-tex="x',y',z'">x′、y′、z′</span> 上的撇号表示“回算结果”，不是另一个目标。用 <span data-tex="q_1">q₁</span> 把 <span data-tex="\rho">ρ</span> 分到 X、Y 方向，再算出高度 <span data-tex="z'">z′</span>；最后比较 <span data-tex="(x',y',z')">(x′,y′,z′)</span> 与输入的 <span data-tex="(x,y,z)">(x,y,z)</span>。在本页选择的正向径向分支上，正确解应有 <span data-tex="\rho\approx r">ρ≈r</span>；<span data-tex="\rho">ρ</span> 本身是带符号的径向坐标，不能在所有分支都当成非负距离。</p>
   </div>
+  <figure class="fk3d" aria-label="三维回算图：水平径向 rho 分解为 x 撇和 y 撇，目标高度 z 撇从底座 XY 平面量起">
+    <figcaption><strong>把回算结果放回三维坐标系</strong>：看虚线如何从 <span data-tex="\rho">ρ</span> 拆成 <span data-tex="x'">x′</span>、<span data-tex="y'">y′</span>，再向上得到 <span data-tex="z'">z′</span>。</figcaption>
+    <svg id="fk3d-view" viewBox="45 0 390 390" role="img" aria-label="底座坐标轴、黄绿两根连杆、末端及其在 XY 平面的投影；可用下方滑块转动观察视角">
+      <line id="fk3d-x-axis" class="axis"/><line id="fk3d-y-axis" class="axis"/><line id="fk3d-z-axis" class="axis"/>
+      <line id="fk3d-x-part" class="component"/><line id="fk3d-y-part" class="component"/><line id="fk3d-rho" class="radial"/><line id="fk3d-height" class="height"/>
+      <line id="fk3d-base-arm" class="axis"/><line id="fk3d-arm1" class="arm-a"/><line id="fk3d-arm2" class="arm-b"/>
+      <circle id="fk3d-origin" r="5" class="joint"/><circle id="fk3d-shoulder" r="6" class="joint"/><circle id="fk3d-elbow" r="6" class="elbow"/><circle id="fk3d-ground" r="5" fill="var(--violet)"/><circle id="fk3d-end" r="8" class="target"/>
+      <text id="fk3d-x-axis-label">+X</text><text id="fk3d-y-axis-label">+Y</text><text id="fk3d-z-axis-label">+Z</text>
+      <text id="fk3d-x-label" class="value-label">x′</text><text id="fk3d-y-label" class="value-label">y′</text><text id="fk3d-rho-label" class="value-label">ρ</text><text id="fk3d-z-label" class="value-label">z′</text>
+      <text id="fk3d-origin-label" class="value-label">底座 O</text><text id="fk3d-d-label" class="value-label">d</text><text id="fk3d-end-label" class="value-label">末端 P′</text>
+    </svg>
+    <div class="control"><label for="fk3d-angle">转动观察视角</label><input id="fk3d-angle" type="range" min="10" max="70" value="25" step="1"><output id="fk3d-angle-value">25°</output></div>
+    <p id="fk3d-values" class="values" aria-live="polite"></p>
+    <p class="mini">紫色折线是地面 XY 平面的 <span data-tex="x'">x′</span>、<span data-tex="y'">y′</span> 分量，蓝虚线是同一条水平投影 <span data-tex="\rho">ρ</span>，粉虚线是从 XY 平面量起的高度 <span data-tex="z'">z′</span>。地面虚线不是机械臂；黄、绿实线才是连杆。上面改目标或切换 <span data-tex="q_3">q₃</span> 分支，这张图也会更新。</p>
+  </figure>
+  <p><strong>先看地面：</strong>蓝虚线 <span data-tex="\rho">ρ</span> 是水平直角三角形的斜边，<span data-tex="q_1">q₁</span> 从 +X 方向量起，所以 X 方向的邻边是 <span data-tex="x'=\rho\cos q_1">x′=ρ cos q₁</span>，Y 方向的对边是 <span data-tex="y'=\rho\sin q_1">y′=ρ sin q₁</span>。这只是把同一条水平投影拆成两个坐标，并没有再增加一根杆。</p>
+  <p><strong>再看高度：</strong>从底座 XY 平面到末端，先经过肩高 <span data-tex="d">d</span>，再加上黄杆和绿杆各自的竖直投影，就得到 <span data-tex="z'">z′</span>。绿杆相对竖直方向的角是 <span data-tex="q_2+q_3">q₂+q₃</span>，所以它的竖直投影用 <span data-tex="L_2\cos(q_2+q_3)">L₂ cos(q₂+q₃)</span>，不是只看 <span data-tex="q_3">q₃</span>。</p>
   <div class="formula" data-tex="\begin{aligned}\rho &amp;=L_1\sin q_2+L_2\sin(q_2+q_3)\\x' &amp;=\rho\cos q_1,\qquad y'=\rho\sin q_1\\z' &amp;=d+L_1\cos q_2+L_2\cos(q_2+q_3)\end{aligned}">ρ = L₁ sin(q₂)+L₂ sin(q₂+q₃)；x′=ρ cos(q₁)，y′=ρ sin(q₁)，z′=d+L₁ cos(q₂)+L₂ cos(q₂+q₃)</div>
   <p>实验台右下角显示回算位置与输入目标之间的误差；误差接近零，才说明这组角度确实能到达目标。</p>
   <div class="card warning"><strong>两个特殊处：</strong>目标落在底座竖直轴上（<span data-tex="r=0">r=0</span>）时，<span data-tex="q_1">q1</span> 没有唯一方位，本实验台不擅自指定它；目标超出可达环时不画“假机械臂”。此外，本页只展示 <span data-tex="q_1=\operatorname{atan2}(y,x)">q1=atan2(y,x)</span> 所选的正向径向分支；真实机构若允许杆跨过底座轴，还可能有底座转半圈、径向取负的其他候选，需按实际限位检查。</div>
@@ -207,6 +225,32 @@
   const side=(r,h)=>({x:shoulder.x+sideScale*r,y:shoulder.y-sideScale*h});
   const anglePoint=(origin,radius,angle)=>({x:origin.x+radius*Math.sin(angle),y:origin.y-radius*Math.cos(angle)});
   const angleArc=(origin,radius,from,to)=>{const a=anglePoint(origin,radius,from),b=anglePoint(origin,radius,to),delta=to-from;return `M ${a.x} ${a.y} A ${radius} ${radius} 0 ${Math.abs(delta)>Math.PI?1:0} ${delta>=0?1:0} ${b.x} ${b.y}`;};
+  const fk3dMoving=['fk3d-x-part','fk3d-y-part','fk3d-rho','fk3d-height','fk3d-base-arm','fk3d-arm1','fk3d-arm2','fk3d-shoulder','fk3d-elbow','fk3d-ground','fk3d-end','fk3d-x-label','fk3d-y-label','fk3d-rho-label','fk3d-z-label','fk3d-d-label','fk3d-end-label'];
+  function render3d(fk,elbow3d){
+    const angle=Number($('fk3d-angle').value),a=angle*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);
+    $('fk3d-angle-value').textContent=`${angle}°`;
+    const originY=190+Math.max(-25,Math.min(60,(fk?fk[2]:.65)*90));
+    const project=([x,y,z])=>({x:245+185*(ca*x-sa*y),y:originY+185*(.42*sa*x+.42*ca*y-z)});
+    const O=project([0,0,0]),X=project([.95,0,0]),Y=project([0,.95,0]),Z=project([0,0,.95]);
+    setLine('fk3d-x-axis',O.x,O.y,X.x,X.y);setLine('fk3d-y-axis',O.x,O.y,Y.x,Y.y);setLine('fk3d-z-axis',O.x,O.y,Z.x,Z.y);
+    setCircle('fk3d-origin',O.x,O.y);
+    setText('fk3d-origin-label',O.x-68,O.y+18,'底座 O');
+    setText('fk3d-x-axis-label',X.x+4,X.y+4,'+X');setText('fk3d-y-axis-label',Y.x-29,Y.y+4,'+Y');setText('fk3d-z-axis-label',Z.x+5,Z.y-5,'+Z');
+    for(const id of fk3dMoving)$(id).style.visibility=fk?'visible':'hidden';
+    if(!fk){$('fk3d-values').textContent='目标不可达：暂无回算坐标。';return;}
+    const A=project([fk[0],0,0]),Q=project([fk[0],fk[1],0]),P=project(fk),S=project([0,0,d]),E=project(elbow3d);
+    setLine('fk3d-x-part',O.x,O.y,A.x,A.y);setLine('fk3d-y-part',A.x,A.y,Q.x,Q.y);
+    setLine('fk3d-rho',O.x,O.y,Q.x,Q.y);setLine('fk3d-height',Q.x,Q.y,P.x,P.y);
+    setLine('fk3d-base-arm',O.x,O.y,S.x,S.y);setLine('fk3d-arm1',S.x,S.y,E.x,E.y);setLine('fk3d-arm2',E.x,E.y,P.x,P.y);
+    for(const [id,p] of [['fk3d-shoulder',S],['fk3d-elbow',E],['fk3d-ground',Q],['fk3d-end',P]])setCircle(id,p.x,p.y);
+    setText('fk3d-x-label',A.x+8,A.y-10,'x′');
+    setText('fk3d-y-label',(A.x+Q.x)/2-52,(A.y+Q.y)/2+23,'y′');
+    setText('fk3d-rho-label',(O.x+Q.x)/2+44,(O.y+Q.y)/2+27,'ρ');
+    setText('fk3d-z-label',Q.x+10,(Q.y+P.y)/2,'z′');
+    setText('fk3d-d-label',S.x-19,(S.y+O.y)/2,'d');
+    setText('fk3d-end-label',P.x+12,P.y-10,'末端 P′');
+    $('fk3d-values').textContent=`水平 ρ=${fmt(Math.hypot(fk[0],fk[1]))} m → x′=${fmt(fk[0])} m，y′=${fmt(fk[1])} m；高度 z′=${fmt(fk[2])} m。`;
+  }
   const branch=()=>document.querySelector('input[name="branch"]:checked').value;
   function render(){
     const [x,y,z]=inputs.map(e=>Number(e.value));
@@ -233,6 +277,7 @@
     for(const id of ['top-arm1','top-arm2','side-arm1','side-arm2','top-elbow','side-elbow','side-l1','side-l2','side-q2','side-q3','side-q2-arc','side-q3-arc','side-q3-ref'])$(id).style.visibility=ok?'visible':'hidden';
     const status=$('status');status.classList.toggle('bad',!ok);
     if(!ok){
+      render3d(null,null);
       status.textContent=r<=1e-8?'目标在底座 Z 轴上：q1 不唯一；请稍微拖离中心。':`肩到目标距离 ${fmt(s)} m，不在 [${fmt(Math.abs(l1-l2))}, ${fmt(l1+l2)}] m 内：几何不可达。`;
       $('side-q2-value').textContent='q2=—';$('side-q3-value').textContent='q3=—';
       $('angles').textContent='无唯一可画候选';$('fk').textContent='—';return;
@@ -258,12 +303,14 @@
     $('side-q3-value').textContent=`q3=${degrees(q3)}`;
     const rho=l1*Math.sin(q2)+l2*Math.sin(q2+q3);
     const fk=[rho*Math.cos(q1),rho*Math.sin(q1),d+l1*Math.cos(q2)+l2*Math.cos(q2+q3)];
+    render3d(fk,[er*Math.cos(q1),er*Math.sin(q1),d+eh]);
     const error=Math.hypot(fk[0]-x,fk[1]-y,fk[2]-z);
     status.textContent=`可达：已画出 q3 ${q3>=0?'正':'负'}支。切换分支可看到肘部换边，末端目标不变。这里尚未检查具体 URDF 限位。`;
     $('angles').textContent=`q1=${degrees(q1)}, q2=${degrees(q2)}, q3=${degrees(q3)}`;
     $('fk').textContent=`(${fk.map(fmt).join(', ')}) m；误差 ${error.toExponential(1)} m`;
   }
   for(const input of inputs)input.addEventListener('input',render);
+  $('fk3d-angle').addEventListener('input',render);
   for(const radio of document.querySelectorAll('input[name="branch"]'))radio.addEventListener('change',render);
   $('reset').addEventListener('click',()=>{inputs[0].value='0.41';inputs[1].value='0.29';inputs[2].value='0.65';document.querySelector('input[value="positive"]').checked=true;render();});
   function draggable(svgId,handler){
