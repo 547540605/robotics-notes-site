@@ -115,9 +115,15 @@ def solve_position_ik(x, y, z, eps=1e-9):
   }
   function candidateHtml(index, q1, q2, q3, target) {
     const valid = q2 >= q2Limit[0] && q2 <= q2Limit[1] && q3 >= q3Limit[0] && q3 <= q3Limit[1];
+    const checks = [['q2 / joint2', q2, q2Limit], ['q3 / joint3', q3, q3Limit]].map(([name, value, limits]) => {
+      const range = `[${limits[0].toFixed(6)}, ${limits[1].toFixed(6)}] rad（${deg(limits[0])} 至 ${deg(limits[1])}）`;
+      const exceeded = value < limits[0] ? limits[0] - value : value > limits[1] ? value - limits[1] : 0;
+      const verdict = exceeded > 0 ? `${value < limits[0] ? '低于下限' : '高于上限'}，超出 ${exceeded.toFixed(6)} rad（${(exceeded * 180 / Math.PI).toFixed(3)}°）` : '在范围内';
+      return `<li><strong>${name}</strong>：${value.toFixed(6)} rad（${deg(value)}）；允许 ${range}。${verdict}。</li>`;
+    }).join('');
     const p = forward(q1, q2, q3);
     const error = Math.hypot(p[0] - target[0], p[1] - target[1], p[2] - target[2]);
-    return `<div class="candidate ${valid ? 'valid' : 'invalid'}"><b>候选 ${index}：q3 ${q3 >= 0 ? '正支' : '负支'}</b> <span class="badge ${valid ? 'ok' : 'bad'}">${valid ? '限位合法' : '超出限位'}</span><br><span class="small">q1=${deg(q1)}，q2=${deg(q2)}，q3=${deg(q3)}<br>FK 回代 = (${near(p[0])}, ${near(p[1])}, ${near(p[2])}) m；误差 ${error.toExponential(2)} m</span></div>`;
+    return `<div class="candidate ${valid ? 'valid' : 'invalid'}"><b>候选 ${index}：q3 ${q3 >= 0 ? '正支' : '负支'}</b> <span class="badge ${valid ? 'ok' : 'bad'}">${valid ? '限位合法' : '超出限位'}</span><br><span class="small">q1=${deg(q1)}，q2=${deg(q2)}，q3=${deg(q3)}<br>FK 回代 = (${near(p[0])}, ${near(p[1])}, ${near(p[2])}) m；误差 ${error.toExponential(2)} m</span><ul class="small">${checks}</ul></div>`;
   }
   function solve() {
     const x = Number(document.querySelector('#x').value), y = Number(document.querySelector('#y').value), z = Number(document.querySelector('#z').value);
@@ -131,7 +137,7 @@ def solve_position_ik(x, y, z, eps=1e-9):
     const a = Math.acos(c3);
     const q2a = Math.atan2(r, h) - Math.atan2(L2*Math.sin(a), L1 + L2*Math.cos(a));
     const q2b = Math.atan2(r, h) - Math.atan2(L2*Math.sin(-a), L1 + L2*Math.cos(-a));
-    out.innerHTML = `<h3>先读中间量</h3><p class="small">r=${near(r)} m，h=${near(h)} m，肩部距离=${near(distance)} m，q1=${deg(q1)}，c3=${near(c3)}</p>${candidateHtml(1,q1,q2a,a,[x,y,z])}${candidateHtml(2,q1,q2b,-a,[x,y,z])}`;
+    out.innerHTML = `<h3>先读中间量</h3><p class="small">r=${near(r)} m，h=${near(h)} m，肩部距离=${near(distance)} m，q1=${deg(q1)}，c3=${near(c3)}</p><p class="small">下面逐项检查 q2、q3 的 URDF 限位，按未四舍五入的弧度值判断。注意 1.57 rad ≈ 89.95°，不等于 π/2；因此显示为 90.00° 的 q2 仍可能略超上限。FK 回代正确只说明几何解正确，不代表关节限位合法。</p>${candidateHtml(1,q1,q2a,a,[x,y,z])}${candidateHtml(2,q1,q2b,-a,[x,y,z])}`;
   }
   document.querySelector('#solve').addEventListener('click', solve);
   solve();
