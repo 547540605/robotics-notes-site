@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ROS 2 环境准备：WSL2 + Ubuntu 24.04 + Jazzy</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1120; --panel:#1e293b; --line:#334155; --text:#f8fafc; --muted:#cbd5e1; --blue:#38bdf8; --green:#34d399; --amber:#fbbf24; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.75 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; }
+    main { max-width:1000px; margin:auto; padding:28px 24px 80px; }
+    nav { display:flex; flex-wrap:wrap; gap:10px 20px; padding-bottom:14px; border-bottom:1px solid var(--line); font-size:.9rem; }
+    a { color:var(--blue); }
+    h1 { font-size:2rem; line-height:1.35; margin:26px 0 6px; }
+    h2 { font-size:1.4rem; color:var(--blue); border-bottom:1px solid var(--line); padding-bottom:6px; margin:40px 0 15px; }
+    h3 { font-size:1.05rem; margin:24px 0 10px; }
+    p,li { color:var(--muted); }
+    p { margin:10px 0; }
+    ol,ul { padding-left:1.5rem; }
+    li { margin:8px 0; }
+    code,pre { font-family:Consolas,"Cascadia Code",monospace; }
+    code { color:var(--blue); }
+    pre { background:#070d1e; border:1px solid var(--line); border-radius:6px; padding:16px; overflow-x:auto; line-height:1.55; font-size:.9rem; }
+    pre code { color:#e2e8f0; }
+    .note { border-left:4px solid var(--blue); background:var(--panel); padding:12px 18px; margin:18px 0; }
+    .warn { border-left-color:var(--amber); }
+    .ok { border-left-color:var(--green); }
+    .note p { margin:4px 0; }
+    .terminal { color:var(--green); font-weight:700; margin:18px 0 5px; }
+    .terminal.windows { color:var(--amber); }
+    @media(max-width:600px) { main { padding:20px 16px 60px; } h1 { font-size:1.55rem; } pre { font-size:.82rem; } }
+  </style>
+</head>
+<body>
+<main>
+  <nav><a href="00-progress.html">ROS 2 实战看板</a><a href="../index.html">学习目录</a><a href="01-nodes-and-topics.html">下一篇：节点与话题</a></nav>
+  <h1>ROS 2 环境准备：WSL2 + Ubuntu 24.04 + Jazzy</h1>
+  <p>这篇只解决一件事：在已有 WSL2 的 Windows 电脑上装好可运行实验的 ROS 2。目标是 Ubuntu 24.04（Noble）里的 Jazzy Desktop；后续笔记用到的 RViz 也需要图形界面。</p>
+  <div class="note warn"><p>Windows 的 PowerShell 和 WSL 内的 Ubuntu 是两个终端。以下每组命令都标明执行位置。不要把 <code>sudo apt</code> 粘到 PowerShell，也不要把 <code>wsl</code> 当作 Ubuntu 命令。</p></div>
+
+  <h2>1. 确认 WSL 与 Ubuntu 版本</h2>
+  <p class="terminal windows">在 Windows PowerShell 中</p>
+  <pre><code>wsl --list --verbose
+wsl --version</code></pre>
+  <p>列表里找 <code>Ubuntu-24.04</code>，确认它的 <code>VERSION</code> 为 <code>2</code>。已经有符合条件的发行版，就直接进入下一步；已有其他 Ubuntu 版本不要原地覆盖。</p>
+  <p>没有 Ubuntu 24.04 时，先查询可用名称，再安装。以下安装命令需以管理员身份打开 PowerShell；按提示重启并首次启动 Ubuntu，设置 Linux 用户名和密码。</p>
+  <p class="terminal windows">在管理员 PowerShell 中，仅缺少该发行版时运行</p>
+  <pre><code>wsl --list --online
+wsl --install -d Ubuntu-24.04</code></pre>
+  <p>若安装后版本显示为 1，先确认没有未备份的重要数据，再参照微软文档转换为 WSL2；正常的新安装默认就是 WSL2。需要更新 WSL 本体时，在 PowerShell 中运行 <code>wsl --update</code>，然后 <code>wsl --shutdown</code> 并重新打开 Ubuntu。</p>
+  <p class="terminal windows">在 Windows PowerShell 中打开目标发行版</p>
+  <pre><code>wsl -d Ubuntu-24.04</code></pre>
+  <p class="terminal">在 Ubuntu 终端中核对系统与区域设置</p>
+  <pre><code>cat /etc/os-release
+locale</code></pre>
+  <p>应看到 <code>VERSION_ID="24.04"</code>，区域设置包含 <code>UTF-8</code>。若没有 UTF-8，再按 <a href="https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html">ROS 官方安装页</a>的 Set locale 步骤配置；已有 UTF-8 不必改。</p>
+
+  <h2>2. 配置 ROS 软件源</h2>
+  <p>以下命令都在 Ubuntu 终端执行。先启用 Ubuntu 的 universe 仓库，再用 ROS 官方维护的 <code>ros2-apt-source</code> 包设置密钥和软件源。</p>
+  <p class="terminal">在 Ubuntu 终端中</p>
+  <pre><code>sudo apt update
+sudo apt install software-properties-common curl
+sudo add-apt-repository universe
+
+export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F '"tag_name"' | awk -F'"' '{print $4}')
+echo "$ROS_APT_SOURCE_VERSION"
+curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release &amp;&amp; echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
+sudo dpkg -i /tmp/ros2-apt-source.deb</code></pre>
+  <p><code>echo</code> 应打印非空版本号，<code>dpkg</code> 应成功结束。如果 GitHub API 或下载失败，先检查网络，再对照官方安装页的最新命令；不要在版本号为空时继续。</p>
+
+  <h2>3. 安装 Jazzy Desktop 与开发工具</h2>
+  <p>先更新软件包，再装 Desktop（含 RViz 与示例）。本系列还会编译工作空间，所以安装开发工具。</p>
+  <p class="terminal">在 Ubuntu 终端中</p>
+  <pre><code>sudo apt update
+sudo apt upgrade
+sudo apt install ros-jazzy-desktop ros-dev-tools</code></pre>
+  <div class="note warn"><p>若 <code>ros-dev-tools</code> 出现依赖冲突，先检查 <code>grep Suites /etc/apt/sources.list.d/ubuntu.sources</code>；ROS 官方指出 Ubuntu 24.04 应包含 <code>noble-updates</code> 与 <code>noble-backports</code>。先按官方说明修复软件源，不要随意强制安装。</p></div>
+
+  <h2>4. 在两个终端验证通信</h2>
+  <p>每开一个新的 Ubuntu 终端，都先加载 Jazzy 环境。第一个终端运行发送者，保持它运行；再开第二个 Ubuntu 终端运行接收者。</p>
+  <p class="terminal">Ubuntu 终端 A</p>
+  <pre><code>source /opt/ros/jazzy/setup.bash
+echo "$ROS_DISTRO"
+ros2 run demo_nodes_cpp talker</code></pre>
+  <p class="terminal">Ubuntu 终端 B</p>
+  <pre><code>source /opt/ros/jazzy/setup.bash
+ros2 run demo_nodes_py listener</code></pre>
+  <div class="note ok"><p>验收：<code>ROS_DISTRO</code> 显示 <code>jazzy</code>，A 持续出现 <code>Publishing</code>，B 持续出现 <code>I heard</code>。用 <code>Ctrl+C</code> 结束两个示例。</p></div>
+  <p>通过后可把 <code>source /opt/ros/jazzy/setup.bash</code> 加到 Ubuntu 用户的 <code>~/.bashrc</code>，方便以后打开终端自动加载；先手动验证再加，且不要把不同 ROS 发行版同时写进去。</p>
+
+  <h2>5. 验证图形界面</h2>
+  <p>后续 RViz 实验需要 WSLg。先更新 WSL 并重开 Ubuntu；在 Ubuntu 终端运行 <code>rviz2</code>。出现 RViz 窗口才算图形链路通过。窗口可打开不等于一定有硬件 3D 加速，实际渲染能力还取决于 Windows、WSL 与显卡驱动。</p>
+  <p class="terminal">在 Ubuntu 终端中</p>
+  <pre><code>source /opt/ros/jazzy/setup.bash
+rviz2</code></pre>
+  <p>若通信正常但 RViz 没窗口，先看 <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">微软的 WSL 图形应用指南</a>，确认 WSL2、WSLg 和显卡驱动；不要把图形故障误判成 ROS 通信故障。</p>
+
+  <h2>6. 接下来</h2>
+  <p>这一步只完成系统环境。下一篇 <a href="01-nodes-and-topics.html">节点与话题通信底座</a>会创建并编译自己的工作空间。项目文件优先放在 Ubuntu 的 <code>~/</code> 目录，避免在 <code>/mnt/c/</code> 下频繁编译。</p>
+  <h3>官方参考</h3>
+  <ul>
+    <li><a href="https://learn.microsoft.com/en-us/windows/wsl/install">Microsoft：安装 WSL</a></li>
+    <li><a href="https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html">ROS 2 Jazzy：Ubuntu deb 安装</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">Microsoft：WSL 图形应用</a></li>
+  </ul>
+</main>
+</body>
+</html>
