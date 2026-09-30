@@ -1,0 +1,37 @@
+:root{color-scheme:dark;--bg:#070b15;--panel:#10192b;--panel2:#0b1222;--line:#29384e;--fg:#eef5ff;--muted:#a6b5ca;--blue:#38bdf8;--green:#34d399;--amber:#fbbf24;--violet:#c4b5fd}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.8 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+main{max-width:1080px;margin:auto;padding:24px 22px 80px}
+a{color:var(--blue)}
+a:hover{text-decoration-thickness:2px}
+h1,h2,h3,h4{line-height:1.35}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);margin:.5rem 0}
+h2{margin-top:2.6rem;padding-bottom:.4rem;border-bottom:1px solid var(--line)}
+h3{margin-top:1.7rem}
+p,li{max-width:90ch}
+nav{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:.92rem}
+.lead{color:#c8d5e8;font-size:1.08rem}
+.card,.source,.translation,.supplement{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin:16px 0}
+.source{border-left:4px solid var(--blue)}
+.translation{border-left:4px solid var(--green)}
+.supplement{border-left:4px solid var(--amber)}
+.label{display:block;font-weight:750;margin-bottom:8px}
+.source .label{color:var(--blue)}
+.translation .label{color:var(--green)}
+.supplement .label{color:var(--amber)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.cards .card{margin:0}
+.muted{color:var(--muted)}
+.math{overflow-x:auto;text-align:center;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px;margin:14px 0}
+.diagram{display:block;width:100%;background:white;border-radius:8px}
+.figure-link{display:block;max-width:1000px;margin:12px auto}
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--blue)}
+iframe{display:block;width:100%;height:470px;border:1px solid var(--line);border-radius:10px;background:#fff}
+details{border:1px solid var(--line);border-radius:8px;padding:9px 13px;margin:10px 0;background:var(--panel2)}
+summary{cursor:pointer;font-weight:700}
+code{font-family:ui-monospace,Consolas,monospace}
+@media(max-width:620px){main{padding:18px 14px 60px}.card,.source,.translation,.supplement{padding:14px}iframe{height:500px}}

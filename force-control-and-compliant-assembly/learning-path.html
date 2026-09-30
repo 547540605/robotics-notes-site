@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>机器人恒力控制与柔顺装配学习路线</title>
+  <link rel="stylesheet" href="topic.css">
+</head>
+<body><main>
+  <nav><a href="../index.html" target="_top">机器人学目录</a><a href="index.html">力控专题</a><a href="nistir-7901.html">NISTIR 7901</a><a href="../36-force-impedance-admittance-control.html">第 36 课</a></nav>
+  <h1>机器人恒力控制与柔顺装配学习路线</h1>
+  <p class="lead">从恒力保持出发，理解机器人如何在接触中稳定调节作用力，再扩展到需要定位、对准、搜索、插入与退出的柔顺装配。路线用于建立概念和比较方法，不要求单轴 Demo 采用列出的全部算法。</p>
+  <section class="card"><span class="label">知识关系</span><p>上游：反馈控制、离散 PID、机器人运动接口、接触力学、传感器与信号处理。并列：力调节／力跟踪、阻抗与导纳、混合力／位置、接触状态识别。下游：恒力压合、磨抛、Peg-in-Hole、USB／连接器插拔和柔性零件装配。</p></section>
+
+  <h2>先区分两类任务</h2>
+  <div class="cards">
+    <section class="card"><h3>恒力保持</h3><p>建立接触后持续调节法向运动，使测得的力接近设定值。重点是接触过渡、超调、稳定时间、稳态误差、保持期间波动，以及环境刚度或扰动变化后的恢复。</p></section>
+    <section class="card"><h3>柔顺插拔与装配</h3><p>不只是目标力跟踪，还包括初步对准、低速接触、利用力／力矩或视觉反馈微调与搜索、插入到位判断、卡滞退出、拔出及工件无损确认。恒力调节只是其中可能的一环。</p></section>
+  </div>
+
+  <h2>1. 力控方法与评价指标总览</h2>
+  <p>先读 NIST 的 <a href="https://www.govinfo.gov/content/pkg/GOVPUB-C13-d554356d2e6e8bcd33d4ebb8b45e370e/pdf/GOVPUB-C13-d554356d2e6e8bcd33d4ebb8b45e370e.pdf">Best Practices and Performance Metrics Using Force Control for Robotic Assembly</a>。Section V 概述 A–F 六类方法；Section VII 区分力控制指标（稳定、受阻、切换、表面接触和作用力限制）与装配指标（时间、成功率、作用力）。配合本站的 <a href="nistir-7901.html">NISTIR 7901 专页</a> 逐段阅读译文；注意 2 N PI 仿真和 Demo／插拔讨论都不是报告原文。</p>
+  <p>再读 Schumacher 等人的 <a href="https://www.sim.informatik.tu-darmstadt.de/publ/download/2019_An_Introductory_Review_of_Active_Compliant_Control_Preprint.pdf">An Introductory Review of Active Compliant Control</a>，建立混合力／位置、并行力／位置、阻抗、导纳的分类与选型框架。</p>
+
+  <h2>2. 恒力调节与力控理论</h2>
+  <p>阅读 Villani 和 De Schutter 的 <a href="https://link.springer.com/book/10.1007/978-3-319-32552-1">Force Control</a>，关注直接力控、间接力控、力调节闭环与实验验证。按需补读 <a href="https://nvlpubs.nist.gov/nistpubs/ir/2015/NIST.IR.8097.pdf">NIST IR 8097：Survey of Solutions Using Force Control for Assembly</a>，比较装配场景中的实现。</p>
+  <p>对每种控制器都问：目标、反馈与输出分别是什么？输出可能是力／扭矩、速度或位置修正，其物理意义取决于底层机器人接口。</p>
+
+  <h2>3. 柔顺控制：阻抗与导纳</h2>
+  <p>先读 Hogan 的 <a href="https://www.annualreviews.org/content/journals/10.1146/annurev-control-042920-010933">Contact and Physical Interaction</a>，理解接触动力学与环境耦合稳定性。再读 Keemink 等人的 <a href="https://journals.sagepub.com/doi/full/10.1177/0278364918768950">Admittance Control for Physical Human-Robot Interaction</a>，关注滤波、内外环带宽、虚拟阻尼、延迟和稳定性。</p>
+  <p>阻抗／导纳的核心是设计力与运动之间期望的动态关系，不只是把力调到单个数值。基础直觉与交互演示见<a href="../36-force-impedance-admittance-control.html">第 36 课</a>；第 36 课的教学模型与 NIST D 节的文字定义要分开看。</p>
+
+  <h2>4. 力与位置如何分工</h2>
+  <p>读 Raibert 和 Craig 的 <a href="https://doi.org/10.1115/1.3139652">Hybrid Position/Force Control of Manipulators</a>，理解按任务约束划分位置控制方向和力控制方向：例如沿表面切向控制位置，接触法向调节力。</p>
+
+  <h2>5. 插孔、连接器与 USB 插拔</h2>
+  <p>读 Whitney 的 <a href="https://doi.org/10.1115/1.3149634">Quasi-Static Assembly of Compliantly Supported Rigid Parts</a>，理解插入时的几何误差、接触力、柔顺支撑与卡滞条件；再读 Suomalainen 等人的 <a href="https://doi.org/10.1016/j.robot.2022.104224">A Survey of Robot Manipulation in Contact</a>，把插拔放入接触操作的大背景。最后看 Song 等人的 <a href="https://doi.org/10.1109/URAI.2015.7358873">USB Assembly Strategy Based on Visual Servoing and Impedance Control</a>，观察视觉粗对准与力／力矩反馈下柔顺接触如何协同。</p>
+
+  <h2>阅读时建议记录的问题</h2>
+  <ul>
+    <li>控制器输入、反馈和输出分别是什么？输出是力／扭矩、速度还是位置？</li>
+    <li>测了哪些力／力矩方向？采样与控制带宽、延迟和滤波是多少？</li>
+    <li>接近、接触、对准、插入、到位、退出如何分状态？转换依据是什么？</li>
+    <li>超力、超行程、卡滞、数据异常如何限制和处理？</li>
+    <li>稳定性、精度、速度、成功率、工件损伤用哪些指标比较？</li>
+    <li>结论依赖哪种控制接口、环境刚度、传感器布置、工装柔顺性或视觉精度？</li>
+  </ul>
+
+  <h2>与单轴恒力 Demo 的关系</h2>
+  <div class="supplement"><span class="label">工程示例 · 非论文结论</span><p>当前 Demo 以压力板的标量反馈与目标力形成误差，由 PID 转成单轴运动指令；它适合学习力反馈闭环，但不等同于完整六维柔顺装配系统。</p><p>USB 插拔还涉及横向偏差、倾斜、边缘接触与卡滞。视觉、多方向力／力矩测量或机械柔顺可提供额外信息；单一标量力无法独立区分所有状态。这是任务和传感范围的差异，不代表单轴恒力方案本身不合理。</p></div>
+
+  <details><summary>恒力保持等于柔顺插拔吗？</summary><p>不等于。前者是一个方向上的力调节环节；后者还要处理对准、接触状态、搜索、插入完成和失败退出。</p></details>
+  <details><summary>为什么要区分控制器输出量？</summary><p>同样的力误差可以映射成力矩、速度或位置修正，底层接口与可实现的动态不同；不能只看 PI/PID 名字分类。</p></details>
+  <details><summary>什么时候需要混合力／位置控制？</summary><p>当任务在不同方向上有不同约束，例如法向保持接触力、切向跟随路径时。</p></details>
+  <details><summary>为何要单独记录接触状态？</summary><p>仅有标量力无法判断所有偏斜、卡滞或插入到位状态；接触阶段和失败退出需要独立可观测条件。</p></details>
+</main></body></html>
