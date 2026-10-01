@@ -9,24 +9,34 @@
 <h2>1. 直线由位置公式定义，不由“看上去差不多”定义</h2><p>起点和终点必须都写在 <code>base_link</code> 下。令 <code>s</code> 从 0 平滑增长到 1：</p><span class="formula">P(t)=A+s(t)(B-A)</span><p>无论 A、B 在三维中怎样摆放，只要同一个标量 <code>s(t)</code> 同时作用于三个坐标分量，P(t) 就严格落在连接 A、B 的线段上。</p><div class="grid"><section class="card"><h3>不要做：关节空间直线</h3><p><code>q(t)=qA+s(qB-qA)</code> 只保证关节向量走直线。经过 FK 后，末端一般会是一条弯曲轨迹。</p></section><section class="card"><h3>本篇要做：笛卡尔空间直线</h3><p>先计算 <code>P(t)</code>，每个 P(t) 都调用 ROS2-04/05 的 IK。关节角的曲线可以弯，但 FK 出来的末端位置要贴着 P(t)。</p></section></div>
 <h2>2. 为什么不用匀速突起突停？</h2><p>若直接令 <code>s=t/T</code>，速度在起点从 0 瞬间跳到常数，终点又瞬间归零。第一版要使用五次时间律：</p><span class="formula">u=t/T,\qquad s(u)=10u^3-15u^4+6u^5</span><span class="formula">\dot{s}(0)=\dot{s}(1)=0,\qquad \ddot{s}(0)=\ddot{s}(1)=0</span><p class="small">它并不改变几何路径，只决定沿同一条路径“什么时候走到哪里”。这正是路径与时间参数化的区别。</p>
 <h2>3. 拖动时间，观察当前位置、速度和加速度</h2><div class="lab"><section class="card"><h3>演示路径</h3><p class="small">A=(0.50, 0.00, 0.65)，B=(0.40, 0.30, 0.75)。真实项目必须先用 ROS2-04/05 扫描整条路径，确认每一点都有受限合法解。</p><label class="field"><span>总时长 T</span><input id="T" type="range" min="1" max="8" step=".5" value="3"><output id="To"></output></label><label class="field"><span>当前时间 t</span><input id="t" type="range" min="0" max="3" step=".01" value="0"><output id="to"></output></label><div id="read" class="view small"></div></section><section class="view"><svg viewBox="0 0 600 360" aria-label="笛卡尔直线与五次时间律示意"><rect width="600" height="360" fill="#080e1b"/><line x1="70" y1="300" x2="535" y2="300" stroke="#536783"/><line x1="70" y1="300" x2="70" y2="45" stroke="#536783"/><path id="curve" d="M70 300" fill="none" stroke="#a78bfa" stroke-width="4"/><line x1="100" y1="260" x2="500" y2="85" stroke="#38bdf8" stroke-width="5" stroke-dasharray="9 7"/><circle cx="100" cy="260" r="8" fill="#fbbf24"/><circle cx="500" cy="85" r="8" fill="#f472b6"/><circle id="dot" cx="100" cy="260" r="10" fill="#34d399"/><text x="86" y="286" fill="#fbbf24">A</text><text x="508" y="79" fill="#f472b6">B</text><text x="80" y="35" fill="#9baec8">s(t)</text><text x="520" y="323" fill="#9baec8">t/T</text></svg><p class="small">蓝虚线：几何路径 A→B；绿点：当前 P(t)。紫线：五次时间律 s(u)，并不是空间轨迹本身。</p></section></div>
-<h2>4. 生成器与 IK 的职责边界</h2><pre class="code">def quintic_s(u):
-    # 调用者保证 0 &lt;= u &lt;= 1
+<h2>4. 生成器与 IK 的职责边界</h2><pre class="code">import math
+
+def quintic_s(u):
+    """归一化进度 u→路径比例 s；起终点速度、加速度都为零。"""
+    # 调用者保证 0 &lt;= u &lt;= 1；越界时多项式不再表示这段路径。
     return 10*u**3 - 15*u**4 + 6*u**5
 
 def cartesian_line(start, end, duration, dt=0.02):
-    steps = round(duration / dt)
+    """在同一 base_link 下按 dt 采样 A→B，逐帧给出 (时间, 位置)。"""
+    # start/end 都是 (x,y,z)，单位 m；duration/dt 单位 s 且必须为正。
+    if duration &lt;= 0 or dt &lt;= 0 or len(start) != 3 or len(end) != 3:
+        raise ValueError("need 3D endpoints and positive duration/dt")
+    # 向上取整才能保证最后一次采样正好落在终点 B。
+    steps = math.ceil(duration / dt)
     for k in range(steps + 1):
+        # t 限于 [0,T]，u=t/T 是无量纲时间；s 只负责走到线段哪一处。
         t = min(k * dt, duration)
         s = quintic_s(t / duration)
+        # 同一个 s 同时插值三个坐标，因此 TCP 目标严格落在空间直线上。
         target = tuple(a + s * (b - a) for a, b in zip(start, end))
         yield t, target
 
-# 在 ROS 节点中：
+# 在 ROS 节点中（调用顺序示意，不是可直接运行的完整节点）：
 # 1) target 来自 cartesian_line
-# 2) candidates = solve_position_ik(*target)
-# 3) selected = select_continuous_solution(candidates, q_prev)
+# 2) candidates = solve_position_ik(*target)；先确认 reachable 并取出 candidates
+# 3) selected = select_continuous_solution(candidates, q_prev) 的 selected 字段
 # 4) 若 selected 为空：停止本段，并报告 t 与 target
-# 5) 若存在：发布 selected q 给数字孪生，并更新 q_prev</pre>
+# 5) 若存在：发布 selected q 给数字孪生，并更新 q_prev；真机不能发 /joint_states 当命令</pre>
 <p class="small">生成器不知道关节限位；IK 也不知道路径时间。二者之间只交接 <code>target</code> 和 <code>selected q</code>，这样才能准确指出路径在哪一帧失败。</p>
 <h2>5. 运行前必须做整段预扫描</h2><table class="table"><thead><tr><th>检查</th><th>为什么不能省</th><th>失败时正确处理</th></tr></thead><tbody><tr><td>逐点 IK</td><td>A、B 都有解不代表中间每一点都有解或在限位内。</td><td>不启动该段；缩短路径、换姿态或重设目标。</td></tr><tr><td>连续选支</td><td>每一帧独立求解会让双解随机切换。</td><td>用 ROS2-05 的 q_prev 代价选择。</td></tr><tr><td>FK 位置误差</td><td>目标点和实际关节 FK 必须对照。</td><td>记录最大误差；异常时回查 IK/URDF 约定。</td></tr><tr><td>速度、加速度限值</td><td>五次时间律不自动保证每个关节都不过速。</td><td>先拉长 T；真实控制阶段再由控制器限速。</td></tr></tbody></table>
 <section class="card end"><h2 style="margin-top:0;border:0;padding:0">本篇结束时的闭环</h2><ul><li><strong>你能解释：末端直线来自 P(t)，而不是来自某条 q(t)。</strong></li><li>你有一条从 A 到 B 的目标点列，每一点都必须经连续 IK 才能进入数字孪生。</li><li>下一篇不会改运动学，只增加可视化：目标轨迹、FK 实际轨迹和当前点同时显示。</li></ul></section>

@@ -8,11 +8,16 @@
 <section class="card warn"><strong>先划清两件事：</strong><code>URDF</code> 是机器人“物理与运动学事实”的描述；<code>SRDF</code> 是 MoveIt 对这台机器“怎样规划”的补充语义。SRDF 不是 URDF 的替代品，也不会定义连杆长度或关节轴。</section>
 <h2>1. 先选模型的标准：不是“找一个六轴 STL”就够了</h2><table class="table"><thead><tr><th>必须具备</th><th>为什么</th><th>没有时的后果</th></tr></thead><tbody><tr><td>6 个连续转动关节</td><td>可覆盖典型工业臂的关节链和冗余缺失条件</td><td>不是本阶段要学的六轴 IK/姿态问题</td></tr><tr><td>每关节 <code>axis</code>、<code>origin</code>、上下限</td><td>FK、IK、碰撞与控制器都依赖同一份关节真值</td><td>RViz 能显示也可能算错、越界</td></tr><tr><td>visual 与 collision 几何</td><td>前者给人看，后者给碰撞检测算</td><td>只放精细网格会慢；没有 collision 则规划器会“穿模”</td></tr><tr><td><code>base_link</code>、法兰与 <code>tool0/TCP</code></td><td>任务目标必须明确相对谁、作用在工具哪里</td><td>所谓“末端到目标”没有共同含义</td></tr><tr><td>可追溯来源与许可</td><td>后续项目能复现、能替换真实型号</td><td>模型可能与真机零位、限位不一致</td></tr></tbody></table>
 <h2>2. URDF/Xacro：只回答“机器是什么”</h2><div class="grid"><section class="card"><h3>每一个 link 要有三套信息</h3><ul><li><strong>visual</strong>：RViz 画出的外观；</li><li><strong>collision</strong>：规划器使用的简化碰撞体；</li><li><strong>inertial</strong>：质量、质心、惯量，后续动力学与仿真使用。</li></ul><p class="small">实操顺序：先用 box/cylinder 把 collision 做正确，再考虑视觉网格美观。细网格不是碰撞模型的默认答案。</p></section><section class="card"><h3>每一个 joint 要核对五项</h3><ol><li>parent/child 是否连成唯一链；</li><li><code>origin</code> 是否是父坐标到关节零位的变换；</li><li><code>axis</code> 是否在 joint 自身坐标中；</li><li>limit 的单位是否为 rad、rad/s、rad/s²；</li><li>零位姿态是否和厂商机械图/标定约定一致。</li></ol></section></div>
-<pre class="code">&lt;joint name="joint_3" type="revolute"&gt;
+<pre class="code">&lt;!-- 示意片段：数值和 link 名必须以实际六轴 URDF/机械资料核对。 --&gt;
+&lt;joint name="joint_3" type="revolute"&gt;
+  &lt;!-- parent/child 决定运动学树的连接方向。 --&gt;
   &lt;parent link="link_2"/&gt;
   &lt;child  link="link_3"/&gt;
+  &lt;!-- origin 是关节零位坐标相对父 link 的安装位姿，单位 m/rad。 --&gt;
   &lt;origin xyz="0 0 0.425" rpy="0 0 0"/&gt;
+  &lt;!-- axis 在关节局部坐标中表示正转轴；不是世界坐标方向。 --&gt;
   &lt;axis xyz="0 1 0"/&gt;
+  &lt;!-- lower/upper 为 rad；velocity 为 rad/s；effort 为 N·m。 --&gt;
   &lt;limit lower="-3.14" upper="3.14" velocity="2.0" effort="80"/&gt;
 &lt;/joint&gt;
 

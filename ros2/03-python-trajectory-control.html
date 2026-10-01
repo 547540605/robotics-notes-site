@@ -372,12 +372,14 @@
 
     <h3>核心源码：`arm_trajectory_publisher.py`</h3>
     <pre><code>#!/usr/bin/env python3
+# 这个节点只发布 RViz 数字孪生的关节状态，不是电机控制器。
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 import math
 
 class ArmTrajectoryPublisher(Node):
+    """以 50 Hz 生成三关节角度，并发布为 JointState 显示状态。"""
     def __init__(self):
         super().__init__('arm_trajectory_publisher')
         
@@ -388,7 +390,7 @@ class ArmTrajectoryPublisher(Node):
         self.timer_period = 0.02
         self.timer = self.create_timer(self.timer_period, self.timer_callback)
         
-        # 记录已运行的时间（秒）
+        # 记录轨迹相位时间（秒）；这里按定时器周期递增，不是精确实测的墙钟时间。
         self.time_elapsed = 0.0
         self.get_logger().info("机械臂轨迹发布节点已启动，开始向 /joint_states 发送正弦波轨迹！")
 
@@ -407,6 +409,7 @@ class ArmTrajectoryPublisher(Node):
         q2 = 0.5 * math.sin(t * 1.5)    # 大臂俯仰：在 [-0.5, +0.5] rad 之间起伏
         q3 = 0.8 * math.cos(t * 2.0)    # 小臂俯仰：以更高频率在 [-0.8, +0.8] rad 之间摆动
         
+        # position 与 name 按索引一一对应，旋转关节角单位 rad。
         msg.position = [q1, q2, q3]
         
         # 6. 发布数据并推进时间步长
@@ -414,6 +417,7 @@ class ArmTrajectoryPublisher(Node):
         self.time_elapsed += self.timer_period
 
 def main(args=None):
+    # spin 持续调度 50 Hz 回调；Ctrl+C 时释放节点与 ROS 上下文。
     rclpy.init(args=args)
     node = ArmTrajectoryPublisher()
     try:
@@ -456,7 +460,7 @@ if __name__ == '__main__':
           <td><code>position</code></td>
           <td><code>float64[]</code></td>
           <td>
-            <strong>关节目标位置数组</strong>。对于旋转关节（<code>revolute</code>），单位是<strong>弧度（rad）</strong>；对于滑动关节（<code>prismatic</code>），单位是<strong>米（m）</strong>。
+            <strong>关节状态位置数组</strong>，并非真机运动命令。对于旋转关节（<code>revolute</code>），单位是<strong>弧度（rad）</strong>；对于滑动关节（<code>prismatic</code>），单位是<strong>米（m）</strong>。
           </td>
         </tr>
         <tr>
@@ -486,7 +490,8 @@ if __name__ == '__main__':
     <p>
       打开 <code>~/ros2_ws/src/my_arm_description/setup.py</code>，在 <code>entry_points</code> 字典中注册我们在本讲编写的可执行入口：
     </p>
-    <pre><code>    entry_points={
+    <pre><code>    # 这段放在 setup.py 的 setup(...) 内，不是在终端单独执行。
+    entry_points={
         'console_scripts': [
             'arm_trajectory_publisher = my_arm_description.arm_trajectory_publisher:main',
         ],
@@ -525,12 +530,14 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 
 def generate_launch_description():
+    # ROS launch 从已安装包的 share 中取 URDF/RViz 配置。
     pkg_name = 'my_arm_description'
     pkg_share = get_package_share_directory(pkg_name)
 
     urdf_path = os.path.join(pkg_share, 'urdf', 'my_arm.urdf')
     rviz_config_path = os.path.join(pkg_share, 'rviz', 'view_arm.rviz')
 
+    # robot_description 传的是 URDF 内容，而非路径字符串。
     with open(urdf_path, 'r') as f:
         robot_desc = f.read()
 
@@ -554,6 +561,7 @@ def generate_launch_description():
         arguments=['-d', rviz_config_path] if os.path.exists(rviz_config_path) else []
     )
 
+    # 不再启动 02 的 GUI，否则两个发布者会争用 /joint_states。
     return LaunchDescription([
         robot_state_publisher_node,
         arm_trajectory_publisher_node,
@@ -586,7 +594,8 @@ ros2 launch my_arm_description control.launch.py</code></pre>
     <div class="grid-2">
       <div class="card">
         <strong style="color:var(--primary);">第一板斧：检视当前干活的员工名册</strong>
-        <pre><code>ros2 node list</code></pre>
+        <pre><code># 检查 launch 是否真的启动了预期三个节点
+ros2 node list</code></pre>
         <p style="font-size:0.9rem; color:#94a3b8;">
           输出三巨头：<br>
           • <code>/arm_trajectory_publisher</code>（你的代码大脑）<br>
@@ -597,7 +606,8 @@ ros2 launch my_arm_description control.launch.py</code></pre>
 
       <div class="card">
         <strong style="color:var(--primary);">第二板斧：拦截抽查信封里的真实数据</strong>
-        <pre><code>ros2 topic echo /joint_states --once</code></pre>
+        <pre><code># 只取一帧，核对 name、position 和 header.stamp
+ros2 topic echo /joint_states --once</code></pre>
         <p style="font-size:0.9rem; color:#94a3b8;">
           截获一包真实数据，亲眼看到：<br>
           <code>name: [joint1, joint2, joint3]</code><br>
@@ -609,7 +619,8 @@ ros2 launch my_arm_description control.launch.py</code></pre>
 
     <div class="card">
       <strong style="color:var(--primary);">第三板斧（核武器）：ROS 2 运行状态透视 X 光机 `rqt_graph`</strong>
-      <pre><code>rqt_graph</code></pre>
+      <pre><code># 打开节点/话题拓扑，检查发布者→状态解算器的数据流
+rqt_graph</code></pre>
       <p>
         在终端输入 <code>rqt_graph</code>，系统会弹出一张清晰的节点流向拓扑图：
       </p>
@@ -672,7 +683,8 @@ ros2 launch my_arm_description control.launch.py</code></pre>
         <strong>答案：有！在 build 时加上 <code>--symlink-install</code> 参数！</strong><br>
         默认情况下，<code>colcon build</code> 会把你的 Python 文件<strong>硬拷贝</strong>到 <code>install/</code> 目录。你在 <code>src/</code> 里修改代码后，<code>install/</code> 里的旧文件依然没变。<br>
         如果执行：
-        <pre><code>colcon build --symlink-install --packages-select my_arm_description</code></pre>
+        <pre><code># 开发环境用符号链接安装 Python 源码；配置/资源变更仍需按需重建
+colcon build --symlink-install --packages-select my_arm_description</code></pre>
         colcon 会在 <code>install/</code> 目录下创建指向 <code>src/</code> 源码的<strong>软链接（符号链接）</strong>。此后你只要修改 Python 文件并保存，无需重新编译，直接运行即可立刻生效！
       </div>
     </details>

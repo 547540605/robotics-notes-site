@@ -11,18 +11,20 @@
 
 <h2>1. TCP 不是法兰中心，也不是 RViz 里的“最后一节 link”</h2>
 <div class="grid"><section class="card"><h3>三个常被混称为末端的点</h3><ul><li><strong>flange：</strong>机械臂制造商定义的法兰连接面；</li><li><strong>tool0：</strong>URDF/MoveIt 的工具参考 link，通常固定在法兰之后；</li><li><strong>TCP：</strong>真正参与任务的点，例如吸盘中心、针尖、夹爪指尖中点、喷嘴出口。</li></ul><p>当工具更换，法兰没变，TCP 往往已经变了。</p></section><section class="card"><h3>姿态同样属于 TCP</h3><p>TCP 不只是 <code>xyz</code> 偏移，还包含工具坐标轴方向。工具沿本地 +Z 插入、沿本地 +X 扫描、相机沿光轴观测，都会依赖这组轴。只标长度不标旋转，后续速度控制和视觉变换仍会错。</p></section></div>
-<pre class="code"># 语义：固定变换 flange → tool0；数字必须来自图纸/测量/标定，而不是美观猜测。
+<pre class="code">&lt;!-- URDF 固定关节：把法兰 frame 连接到工具 frame；数值仅示意。 --&gt;
+&lt;!-- xyz 单位 m，rpy 单位 rad；实值必须来自图纸/测量/标定。 --&gt;
 &lt;joint name="flange_to_tool0" type="fixed"&gt;
   &lt;parent link="flange"/&gt;
   &lt;child link="tool0"/&gt;
   &lt;origin xyz="0 0 0.185" rpy="0 0 0"/&gt;
 &lt;/joint&gt;
 
-# MoveIt 的 Pose Goal 应落在 tool0；工艺点的方向也应按 tool0 的轴定义。</pre>
+&lt;!-- MoveIt 的 Pose Goal 应落在 tool0；工艺点方向按 tool0 的轴定义。 --&gt;</pre>
 
 <h2>2. 真机 TCP 标定到底在解什么？</h2>
 <p>固定一个物理参考点 <code>P</code>，让工具尖端从多种明显不同的姿态都触到它。每次记录法兰相对 base 的位姿 <code>T_base_flange(k)</code>。未知的固定工具偏移 <code>p_flange_tcp</code> 应让以下各次计算出的 base 中点尽量重合：</p>
-<pre class="code">P_base(k) = T_base_flange(k) · p_flange_tcp
+<pre class="code"># 公式记号，不是可运行代码；k 表示第 k 次不同姿态下的同点接触。
+P_base(k) = T_base_flange(k) · p_flange_tcp
 
 # 理想情况：对所有 k，P_base(k) 相同。
 # 实际情况：求一个 p_flange_tcp，使各 P_base(k) 的散布/残差最小。
@@ -31,7 +33,8 @@
 
 <h2>3. 工件坐标系：目标应该属于工件，不属于临时世界</h2>
 <div class="grid"><section class="card"><h3>推荐描述</h3><p>在 <code>workpiece_frame</code> 下描述工艺点：例如孔位 <code>(0.030, 0.015, 0)</code>，法向为 +Z。工件搬到新夹具位置时，只更新 <code>base_link → workpiece_frame</code>，不必重写所有点位。</p></section><section class="card"><h3>不推荐描述</h3><p>把每个点直接写成 <code>base_link</code> 下的绝对坐标。工装移动 2 mm、底座重新安装或切换工位后，所有点都要人工改，且很难定位偏差来源。</p></section></div>
-<pre class="code">T_base_tcp_target = T_base_workpiece · T_workpiece_tcp_target
+<pre class="code"># 先将工件目标映射到 base；矩阵相乘次序不能交换。
+T_base_tcp_target = T_base_workpiece · T_workpiece_tcp_target
 
 # 左侧由标定/定位得到；右侧是工艺定义。
 # 任何“没对准”都可以沿这两个变换分别检查，而不是混在一个 x/y/z 误差里。</pre>

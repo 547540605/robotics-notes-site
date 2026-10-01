@@ -67,12 +67,19 @@
   <pre class="code"># my_arm_motion/kinematics_3r.py
 import math
 
+# 长度单位 m；数值必须与 02 的 URDF 对齐，不能凭 RViz 外观估计。
+# D 是 base_link 原点到肩关节的高度，不是第一根活动连杆长度。
 D, L1, L2 = 0.25, 0.50, 0.40
+# 关节角统一用 rad；本篇只列候选，05 再做跨帧连续选支。
 Q2_LIMIT = (-1.57, 1.57)
 Q3_LIMIT = (-2.00, 2.00)
 
 def forward_position(q1, q2, q3):
+    """关节角(rad) → tool0 在 base_link 下的位置(m)，用于 IK 回代验算。"""
+    # q2 从竖直 +Z 零位量起；绿杆的绝对俯仰角是 q2+q3。
+    # rho 是两杆在肩部竖直剖面内的水平投影之和。
     rho = L1 * math.sin(q2) + L2 * math.sin(q2 + q3)
+    # q1 绕 base +Z，把剖面的径向 rho 分成全局 x/y；z 还须加肩高 D。
     return (
         rho * math.cos(q1),
         rho * math.sin(q1),
@@ -80,21 +87,33 @@ def forward_position(q1, q2, q3):
     )
 
 def solve_position_ik(x, y, z, eps=1e-9):
+    """base_link 目标点(m) → 双支候选；不发布 ROS 指令，也不替调用者选支。"""
+    # 先从三维目标提取肩部剖面的横向 r 与相对高度 h。
     r = math.hypot(x, y)
     h = z - D
     distance = math.hypot(r, h)
+    # 两根定长杆只能覆盖 [|L1-L2|, L1+L2] 的肩部距离。
+    # eps 仅容忍浮点边界误差，不能让真正不可达的目标变成可达。
     if distance &lt; abs(L1 - L2) - eps or distance &gt; L1 + L2 + eps:
         return {"reachable": False, "reason": "geometrically unreachable", "candidates": []}
+    # r≈0 时目标在底座轴上：atan2(0,0) 无物理唯一解，由上层指定腰角偏好。
     if r &lt; eps:
         return {"reachable": False, "reason": "base yaw is undefined at r=0", "candidates": []}
 
+    # q1 只确定目标在 XY 平面的方位；余下 q2/q3 在竖直剖面求解。
     q1 = math.atan2(y, x)
+    # 余弦定理得到 cos(q3)。前面的可达检查通过后，只为浮点舍入裁到 [-1,1]。
     c3 = max(-1.0, min(1.0, (r*r + h*h - L1*L1 - L2*L2) / (2*L1*L2)))
     candidates = []
+    # ±acos 对应两种肘部构型；退化到 q3=0 时两项可能重合。
     for q3 in (math.acos(c3), -math.acos(c3)):
+        # 目标方向减去两杆合成方向相对黄杆的偏角，得到肩角。
         q2 = math.atan2(r, h) - math.atan2(L2*math.sin(q3), L1 + L2*math.cos(q3))
+        # 此处先标记肩/肘限位；05 会按 URDF 重查包括 q1 在内的三轴限位。
+        # 不硬裁角度，也不按上一帧选“最近”分支。
         within_limits = Q2_LIMIT[0] &lt;= q2 &lt;= Q2_LIMIT[1] and Q3_LIMIT[0] &lt;= q3 &lt;= Q3_LIMIT[1]
         candidates.append({"q": (q1, q2, q3), "within_limits": within_limits})
+    # reachable 只表示几何可达；调用者仍要检查每个候选的 within_limits 与 FK 误差。
     return {"reachable": True, "reason": None, "candidates": candidates}</pre>
   <p class="small">ROS2-05 才会为候选加上“离上一帧最近”的连续选择规则。当前函数故意不替你偷偷选支。</p>
 

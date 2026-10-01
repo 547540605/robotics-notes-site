@@ -19,7 +19,7 @@
 <pre class="code"># 概念示例：不是直接可复制的最终启动命令
 TwistStamped
   header.frame_id = "base_link"       # 先明确速度在哪个 frame 表达
-  header.stamp    = now()
+  header.stamp    = now()             # 使用发送时钟的有效时间戳，供超时判断
   twist.linear.x  = 0.02              # m/s
   twist.angular.z = 0.00              # rad/s
 
@@ -30,8 +30,11 @@ TwistStamped
 <p>为了理解而非死记具体源码，可将一次 Servo 更新抽象为：</p>
 <div class="flow"><div><b>读状态</b>q、q̇、TF、规划场景</div><div><b>变换命令</b>将 Twist 统一到 planning frame</div><div><b>求关节速度</b>J 的阻尼逆 / 六轴 IK</div><div><b>缩放或停止</b>限位、奇异、碰撞、超时</div><div><b>发短轨迹</b>交给 trajectory controller</div></div>
 <pre class="code"># 数学骨架（理解用，不是 MoveIt Servo 源码）
+# q 为当前关节位置(rad)，V 为已变换到 planning frame 的末端速度。
+# J 的单位与姿态任务维度必须匹配；lambda 是阻尼而非运动速度。
 q_dot_raw = J(q).T @ inv(J(q) @ J(q).T + lambda**2 * I) @ V
 
+# 四种缩放来自不同风险源；最小值决定本周期能保留多少速度。
 scale = min(
     velocity_limit_scale(q_dot_raw),
     joint_margin_scale(q),
@@ -39,6 +42,7 @@ scale = min(
     collision_distance_scale(planning_scene)
 )
 q_dot = scale * q_dot_raw
+# dt 是控制周期(s)；离散积分只用于生成短时目标，不取代控制器反馈。
 q_next = q + q_dot * dt
 
 # 任一输入失效、状态过期或风险策略要求停止：scale → 0。</pre>

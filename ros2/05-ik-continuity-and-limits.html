@@ -41,23 +41,28 @@
   <h2>5. 放进求解器：返回“为什么选它”，而不只返回角度</h2>
   <pre class="code">import math
 
+# 与 URDF 三个 revolute 关节一一对应；单位均为 rad。
 JOINT_LIMITS = ((-3.14, 3.14), (-1.57, 1.57), (-2.0, 2.0))
 
 def select_continuous_solution(candidates, q_prev, weights=(1.0, 1.0, 1.0)):
-    # 当前三个关节都是有界 revolute；所有角度使用 rad。
+    """从 04 的候选中选合法且离上一帧最近的一支；不检查整条轨迹。"""
+    # 当前三个关节都是有界 revolute；q_prev 是上一帧实际角度(rad)。
     if len(q_prev) != 3 or not all(math.isfinite(v) for v in q_prev):
         raise ValueError("q_prev must contain three finite angles")
+    # 非负权重可表示各轴运动代价；全零会让“最近”失去意义。
     if (len(weights) != 3 or not all(math.isfinite(w) and w >= 0 for w in weights)
             or not any(w > 0 for w in weights)):
         raise ValueError("weights must be finite, nonnegative, and not all zero")
 
     def violations(q):
+        """逐轴返回超限详情，方便读者定位是哪一个关节阻止执行。"""
         return [
             {"joint": i + 1, "value": v, "allowed": (lo, hi)}
             for i, (v, (lo, hi)) in enumerate(zip(q, JOINT_LIMITS))
             if not lo &lt;= v &lt;= hi
         ]
 
+    # 上一帧若已超限，不能假装正常并以它为连续性基准。
     prev_errors = violations(q_prev)
     if prev_errors:
         return {"selected": None, "reason": "q_prev outside joint limits",
@@ -69,17 +74,20 @@ def select_continuous_solution(candidates, q_prev, weights=(1.0, 1.0, 1.0)):
         if len(q) != 3 or not all(math.isfinite(v) for v in q):
             raise ValueError("each candidate must contain three finite angles")
         errors = violations(q)  # 重查全部三轴，不只信任 04 的旧标记。
+        # 先过滤限位，再比较实际关节坐标差；有界关节不能用 wrap 偷走捷径。
         cost = None if errors else sum(
             w * (v - last) ** 2 for w, v, last in zip(weights, q, q_prev)
         )
         evaluated.append({**candidate, "within_limits": not errors,
                           "violations": errors, "cost": cost})
 
+    # 没有合法候选就停下并报告，不裁剪角度，也不跳过该目标点。
     legal = [c for c in evaluated if c["within_limits"]]
     if not legal:
         return {"selected": None, "candidates": evaluated,
                 "reason": "no candidate within joint limits"}
     selected = min(legal, key=lambda c: c["cost"])  # 同代价时保留输入顺序。
+    # trajectory_checked=False：单点“最近”不保证沿途速度、碰撞、奇异性安全。
     return {"selected": selected, "candidates": evaluated, "reason": None,
             "trajectory_checked": False}</pre>
   <p class="small">这段函数只做“选择”，不重复推导 IK。几何、限位和连续性拆开，后续排错才能知道是哪一层出问题。</p>

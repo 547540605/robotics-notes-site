@@ -6,10 +6,12 @@
 <h1>ROS 2 工程实战 13：ros2_control、JointTrajectory 与 fake hardware</h1><p class="muted">现在才来到“执行”边界。上篇 MoveIt 产出的是规划结果；本篇解释它如何变成一个可跟踪、可反馈、可报错的关节轨迹请求。先让 fake hardware 跑通，真机驱动以后在同一个边界替换。</p>
 <section class="card guide"><h2 style="margin-top:0;border:0;padding:0">一条轨迹下去前，经过的层次</h2><div class="layers"><div class="layer"><b>MoveIt / 任意上层应用：</b>产生或选择一条 <code>JointTrajectory</code>，但不直接懂电机协议。</div><div class="layer"><b>JointTrajectoryController：</b>接收轨迹 Action，检查 joints、时间点、接口与目标，持续输出命令并报告反馈。</div><div class="layer"><b>controller_manager：</b>装载、激活控制器，保证同一 command interface 不被多个控制器抢占。</div><div class="layer"><b>ros2_control Hardware Interface：</b>以固定周期 <code>read()</code> 读状态、<code>write()</code> 写命令；fake hardware 或厂商驱动都在这里。</div><div class="layer"><b>硬件 / fake hardware：</b>前者是实际驱动器与反馈，后者是遵守同一接口的模拟状态，不产生任何物理动作。</div></div></section>
 <section class="card warn"><strong>修正 ROS2-03 的认知：</strong>向 <code>/joint_states</code> 发布内容只会让数字孪生经 <code>robot_state_publisher → /tf → RViz</code> 更新，它不是通用的设备命令接口。需要受控执行时，关节轨迹应交给 controller 的 Action；安全、反馈和中止都需要这条闭环。</section>
-<h2>1. URDF 中的 ros2_control 标签：声明接口，不替硬件写逻辑</h2><pre class="code">&lt;ros2_control name="SixAxisSystem" type="system"&gt;
+<h2>1. URDF 中的 ros2_control 标签：声明接口，不替硬件写逻辑</h2><pre class="code">&lt;!-- 示意片段：须嵌入完整 URDF，并将六轴关节逐个补齐。 --&gt;
+&lt;ros2_control name="SixAxisSystem" type="system"&gt;
   &lt;hardware&gt;
     &lt;plugin&gt;mock_components/GenericSystem&lt;/plugin&gt;  &lt;!-- 本阶段 fake hardware --&gt;
   &lt;/hardware&gt;
+  &lt;!-- command 是控制器写入的位置目标；state 是 hardware 读回的位置/速度。 --&gt;
   &lt;joint name="joint_1"&gt;
     &lt;command_interface name="position"/&gt;
     &lt;state_interface name="position"/&gt;
@@ -20,20 +22,27 @@
 <div class="grid"><section class="card"><h3>必须逐字相同的名字</h3><p>URDF joint、SRDF planning group、controller YAML 的 joint list 与 MoveIt trajectory 中的 <code>joint_names</code> 必须是同一组同一拼写。名字错一个，最危险的情况不是“慢一点”，而是轨迹不能安全映射到目标关节。</p></section><section class="card"><h3>interfaces 是能力合同</h3><p>本阶段以 position command 为例。控制器只能声明并使用硬件实际提供的接口；速度、力矩、GPIO 或状态诊断需要硬件接口明确导出，不能通过“多写一行 YAML”凭空获得。</p></section></div>
 <h2>2. 两个控制器，各做一件事</h2><table class="table"><thead><tr><th>控制器</th><th>输入/输出</th><th>你应该看到什么</th></tr></thead><tbody><tr><td><code>joint_state_broadcaster</code></td><td>读 hardware state → 发布 <code>/joint_states</code></td><td>RViz、robot_state_publisher、MoveIt 看到一致的当前关节位置</td></tr><tr><td><code>joint_trajectory_controller</code></td><td>接 Action trajectory → 输出 joint command；同时反馈 execution state</td><td>目标/实际/误差随时间更新，成功、取消、容差超限可区分</td></tr></tbody></table>
 <pre class="code"># controllers.yaml 的语义骨架（名字以实际包为准）
+# update_rate 是 controller_manager 更新频率 Hz，不等于上层规划频率。
 controller_manager:
   ros__parameters:
     update_rate: 100
     joint_state_broadcaster: {type: joint_state_broadcaster/JointStateBroadcaster}
     arm_controller: {type: joint_trajectory_controller/JointTrajectoryController}
 
+# arm_controller 与上面的 controller_manager 声明同名，填该控制器参数。
 arm_controller:
   ros__parameters:
+    # 顺序须与提交的 JointTrajectory.joint_names 和 URDF 完全一致。
     joints: [joint_1, joint_2, joint_3, joint_4, joint_5, joint_6]
+    # 本阶段只给 position 命令；state 来自 fake hardware 的实际导出接口。
     command_interfaces: [position]
     state_interfaces: [position, velocity]</pre>
-<h2>3. 为什么用 Action，不是只发一条 Topic</h2><p><code>FollowJointTrajectory</code> 是有生命周期的请求：客户端发送目标后会收到<strong>接受/拒绝</strong>，执行中持续收到<strong>feedback</strong>，结束获得<strong>result</strong>。这让上层能明确区分“控制器未激活”“目标关节不匹配”“执行被取消”“超出 path/goal tolerance”“按时完成”。</p><pre class="code">JointTrajectory:
+<h2>3. 为什么用 Action，不是只发一条 Topic</h2><p><code>FollowJointTrajectory</code> 是有生命周期的请求：客户端发送目标后会收到<strong>接受/拒绝</strong>，执行中持续收到<strong>feedback</strong>，结束获得<strong>result</strong>。这让上层能明确区分“控制器未激活”“目标关节不匹配”“执行被取消”“超出 path/goal tolerance”“按时完成”。</p><pre class="code"># 消息语义示意，不是可直接传给 CLI 的 YAML 文件。
+JointTrajectory:
+  # joint_names 顺序定义每个 positions 元素对应哪根轴；单位 rad。
   joint_names: [joint_1, joint_2, joint_3, joint_4, joint_5, joint_6]
   points:
+    # time_from_start 必须严格递增；这里仅展示起点和 2 s 时的终点。
     - positions: [q1a, q2a, q3a, q4a, q5a, q6a]
       time_from_start: 0.0 s
     - positions: [q1b, q2b, q3b, q4b, q5b, q6b]

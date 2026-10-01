@@ -13,13 +13,14 @@
 
 <h2>2. 时间戳与 ID：让分散消息能被拼回同一次事件</h2>
 <div class="grid"><section class="card"><h3>时间戳</h3><p>每条关键日志都带 ROS 时间和系统/设备时间来源。对视觉、TF、joint state 与动作反馈，优先使用消息自带 timestamp；“日志打印顺序”不能证明物理事件先后。</p></section><section class="card"><h3>关联 ID</h3><p>为每个 cycle、目标、规划请求、Action goal 生成/传递 ID。故障报告中写 “goal 42 在 state EXECUTE、目标 frame=workpiece_7、控制器 result=ABORTED”，比“今天下午偶尔失败”可排查得多。</p></section></div>
-<pre class="code"># 结构化日志示意：字段比一句自然语言更重要
+<pre class="code"># 结构化日志示意，非可执行 Python；一行字段对应一次 Action 结果事件。
+# cycle_id 串起整次作业，goal_id 精确定位这次轨迹请求。
 event="trajectory_result"
 cycle_id="2026-...-0017"
 goal_id="..."
 state="EXECUTE_PREAPPROACH"
 result="ABORTED"
-robot_state_age_ms=18
+robot_state_age_ms=18  # 记录决策时关节状态距当前的毫秒数，便于查过期数据
 target_frame="workpiece_frame"
 tcp_calibration_version="tcp-v3"
 
@@ -32,7 +33,8 @@ tcp_calibration_version="tcp-v3"
 <h2>4. rosbag 回放不是“录了就能复现”</h2>
 <p>回放适合复现数据流与算法决策；它不自动复现真实硬件时序、网络延迟、控制柜安全状态或物理接触。要让回放有价值，先固定它的目的：</p>
 <div class="grid"><section class="card"><h3>离线算法回归</h3><p>将 bag 中的传感器/TF/状态输入重放给定位、规划前检查或状态机逻辑；断言输出目标、错误分类、状态转换与预期一致。最适合视觉、TF、规则和故障分支。</p></section><section class="card"><h3>系统集成回归</h3><p>用 fake hardware、固定模型和 mock I/O 启动整套 launch；验证 controller active、规划请求、Action 结果、状态机回退等接口契约。它仍不替代真机验收。</p></section></div>
-<pre class="code">一次 bug 修复的最低验收格式：
+<pre class="code"># 这是可复现性清单，不是终端命令；同一输入前后比较才叫回归。
+一次 bug 修复的最低验收格式：
 1. 保存可复现输入（bag / mock 输入 / 参数版本）
 2. 写明原来错误的可观测结果（例如：过期 TF 仍被接受）
 3. 修改逻辑
@@ -43,7 +45,8 @@ tcp_calibration_version="tcp-v3"
 <div class="check"><div><strong>A. 参数外置：</strong>机器人型号、IP/端口、TCP、工件 frame、速度缩放、超时、I/O 映射不硬编码进业务节点；每套工位配置有名字和版本。</div><div><strong>B. 启动分层：</strong>模型/TF、驱动/控制器、MoveIt、感知、任务状态机分开启动并报告 readiness；任务层不应在底层尚未 ready 时抢跑。</div><div><strong>C. 健康检查：</strong>检查 hardware/controller lifecycle、joint state 新鲜度、关键 TF、相机/传感器、磁盘空间和时间同步；将“不健康”转换为明确不可执行状态。</div><div><strong>D. 变更可回滚：</strong>每一次参数或代码改动要关联版本、验收记录和可恢复的旧配置；现场不能只靠“我记得上个版本大概能跑”。</div><div><strong>E. 报警可行动：</strong>告警正文必须给出受影响对象、状态、时间、建议下一步和相关 bag/log 的定位，而不是只写 error code。</div></div>
 
 <h2>6. 给自己建立一张故障单模板</h2>
-<pre class="code">标题： [执行] arm_controller 在预接近阶段 ABORTED
+<pre class="code"># 故障单示例：每项都要能追到 bag、日志或参数版本，而非凭记忆填写。
+标题： [执行] arm_controller 在预接近阶段 ABORTED
 影响： cycle 被安全中止；未进入工艺动作
 复现输入： bag / mock 场景 / 配置版本 / 软件版本
 时间线： t0 state=PLAN；t1 action accepted；t2 joint error 超阈值；t3 ABORTED

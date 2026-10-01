@@ -4,10 +4,15 @@
 <h2>1. 从已有 3R 正运动学开始</h2><p>沿用 ROS2-04 的符号：</p><span class="formula">\[\rho=L_1\sin q_2+L_2\sin(q_2+q_3)\]</span><span class="formula">\[p(q)=\begin{bmatrix}\rho\cos q_1\\\rho\sin q_1\\d+L_1\cos q_2+L_2\cos(q_2+q_3)\end{bmatrix}\]</span><p>Jacobian 的定义只是将这个位置向量分别对三个关节角求偏导：</p><span class="formula">\[v=\dot p=J_p(q)\dot q,\qquad J_p=\begin{bmatrix}\frac{\partial p}{\partial q_1}&\frac{\partial p}{\partial q_2}&\frac{\partial p}{\partial q_3}\end{bmatrix}\]</span>
 <h2>2. 三列不是抽象数字：每一列都是一个关节的速度贡献</h2><div class="grid"><section class="card"><h3>第 1 列：腰部 q1</h3><p>腰部绕 Z 转，末端在 XY 平面做切向运动，因此 Z 分量为 0：</p><span class="formula">\[J_1=[-\rho\sin q_1,\ \rho\cos q_1,\ 0]^T\]</span></section><section class="card"><h3>第 2 列：肩部 q2</h3><p>肩转动改变整条两连杆的伸出量与高度：</p><span class="formula">\[J_2=[c_2\cos q_1,\ c_2\sin q_1,\ -\rho]^T\]</span><p class="small">其中 $c_2=L_1\cos q_2+L_2\cos(q_2+q_3)$。</p></section><section class="card"><h3>第 3 列：肘部 q3</h3><p>肘只影响第二根杆：</p><span class="formula">\[J_3=[L_2\cos(q_2+q_3)\cos q_1,\ L_2\cos(q_2+q_3)\sin q_1,\ -L_2\sin(q_2+q_3)]^T\]</span></section><section class="card warn"><h3>三列合起来</h3><p>给定 <code>q_dot=[q1_dot,q2_dot,q3_dot]</code>，末端速度不是任何单列，而是：</p><span class="formula">\[v=J_1\dot q_1+J_2\dot q_2+J_3\dot q_3\]</span></section></div>
 <h2>3. 用数值差分核对解析式</h2><p>这一页最重要的工程动作不是背矩阵，而是拿 FK 检查它。对一个很小的 <code>Δq</code>：</p><span class="formula">\[J_p(q)\Delta q\approx p(q+\Delta q)-p(q)\]</span><pre class="code">def numerical_check(q, dq, eps=1e-6):
-    # fk 和 jacobian_position 都来自同一份 URDF 约定
+    """比较解析 J 的方向导数与 FK 的有限差分；返回两者和误差。"""
+    # 片段假定 q、dq 是长度 3 的 NumPy 数组，eps 无量纲且足够小。
+    # forward_position 需返回 NumPy 向量；jacobian_position 返回 3×3 矩阵。
+    # 两函数必须采用同一 URDF 长度、零位、轴方向和 rad 角度约定。
     predicted = jacobian_position(q) @ dq
+    # 用 q 沿 dq 微扰 eps，观察真实 FK 位移，再除以 eps 得到方向导数。
     actual = forward_position(*(q + eps * dq)) - forward_position(*q)
     actual /= eps
+    # norm 是 np.linalg.norm；数值误差应随 eps 合理减小，不要求严格等于零。
     return predicted, actual, norm(predicted - actual)
 
 # 只用很小的扰动。扰动太大时，右边是真实曲线位移，

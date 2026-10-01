@@ -344,7 +344,9 @@ from rclpy.node import Node
 from std_msgs.msg import String
 
 class MyPublisher(Node):
+    """每秒发布一条 String；只演示 Topic 通信，不控制真实设备。"""
     def __init__(self):
+        # 节点名是 ROS 图里的身份，和 Python 类名可以不同。
         super().__init__('my_publisher_node')
         # 创建发布者：指定类型 String、话题名、QoS 队列大小 10
         self.publisher_ = self.create_publisher(String, 'my_first_topic', 10)
@@ -353,6 +355,7 @@ class MyPublisher(Node):
         self.count = 0
 
     def timer_callback(self):
+        # 回调每次创建一条新消息；String 的有效负载在 data 字段。
         msg = String()
         msg.data = f'【来自自研节点的消息】计数: {self.count}'
         self.publisher_.publish(msg)
@@ -360,11 +363,17 @@ class MyPublisher(Node):
         self.count += 1
 
 def main(args=None):
+    # 初始化 ROS 客户端，spin 让定时器持续被调度。
     rclpy.init(args=args)
     node = MyPublisher()
-    rclpy.spin(node)        # 持续循环等待事件与定时器触发
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)    # 持续循环等待事件与定时器触发
+    except KeyboardInterrupt:
+        pass  # 用户按 Ctrl+C 正常退出示例。
+    finally:
+        # Ctrl+C 或异常离开 spin 时也释放资源。
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()</code></pre>
@@ -375,6 +384,7 @@ from rclpy.node import Node
 from std_msgs.msg import String
 
 class MySubscriber(Node):
+    """订阅同名同类型话题；只有消息到达才执行回调。"""
     def __init__(self):
         super().__init__('my_subscriber_node')
         # 创建订阅者：一旦 my_first_topic 管道有数据，自动触发 listener_callback
@@ -387,21 +397,29 @@ class MySubscriber(Node):
         self.get_logger().info('订阅者节点已启动，正在静静等待数据...')
 
     def listener_callback(self, msg):
+        # msg 是发布者送来的 String；此处只记录，不再向外发布。
         self.get_logger().info(f'【接收者听到啦】--> "{msg.data}"')
 
 def main(args=None):
+    # spin 持续处理订阅事件；退出时释放节点和 ROS 上下文。
     rclpy.init(args=args)
     node = MySubscriber()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass  # 用户按 Ctrl+C 正常退出示例。
+    finally:
+        # 保证订阅节点和 ROS 上下文在退出时被清理。
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()</code></pre>
 
     <h3>4. 入口注册、编译与启动</h3>
     <p>在 <code>setup.py</code> 的 <code>entry_points</code> 中注册可执行指令，并在根目录下构建：</p>
-    <pre><code># 注册控制台指令
+    <pre><code># 下半段写入 setup.py 的 setup(..., entry_points=...)；不能把它直接粘进终端。
+# 左边是 ros2 run 使用的命令名，右边指向 Python 包.模块:main。
 entry_points={
     'console_scripts': [
         'my_publisher = my_py_pkg.my_publisher:main',
@@ -409,12 +427,12 @@ entry_points={
     ],
 },
 
-# 编译并激活
+# 以下才是在 Ubuntu/WSL 终端执行；构建后 source 才能发现新入口。
 cd ~/ros2_ws
 colcon build --packages-select my_py_pkg
 source install/setup.bash
 
-# 终端 A 启动发布者；终端 B 启动订阅者
+# 终端 A 启动发布者；终端 B 也要 source install/setup.bash 再启动订阅者。
 ros2 run my_py_pkg my_publisher
 ros2 run my_py_pkg my_subscriber</code></pre>
 

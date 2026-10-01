@@ -40,30 +40,41 @@
 
   <h2>1. 确认 WSL 与 Ubuntu 版本</h2>
   <p class="terminal windows">在 Windows PowerShell 中</p>
-  <pre><code>wsl --list --verbose
+  <pre><code># 在 Windows 查发行版名称与 WSL 版本；VERSION 列必须为 2。
+wsl --list --verbose
+# 查 WSL 本体版本，便于定位 WSLg 图形支持问题。
 wsl --version</code></pre>
   <p>列表里找 <code>Ubuntu-24.04</code>，确认它的 <code>VERSION</code> 为 <code>2</code>。已经有符合条件的发行版，就直接进入下一步；已有其他 Ubuntu 版本不要原地覆盖。</p>
   <p>没有 Ubuntu 24.04 时，先查询可用名称，再安装。以下安装命令需以管理员身份打开 PowerShell；按提示重启并首次启动 Ubuntu，设置 Linux 用户名和密码。</p>
   <p class="terminal windows">在管理员 PowerShell 中，仅缺少该发行版时运行</p>
-  <pre><code>wsl --list --online
+  <pre><code># 先查可安装的发行版名称，避免猜包名。
+wsl --list --online
+# 仅缺 Ubuntu 24.04 时安装；这不是原地升级已有 Ubuntu。
 wsl --install -d Ubuntu-24.04</code></pre>
   <p>若安装后版本显示为 1，先确认没有未备份的重要数据，再参照微软文档转换为 WSL2；正常的新安装默认就是 WSL2。需要更新 WSL 本体时，在 PowerShell 中运行 <code>wsl --update</code>，然后 <code>wsl --shutdown</code> 并重新打开 Ubuntu。</p>
   <p class="terminal windows">在 Windows PowerShell 中打开目标发行版</p>
-  <pre><code>wsl -d Ubuntu-24.04</code></pre>
+  <pre><code># 从 Windows 打开刚才核对的目标发行版。
+wsl -d Ubuntu-24.04</code></pre>
   <p class="terminal">在 Ubuntu 终端中核对系统与区域设置</p>
-  <pre><code>cat /etc/os-release
+  <pre><code># Ubuntu 系统版本应为 24.04；这两行都是只读检查。
+cat /etc/os-release
+# ROS 安装要求 UTF-8 locale；若不满足，按官方文档调整。
 locale</code></pre>
   <p>应看到 <code>VERSION_ID="24.04"</code>，区域设置包含 <code>UTF-8</code>。若没有 UTF-8，再按 <a href="https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html">ROS 官方安装页</a>的 Set locale 步骤配置；已有 UTF-8 不必改。</p>
 
   <h2>2. 配置 ROS 软件源</h2>
   <p>以下命令都在 Ubuntu 终端执行。先启用 Ubuntu 的 universe 仓库，再用 ROS 官方维护的 <code>ros2-apt-source</code> 包设置密钥和软件源。</p>
   <p class="terminal">在 Ubuntu 终端中</p>
-  <pre><code>sudo apt update
+  <pre><code># 以下全在 Ubuntu 终端执行：先刷新索引并安装源管理/下载工具。
+sudo apt update
 sudo apt install software-properties-common curl
+# Jazzy 软件包依赖 Ubuntu universe 仓库。
 sudo add-apt-repository universe
 
+# 从 ROS 官方发布索引取 ros2-apt-source 的最新标签；echo 必须非空。
 export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F '"tag_name"' | awk -F'"' '{print $4}')
 echo "$ROS_APT_SOURCE_VERSION"
+# 下载与当前 Ubuntu codename 对应的官方源配置 deb，再安装它。
 curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release &amp;&amp; echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}})_all.deb"
 sudo dpkg -i /tmp/ros2-apt-source.deb</code></pre>
   <p><code>echo</code> 应打印非空版本号，<code>dpkg</code> 应成功结束。如果 GitHub API 或下载失败，先检查网络，再对照官方安装页的最新命令；不要在版本号为空时继续。</p>
@@ -71,19 +82,23 @@ sudo dpkg -i /tmp/ros2-apt-source.deb</code></pre>
   <h2>3. 安装 Jazzy Desktop 与开发工具</h2>
   <p>先更新软件包，再装 Desktop（含 RViz 与示例）。本系列还会编译工作空间，所以安装开发工具。</p>
   <p class="terminal">在 Ubuntu 终端中</p>
-  <pre><code>sudo apt update
+  <pre><code># 重新读取新增 ROS 软件源，先更新系统再安装带 RViz 的 Desktop。
+sudo apt update
 sudo apt upgrade
+# ros-dev-tools 提供构建/开发工具；安装可能耗时较长。
 sudo apt install ros-jazzy-desktop ros-dev-tools</code></pre>
   <div class="note warn"><p>若 <code>ros-dev-tools</code> 出现依赖冲突，先检查 <code>grep Suites /etc/apt/sources.list.d/ubuntu.sources</code>；ROS 官方指出 Ubuntu 24.04 应包含 <code>noble-updates</code> 与 <code>noble-backports</code>。先按官方说明修复软件源，不要随意强制安装。</p></div>
 
   <h2>4. 在两个终端验证通信</h2>
   <p>每开一个新的 Ubuntu 终端，都先加载 Jazzy 环境。第一个终端运行发送者，保持它运行；再开第二个 Ubuntu 终端运行接收者。</p>
   <p class="terminal">Ubuntu 终端 A</p>
-  <pre><code>source /opt/ros/jazzy/setup.bash
+  <pre><code># 每个新终端都要 source；talker 持续发布，保持窗口 A 打开。
+source /opt/ros/jazzy/setup.bash
 echo "$ROS_DISTRO"
 ros2 run demo_nodes_cpp talker</code></pre>
   <p class="terminal">Ubuntu 终端 B</p>
-  <pre><code>source /opt/ros/jazzy/setup.bash
+  <pre><code># 窗口 B 独立加载环境；listener 应持续收到窗口 A 的消息。
+source /opt/ros/jazzy/setup.bash
 ros2 run demo_nodes_py listener</code></pre>
   <div class="note ok"><p>验收：<code>ROS_DISTRO</code> 显示 <code>jazzy</code>，A 持续出现 <code>Publishing</code>，B 持续出现 <code>I heard</code>。用 <code>Ctrl+C</code> 结束两个示例。</p></div>
   <p>通过后可把 <code>source /opt/ros/jazzy/setup.bash</code> 加到 Ubuntu 用户的 <code>~/.bashrc</code>，方便以后打开终端自动加载；先手动验证再加，且不要把不同 ROS 发行版同时写进去。</p>
@@ -91,7 +106,8 @@ ros2 run demo_nodes_py listener</code></pre>
   <h2>5. 验证图形界面</h2>
   <p>后续 RViz 实验需要 WSLg。先更新 WSL 并重开 Ubuntu；在 Ubuntu 终端运行 <code>rviz2</code>。出现 RViz 窗口才算图形链路通过。窗口可打开不等于一定有硬件 3D 加速，实际渲染能力还取决于 Windows、WSL 与显卡驱动。</p>
   <p class="terminal">在 Ubuntu 终端中</p>
-  <pre><code>source /opt/ros/jazzy/setup.bash
+  <pre><code># 在 Ubuntu/WSL 内验证图形链路；RViz 窗口出现才算通过。
+source /opt/ros/jazzy/setup.bash
 rviz2</code></pre>
   <p>若通信正常但 RViz 没窗口，先看 <a href="https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps">微软的 WSL 图形应用指南</a>，确认 WSL2、WSLg 和显卡驱动；不要把图形故障误判成 ROS 通信故障。</p>
 

@@ -17,12 +17,15 @@
 <div class="grid"><section class="card"><h3>采样为什么必须“多姿态、多方向”</h3><p>若每次都只沿同一条直线移动，或只绕同一轴小角度旋转，方程对某些方向缺乏约束。要让平移与多个旋转轴都出现明显变化，采样才有辨识力。</p></section><section class="card"><h3>标靶为什么必须有尺寸和内参</h3><p>检测到角点不等于知道标靶相对相机的公制 Pose。标靶尺寸、相机内参和畸变模型共同决定 <code>T_camera_target</code> 的尺度与可靠性。</p></section></div>
 
 <h2>3. 从视觉目标到 TCP 目标：公式应能逐段指认</h2>
-<pre class="code"># 例：eye-to-hand，视觉系统给出 T_camera_target
+<pre class="code"># 坐标变换公式示意，不是可直接运行的代码；矩阵相乘有严格顺序。
+# 例：eye-to-hand，视觉系统给出 T_camera_target
+# T_base_camera 是相机相对底座的固定外参；右乘观测得到 base 下目标。
 T_base_target = T_base_camera · T_camera_target
+# 再乘任务定义的目标→TCP 偏移，得到真正的工艺 TCP 目标。
 T_base_tcp_goal = T_base_target · T_target_tcp_goal
 
-# 例：eye-in-hand，base→tool0 来自此刻 joint state / TF
-T_base_target = T_base_tool0(now) · T_tool0_camera · T_camera_target
+# 例：eye-in-hand，base→tool0 必须查图像采集时刻的 TF，而不是随意用 now。
+T_base_target = T_base_tool0(image_stamp) · T_tool0_camera · T_camera_target
 T_base_tcp_goal = T_base_target · T_target_tcp_goal
 
 # T_target_tcp_goal 是“工艺偏移”：例如目标表面上方 50 mm 的预接近姿态。

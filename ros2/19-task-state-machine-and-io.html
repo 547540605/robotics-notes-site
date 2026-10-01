@@ -17,7 +17,8 @@
 <table class="table"><thead><tr><th>信号示例</th><th>方向</th><th>必须写清的内容</th><th>错误用法</th></tr></thead><tbody><tr><td>part_present</td><td>设备 → 任务</td><td>来自哪只传感器、去抖时间、有效电平、超时</td><td>一帧读到 true 就开始抓取</td></tr><tr><td>fixture_locked</td><td>设备 → 任务</td><td>锁紧完成的真实反馈，非“已下发锁紧命令”</td><td>把 command echo 当作到位反馈</td></tr><tr><td>gripper_open/close</td><td>任务 → 设备</td><td>命令、执行结果、实际开合/夹持反馈、超时</td><td>发 close 后固定 sleep 1 秒就认为夹住</td></tr><tr><td>cycle_start/reset</td><td>外部 → 任务</td><td>边沿/保持语义、允许在哪些 state 接受</td><td>FAULT 中任意 start 直接继续执行</td></tr><tr><td>robot_ready/fault</td><td>控制器/驱动 → 任务</td><td>控制器 active、设备使能、故障码与时间戳</td><td>只看 RViz 里模型在不在动</td></tr></tbody></table>
 
 <h2>3. 一个状态应该写成什么样：以“预接近并夹取”为例</h2>
-<pre class="code">State: PLAN_PREAPPROACH
+<pre class="code"># 状态机规格示意，非 Python 语法；每个 guard 必须有数据来源和超时。
+State: PLAN_PREAPPROACH
   entry guard:
     controller_active AND latest_joint_state AND fixture_locked
     AND target_pose_is_fresh AND no_unacknowledged_fault
@@ -25,9 +26,11 @@
     request MoveIt plan from current state to preapproach_pose
   success transition:
     plan.success AND trajectory_is_fresh  -> EXECUTE_PREAPPROACH
+    # 规划成功还要确认轨迹对应当前状态与当前场景。
   failure transition:
     IK/collision/timeout                  -> FAULT(PLAN_PREAPPROACH_FAILED)
 
+# 执行态必须等 Action result，发送请求不等于已经到位。
 State: EXECUTE_PREAPPROACH
   action:
     submit FollowJointTrajectory goal
@@ -36,6 +39,7 @@ State: EXECUTE_PREAPPROACH
   failure transition:
     aborted/cancelled/tolerance/timeout    -> FAULT(EXECUTION_FAILED)
 
+# 再用实际关节状态/FK 验证，不拿计划终点冒充到位反馈。
 State: VERIFY_PREAPPROACH
   guard:
     actual_joint_state is fresh AND pose error < configured threshold
@@ -48,12 +52,14 @@ State: VERIFY_PREAPPROACH
 
 <h2>5. 取消与恢复：先保证“知道在哪”，再谈继续</h2>
 <div class="card warn"><strong>取消轨迹不意味着回到起点。</strong>Action 被取消或保护停止后，物理机械臂可能停在路径中间。恢复流程至少要重新读取 joint state、确认控制器和安全状态、重建 Planning Scene，必要时从当前姿态规划一条撤离轨迹；不得重放旧 trajectory 的后半段。</div>
-<pre class="code">on_fault(event):
+<pre class="code"># 故障/恢复伪代码；真机安全停机以设备安全系统为准。
+on_fault(event):
   reject_new_motion_goals()
   cancel_active_action_if_permitted()
-  snapshot(joint_state, controller_state, io, tf, scene, event, timestamps)
+  snapshot(joint_state, controller_state, io, tf, scene, event, timestamps)  # 留下可复现证据
   transition(FAULT)
 
+# 外部确认不等于自动重新使能；先重新确认控制器和状态新鲜度。
 on_recovery_ack():
   require(external_safety_ready AND controller_active AND states_fresh)
   refresh_current_state_and_scene()

@@ -16,7 +16,9 @@
 <p>若只给若干位置点和时间点，控制器可能通过插值补齐速度/加速度，但这不等于你已经验证了电机、减速机、结构和工艺允许这些变化。可执行轨迹至少需要考虑四类边界：</p>
 <div class="grid"><section class="card"><h3>位置 / 速度 / 加速度</h3><p><code>q_min ≤ q ≤ q_max</code>、<code>|q̇| ≤ q̇_max</code>、<code>|q̈| ≤ q̈_max</code> 是最基础的几何与驱动边界。速度缩放不能修复一条本身撞关节限位的路径。</p></section><section class="card"><h3>jerk（加加速度）</h3><p><code>j = d q̈ / dt</code> 约束加速度变化是否突兀。jerk 过大常带来机械冲击、振动、跟踪误差和工艺不稳定；它是“到得快”与“到得稳”之间的重要分界。</p></section></div>
 <pre class="code"># 对一条关节路径 q(s)，时间律 s(t) 决定它“怎么走”：
+# 这是链式法则的数学记号，不是可运行代码；q、q_dot、q_ddot 是向量。
 q_dot  = dq/ds * s_dot
+# 第一项是路径曲率影响，第二项是时间律加减速影响。
 q_ddot = d²q/ds² * s_dot² + dq/ds * s_ddot
 
 # 所以同一条空间路径，换一条时间律，峰值速度、加速度、力矩都可能不同。
@@ -27,10 +29,13 @@ q_ddot = d²q/ds² * s_dot² + dq/ds * s_ddot
 <p>Craig 的 Newton–Euler 外推/内推正是逆动力学的递推思路：先计算每节的速度、加速度和质心加速度，再从末端向基座回传力与力矩。ROS 中的控制器接口不能替代这套模型；它只定义模型计算出的命令怎样被交给硬件。</p>
 
 <h2>4. 前馈与 PID：不是二选一</h2>
-<pre class="code">τ_command = τ_feedforward(q_ref, q_dot_ref, q_ddot_ref)
+<pre class="code"># 控制律数学记号，不是可直接运行的代码；只有支持 torque 模式时才可下发 τ。
+τ_command = τ_feedforward(q_ref, q_dot_ref, q_ddot_ref)
           + Kp · (q_ref - q)
           + Kd · (q_dot_ref - q_dot)
 
+# 公式示意：q_ref 是目标，q 是测得的当前状态；下标 dot 表示关节速度。
+# Kp/Kd 是增益矩阵或逐轴系数；τ_command 是关节力矩，不是位置命令。
 # feedforward：根据模型预先抵消可预测负担（例如重力、期望加速）。
 # feedback：根据实际误差修正模型不准、扰动和未建模因素。
 # 真机是否允许外部 torque command，取决于厂商控制模式和安全设计。</pre>

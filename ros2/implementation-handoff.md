@@ -92,8 +92,10 @@ ros2_ws/src/
 ### 2.2 3R 纯函数 contract
 
 ```python
+# 合同签名而非完整实现：输入角度为 rad，输出 base_link 下的 tool0 位置(m)。
 forward_position(q1: float, q2: float, q3: float) -> tuple[float, float, float]
 
+# 目标坐标单位 m；previous_q 用于跨帧选支，失败原因必须显式返回。
 solve_position_ik(
     x: float, y: float, z: float,
     *, previous_q: tuple[float, float, float] | None = None,
