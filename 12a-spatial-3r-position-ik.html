@@ -26,6 +26,7 @@
     .proof-arc-q2{fill:none;stroke:var(--yellow);stroke-width:2.5}.proof-arc-q3{fill:none;stroke:#67e8f9;stroke-width:2.5}.proof-arc-beta{fill:none;stroke:var(--blue);stroke-width:2.5}.proof-arc-phi{fill:none;stroke:var(--violet);stroke-width:2.5}.explain-grid .proof-q2{fill:var(--yellow)}.explain-grid .proof-q3{fill:#67e8f9}.explain-grid .proof-beta{fill:var(--blue)}.explain-grid .proof-phi{fill:var(--violet)}
     .explain-grid figure.current-branch{border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue)}
     .fk3d{max-width:650px;margin:16px auto}.fk3d svg{display:block;width:100%;height:auto;background:#060d19;border:1px solid var(--line);border-radius:10px}.fk3d .axis{stroke:#7186a6;stroke-width:2}.fk3d .component{stroke:var(--violet);stroke-width:2;stroke-dasharray:6 5}.fk3d .radial{stroke:var(--blue);stroke-width:2.5;stroke-dasharray:7 5}.fk3d .height{stroke:var(--pink);stroke-width:2;stroke-dasharray:6 5}.fk3d .arm-a{stroke:var(--yellow);stroke-width:7;stroke-linecap:round}.fk3d .arm-b{stroke:var(--green);stroke-width:7;stroke-linecap:round}.fk3d text{fill:var(--text);font:16px system-ui,"Microsoft YaHei",sans-serif;paint-order:stroke fill;stroke:#060d19;stroke-width:4px;stroke-linejoin:round}.fk3d .value-label{font-size:14px}.fk3d .control{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:10px 0}.fk3d .control input{width:min(230px,55vw);accent-color:var(--blue)}.fk3d .values{text-align:center;margin:6px 0;color:var(--text)}
+    .rho-proof svg{display:block;width:100%;max-width:760px;height:auto;margin:auto;background:#060d19;border:1px solid var(--line);border-radius:8px}.rho-proof text{fill:var(--text);font:15px system-ui,"Microsoft YaHei",sans-serif}.rho-proof .rho-axis{stroke:#7186a6;stroke-width:2}.rho-proof .rho-first{stroke:var(--yellow);stroke-width:6;stroke-linecap:round}.rho-proof .rho-second{stroke:var(--green);stroke-width:6;stroke-linecap:round}.rho-proof .rho-total{stroke:var(--blue);stroke-width:4}.rho-proof .rho-tick{stroke:var(--text);stroke-width:2}.rho-proof .rho-dot{fill:var(--pink)}
     @media(max-width:800px){.prereq-list{grid-template-columns:1fr}}
     @media(max-width:800px){.explain-grid{grid-template-columns:1fr}}
   </style>
@@ -193,6 +194,15 @@
     <p>前面的 <span data-tex="r=\sqrt{x^2+y^2}">r=√(x²+y²)</span> 是<strong>输入目标</strong>离底座竖直轴的水平距离。下面新出现的 <span data-tex="\rho">ρ</span> 是希腊字母 rho（不是字母 p），表示<strong>由关节角重新算出</strong>的水平径向坐标：黄杆贡献 <span data-tex="L_1\sin q_2">L₁ sin q₂</span>，绿杆贡献 <span data-tex="L_2\sin(q_2+q_3)">L₂ sin(q₂+q₃)</span>。</p>
     <p><span data-tex="x',y',z'">x′、y′、z′</span> 上的撇号表示“回算结果”，不是另一个目标。用 <span data-tex="q_1">q₁</span> 把 <span data-tex="\rho">ρ</span> 分到 X、Y 方向，再算出高度 <span data-tex="z'">z′</span>；最后比较 <span data-tex="(x',y',z')">(x′,y′,z′)</span> 与输入的 <span data-tex="(x,y,z)">(x,y,z)</span>。在本页选择的正向径向分支上，正确解应有 <span data-tex="\rho\approx r">ρ≈r</span>；<span data-tex="\rho">ρ</span> 本身是带符号的径向坐标，不能在所有分支都当成非负距离。</p>
   </div>
+  <section class="card rho-proof" aria-label="从两根连杆水平投影推导 rho">
+    <h3>别跳步：从两根杆的水平投影得到 ρ</h3>
+    <p>回看上面右侧的“实际姿态：分别投影两根杆”：肩 S 到肘的<strong>黄色水平投影</strong>是 <span data-tex="r_1=L_1\sin q_2">r₁=L₁ sin q₂</span>；肘到末端的<strong>绿色水平投影</strong>是 <span data-tex="r_2=L_2\sin(q_2+q_3)">r₂=L₂ sin(q₂+q₃)</span>。绿杆的绝对方向要把肩角和肘角相加，不能只用 q₃。</p>
+    <p>现在只沿底座选定的径向看：先从肩的径向坐标 0 走黄色这一段到肘，再从肘走绿色这一段到末端。<strong>末端的径向坐标就是两段带符号位移之和</strong>：</p>
+    <div class="formula" data-tex="\rho=\underbrace{L_1\sin q_2}_{r_1\text{：肩到肘}}+\underbrace{L_2\sin(q_2+q_3)}_{r_2\text{：肘到末端}}">ρ = r₁ + r₂ = L₁ sin q₂ + L₂ sin(q₂+q₃)</div>
+    <svg id="rho-proof-view" viewBox="0 0 760 190" role="img" aria-label="同一条有向径向轴上，黄色 r1 首尾接绿色 r2，蓝色 rho 从肩直接指向末端"></svg>
+    <p id="rho-proof-values" aria-live="polite">切换上方目标或 q₃ 分支，观察两段投影与总和。</p>
+    <p class="mini">图中“右”为 q₁ 选定的径向正方向；线段是<strong>带符号的投影</strong>，不是第三根杆。绿段若向左，就是 r₂ 为负，仍照样相加。前面的 <span data-tex="r=\sqrt{x^2+y^2}">r=√(x²+y²)</span> 来自输入目标且永远非负；这里的 <span data-tex="\rho">ρ</span> 来自关节角，验算成功且采用本页正向径向分支时才有 ρ≈r。</p>
+  </section>
   <figure class="fk3d" aria-label="三维回算图：水平径向 rho 分解为 x 撇和 y 撇，目标高度 z 撇从底座 XY 平面量起">
     <figcaption><strong>把回算结果放回三维坐标系</strong>：看虚线如何从 <span data-tex="\rho">ρ</span> 拆成 <span data-tex="x'">x′</span>、<span data-tex="y'">y′</span>，再向上得到 <span data-tex="z'">z′</span>。</figcaption>
     <svg id="fk3d-view" viewBox="45 0 390 390" role="img" aria-label="底座坐标轴、黄绿两根连杆、末端及其在 XY 平面的投影；可用下方滑块转动观察视角">
@@ -270,6 +280,23 @@
     const r2=l2*Math.sin(current.q2+current.q3),h2=l2*Math.cos(current.q2+current.q3);
     $('proof-projection-values').textContent=`当前实际投影：r1=${fmt(er)} m，r2=${fmt(r2)} m；h1=${fmt(eh)} m，h2=${fmt(h2)} m。`;
   }
+  function renderRho(q2,q3){
+    const view=$('rho-proof-view'),readout=$('rho-proof-values');
+    if(q2===null){view.innerHTML='';readout.textContent='当前没有可回代的关节角，先把目标拖回可达范围。';return;}
+    const r1=l1*Math.sin(q2),r2=l2*Math.sin(q2+q3),rho=r1+r2;
+    const low=Math.min(0,r1,rho)-.07,high=Math.max(0,r1,rho)+.07;
+    const at=value=>45+(value-low)/(high-low)*670;
+    const x0=at(0),x1=at(r1),x2=at(rho);
+    view.innerHTML=`<defs><marker id="rho-arrow-yellow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#ffc44b"/></marker><marker id="rho-arrow-green" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#45dbb0"/></marker><marker id="rho-arrow-blue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="#58c7ff"/></marker></defs>
+      <text x="25" y="28">黄：肩 → 肘的水平投影 r₁</text><text x="380" y="28">绿：肘 → 末端的水平投影 r₂</text>
+      <line class="rho-axis" x1="28" y1="93" x2="730" y2="93"/><text x="638" y="83">径向正方向 →</text>
+      <line class="rho-first" x1="${x0}" y1="72" x2="${x1}" y2="72" marker-end="url(#rho-arrow-yellow)"/>
+      <line class="rho-second" x1="${x1}" y1="93" x2="${x2}" y2="93" marker-end="url(#rho-arrow-green)"/>
+      <line class="rho-total" x1="${x0}" y1="142" x2="${x2}" y2="142" marker-end="url(#rho-arrow-blue)"/>
+      <line class="rho-tick" x1="${x0}" y1="84" x2="${x0}" y2="151"/><line class="rho-tick" x1="${x1}" y1="84" x2="${x1}" y2="104"/><line class="rho-tick" x1="${x2}" y1="84" x2="${x2}" y2="151"/>
+      <circle class="rho-dot" cx="${x2}" cy="93" r="5"/><text x="25" y="178">蓝：肩 → 末端的总投影 ρ = r₁ + r₂</text>`;
+    readout.textContent=`当前 q₂=${degrees(q2)}，q₃=${degrees(q3)}：黄 r₁=${fmt(l1)}×sin(${degrees(q2)})=${fmt(r1)} m；绿 r₂=${fmt(l2)}×sin(${degrees(q2+q3)})=${fmt(r2)} m；因此 ρ=${fmt(r1)}+(${fmt(r2)})=${fmt(rho)} m。`;
+  }
   const fk3dMoving=['fk3d-x-part','fk3d-y-part','fk3d-rho','fk3d-height','fk3d-base-arm','fk3d-arm1','fk3d-arm2','fk3d-shoulder','fk3d-elbow','fk3d-ground','fk3d-end','fk3d-x-label','fk3d-y-label','fk3d-rho-label','fk3d-z-label','fk3d-d-label','fk3d-end-label'];
   function render3d(fk,elbow3d){
     const angle=Number($('fk3d-angle').value),a=angle*Math.PI/180,ca=Math.cos(a),sa=Math.sin(a);
@@ -323,6 +350,7 @@
     const status=$('status');status.classList.toggle('bad',!ok);
     if(!ok){
       drawExplanations({r,h,q1,solutions:null,selected:branch()});
+      renderRho(null,null);
       render3d(null,null);
       status.textContent=r<=1e-8?'目标在底座 Z 轴上：q1 不唯一；请稍微拖离中心。':`肩到目标距离 ${fmt(s)} m，不在 [${fmt(Math.abs(l1-l2))}, ${fmt(l1+l2)}] m 内：几何不可达。`;
       $('side-q2-value').textContent='q2=—';$('side-q3-value').textContent='q3=—';
@@ -334,6 +362,7 @@
     const otherQ3=-q3,otherQ2=Math.atan2(r,h)-Math.atan2(l2*Math.sin(otherQ3),l1+l2*Math.cos(otherQ3));
     const chosen={q2,q3},other={q2:otherQ2,q3:otherQ3};
     drawExplanations({r,h,q1,solutions:branch()==='positive'?{positive:chosen,negative:other}:{positive:other,negative:chosen},selected:branch()});
+    renderRho(q2,q3);
     const er=l1*Math.sin(q2),eh=l1*Math.cos(q2),elbow=side(er,eh),et=top(er*Math.cos(q1),er*Math.sin(q1));
     setLine('side-arm1',shoulder.x,shoulder.y,elbow.x,elbow.y);
     setLine('side-arm2',elbow.x,elbow.y,v.x,v.y);
