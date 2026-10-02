@@ -14,6 +14,7 @@
     .angle-panel svg{display:block;width:100%;height:auto;max-height:290px;margin:4px auto}
     .angle-panel figcaption{font-size:.94rem;line-height:1.65;color:var(--fg)}
     .angle-note{font-size:.9rem;color:var(--muted);margin-top:-5px}
+    .pose-figure{overflow-x:auto}.pose-figure svg{min-width:520px}
   </style>
 </head>
 <body><main>
@@ -57,8 +58,41 @@
   <div class="card warn"><strong>本节只需要这一个公式。</strong>它告诉我们候选解相对上一帧差多少，供后面的“选最近合法解”使用。算出差值不等于整段运动已经安全；仍须检查路径中的限位和其他约束。</div>
 
   <h2>3. 选择规则：所有关节一起比较，而不是只看肘角</h2>
+  <section class="card guide">
+    <h3>这一步到底要干什么？</h3>
+    <p>04 已经为<strong>同一个末端目标点</strong>算出两组关节角：一组把肘部放在一侧，另一组放在另一侧。末端都能到，机械臂姿态却不同。现在末端沿路径挪到下一点时，不能每帧随意选一组，否则肘部可能突然翻转。05 的任务就是：<strong>先排除超出关节限位的解，再从剩下的解中挑一个与上一帧关节角最接近的。</strong></p>
+    <p>所谓“接近”不是末端位置接近——两支末端本来就在同一点——而是 <strong>q1、q2、q3 三个关节各自要改变多少</strong>。下面只用页面交互区的默认数字做一次完整演算。</p>
+  </section>
+  <figure class="angle-panel pose-figure" style="max-width:760px">
+    <h3>同一目标点，两种两连杆姿态（侧看肩点所在的 r–h 平面）</h3>
+    <svg viewBox="0 0 560 325" role="img" aria-label="同一个肩点和同一个目标点，紫色与绿色两种小臂姿态分别对应正负两支逆解；上一帧姿态接近紫色">
+      <defs><marker id="r-axis-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 L9 5 L1 9 Z" fill="#9baec8"/></marker></defs>
+      <path d="M90 265 H293 M90 265 V45" fill="none" stroke="#6b7e9c" stroke-width="2" marker-end="url(#r-axis-arrow)"/>
+      <text x="300" y="271" fill="#9baec8" font-size="16">r →</text><text x="77" y="34" fill="#9baec8" font-size="16">h ↑</text>
+      <path d="M90 265 L115 143 L215 140" fill="none" stroke="#a78bfa" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M90 265 L212 240 L215 140" fill="none" stroke="#34d399" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="90" cy="265" r="8" fill="#eef5ff"/><circle cx="215" cy="140" r="8" fill="#fb7185"/>
+      <circle cx="115" cy="143" r="7" fill="#a78bfa"/><circle cx="212" cy="240" r="7" fill="#34d399"/>
+      <text x="30" y="293" fill="#eef5ff" font-size="16">肩点</text><text x="228" y="135" fill="#fb7185" font-size="16">同一目标 (r=0.50,h=0.50)</text>
+      <text x="14" y="125" fill="#a78bfa" font-size="15">肘 A</text><text x="222" y="245" fill="#34d399" font-size="15">肘 B</text>
+      <text x="345" y="192" fill="#a78bfa" font-size="16" font-weight="700">紫：候选 A</text>
+      <text x="345" y="218" fill="#34d399" font-size="16" font-weight="700">绿：候选 B</text>
+      <text x="345" y="254" fill="#9baec8" font-size="14">上一帧接近紫色姿态</text>
+    </svg>
+    <figcaption>底座 q1 在本例中始终是 0°；图只画决定肘部形状的 q2、q3。两条彩色折线有相同肩点和红色目标点，但肘部位置明显不同。图按杆长与目标相对位置示意，标签位置不代表额外关节。</figcaption>
+  </figure>
+  <section class="card">
+    <h3>把默认输入逐项代进去</h3>
+    <p>上一帧 <code>q_prev=(0°, 12°, 77°)</code>，目标 <code>(x,y,z)=(0.50,0,0.75) m</code>。04 的 IK 为该目标算出两支；它们都满足三轴限位，所以这次才能比较“哪支更近”。</p>
+    <div style="overflow-x:auto"><table class="table"><thead><tr><th>同一目标的解</th><th>候选关节角 (q1,q2,q3)</th><th>减去上一帧后的角度变化</th><th>代价（rad²）</th></tr></thead><tbody>
+      <tr><td style="color:var(--violet)">紫色 A</td><td>(0°, 11.552°, +76.997°)</td><td>(0°, −0.448°, −0.003°)</td><td>约 0.000061</td></tr>
+      <tr><td style="color:var(--green)">绿色 B</td><td>(0°, 78.448°, −76.997°)</td><td>(0°, +66.448°, −153.997°)</td><td>约 8.5690</td></tr>
+    </tbody></table></div>
+    <p>紫色只让 q2、q3 微调；绿色要让肩部和肘部大幅转动。<strong>代价越小，表示这三个关节合起来改得越少</strong>，所以本帧选紫色 A。注意这不是拿两个候选彼此相减，而是<strong>每个候选分别减去同一个上一帧</strong>。</p>
+  </section>
+  <p>公式只是把上表“分别求差、平方、加起来”的操作缩写成一行：<code>i=1,2,3</code> 分别代表三个关节；平方让正转、反转都计入改变量，并让大跳变更贵；<code>Σ</code> 表示三项相加。本课先令 <code>w1=w2=w3=1</code>，暂时不用考虑不同关节权重。</p>
   <span class="formula" data-tex="\operatorname{cost}(q)=\sum_{i=1}^{3}w_i(q_i-q_{\mathrm{prev},i})^2">cost(q)=Σᵢ wᵢ(qᵢ−qprev,ᵢ)²</span>
-  <p>默认可令所有权重 <code>w_i=1</code>。若某关节体积大、限位紧或运动代价高，后续可以提高它的权重；但第一版必须先把规则保持透明。</p>
+  <p class="small">表里用度数方便读，代价按代码一样先转成弧度再平方，所以单位是 rad²。若直接用度数平方，这两支的排序也不变，但数值不会是表中的 0.000061 与 8.5690。最近候选只是一条选支规则，不等于已经验证整条运动安全。</p>
 
   <h2>4. 交互观察：上一帧会怎样改变本帧选择？</h2>
   <div class="lab">
@@ -153,7 +187,7 @@ def select_nearest_valid_solution(candidates, q_prev, weights=(1.0, 1.0, 1.0)):
     const valid=candidates.filter(c=>c.ok),picked=valid.length?valid.reduce((a,b)=>a.cost<=b.cost?a:b):null;
     let html=`<h3>筛选结果</h3><p class="small">r=${n(r)} m，h=${n(h)} m，肩部距离=${n(dis)} m。三轴限位先筛；合法者按实际角差比较，w1=w2=w3=1。</p>`;
     candidates.forEach((c,i)=>{
-      const selected=c===picked,score=c.ok?`cost=${c.cost.toFixed(4)}（rad²）；Δq=[${c.delta.map(deg).join('，')}]`:'cost 不参与比较：已被限位淘汰';
+      const selected=c===picked,score=c.ok?`cost=${c.cost.toFixed(6)}（rad²）；Δq=[${c.delta.map(deg).join('，')}]`:'cost 不参与比较：已被限位淘汰';
       html+=`<div class="candidate ${selected?'pick':c.ok?'':'drop'}"><b>候选 ${i+1}：q3 ${c.q3>=0?'正支':'负支'}</b> ${selected?'<span class="tag pick">已选：合法候选中代价最小</span>':c.ok?'<span class="tag ok">限位合法，代价较大或同代价</span>':'<span class="tag bad">淘汰：超限</span>'}<br><span class="small">q=[${c.q.map(deg).join('，')}]<br>${score}</span>${details(c.checks)}</div>`;
     });
     html+=picked?'<p><span class="tag ok">选支完成</span> 仅得到下一步的候选姿态；还未验证路径连续性、速度、加速度、奇异区或碰撞，不能据此直接执行。</p>':'<p><span class="tag bad">停止选择</span> 没有满足三轴关节限位的候选。不要裁剪角度或跳过目标点。</p>';
