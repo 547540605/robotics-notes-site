@@ -34,7 +34,7 @@ def cartesian_line(start, end, duration, dt=0.02):
 # 在 ROS 节点中（调用顺序示意，不是可直接运行的完整节点）：
 # 1) target 来自 cartesian_line
 # 2) candidates = solve_position_ik(*target)；先确认 reachable 并取出 candidates
-# 3) selected = select_continuous_solution(candidates, q_prev) 的 selected 字段
+# 3) selected = select_nearest_valid_solution(candidates, q_prev) 的 selected 字段
 # 4) 若 selected 为空：停止本段，并报告 t 与 target
 # 5) 若存在：发布 selected q 给数字孪生，并更新 q_prev；真机不能发 /joint_states 当命令</pre>
 <p class="small">生成器不知道关节限位；IK 也不知道路径时间。二者之间只交接 <code>target</code> 和 <code>selected q</code>，这样才能准确指出路径在哪一帧失败。</p>
