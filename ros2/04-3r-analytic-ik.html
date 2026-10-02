@@ -87,8 +87,13 @@ def forward_position(q1, q2, q3):
     )
 
 def solve_position_ik(x, y, z, eps=1e-9):
-    """base_link 目标点(m) → 双支候选；不发布 ROS 指令，也不替调用者选支。"""
-    # 先从三维目标提取肩部剖面的横向 r 与相对高度 h。
+    """base_link 目标点(m) → 双支候选；不发布 ROS 指令，也不替调用者选支。
+
+    返回字典：reachable 表示几何是否可达；失败时 reason 说明原因且
+    candidates=[]；成功时每支含 q=(q1,q2,q3) rad 和初步限位标记。
+    05 接收的是返回值["candidates"]，并会重查全部三轴限位。
+    """
+    # 先从三维目标提取肩部剖面的横向 r 与相对高度 h，单位都是 m。
     r = math.hypot(x, y)
     h = z - D
     distance = math.hypot(r, h)

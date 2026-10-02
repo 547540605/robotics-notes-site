@@ -14,14 +14,14 @@ from rclpy.duration import Duration
 from rclpy.time import Time
 
 # 概念片段：需位于已创建 tf_buffer/TransformListener 的 ROS 节点回调中；
-# point_in_target 是带 header.frame_id='target'、有效时间戳的 PointStamped。
+# point_in_target 是 PointStamped：header.frame_id='target'，point 含米制 xyz。
 # lookup_transform(target_frame, source_frame, time)
 # 读作：把 source_frame 中的量转换到 target_frame 中
 try:
     # rclpy.time.Time() 表示“最新可用”变换；运动目标应改查消息时间戳。
     tf_base_from_target = tf_buffer.lookup_transform(
         'base_link', 'target', Time(), timeout=Duration(seconds=0.1))
-    # 旋转和平移都由 TF2 完成；不能手动只加 xyz 偏移。
+    # 同时做旋转和平移，得到 base_link 下的 PointStamped；不能只加 xyz 偏移。
     point_in_base = do_transform_point(point_in_target, tf_base_from_target)
 except TransformException as exc:
     # 本周期禁止调用 IK，也禁止发布新运动目标
@@ -29,9 +29,13 @@ except TransformException as exc:
     return
 
 # 只有转换成功后才将 base_link 下的坐标(m)交给 04 的纯 IK 函数。
-candidates = solve_position_ik(point_in_base.point.x,
+# 04 返回的是含 reachable/reason/candidates 的字典，不是候选列表本身。
+ik_result = solve_position_ik(point_in_base.point.x,
                                point_in_base.point.y,
-                               point_in_base.point.z)</pre>
+                               point_in_base.point.z)
+# 若 not ik_result["reachable"]，报告 reason 并停止；否则再取
+# ik_candidates = ik_result["candidates"] 交给 05 的选支函数；
+# 此时还没重查三轴限位，不能称作“合法解”。</pre>
 <section class="card warn"><strong>箭头读法：</strong><code>base_link ← target</code> 不是“target 朝 base_link 运动”，而是“把 target 坐标纸上的量改写到 base_link 坐标纸”。名字读反是 TF2 最常见的错误之一。</section>
 <h2>4. 实际排查顺序</h2><table class="table"><thead><tr><th>现象</th><th>先检查</th><th>正确动作</th></tr></thead><tbody><tr><td>lookup 报不存在</td><td>帧名拼写、发布节点是否启动、树是否连通</td><td>用 <code>tf2_echo base_link target</code> 验证；不要伪造单位变换。</td></tr><tr><td>lookup 超时</td><td>动态 target 的时间戳、发布频率、仿真时间</td><td>等待最新有效帧或停止动作；不要使用过期坐标。</td></tr><tr><td>末端总是偏同一个量</td><td>camera/base 安装外参、TCP 偏置、单位</td><td>回查标定与静态变换，而不是在 IK 中加补丁。</td></tr><tr><td>方向整体反了</td><td>查询的 target/source 顺序、四元数、坐标轴约定</td><td>在 RViz 开启 TF Axes 与 Marker 同时看。</td></tr></tbody></table>
 <h2>5. 本篇与后续六轴的关系</h2><p>六轴、MoveIt、视觉和力控会越来越复杂，但 TF2 契约不变：规划请求必须说清参考坐标系；TCP、相机、工位、工件都必须在同一棵树上。MoveIt 解决“怎样从当前姿态到目标 Pose”，不替你猜目标 Pose 原来属于哪个 frame。</p>

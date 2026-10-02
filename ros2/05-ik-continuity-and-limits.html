@@ -103,43 +103,59 @@
   <h2>5. 放进求解器：返回“为什么选它”，而不只返回角度</h2>
   <pre class="code">import math
 
-# 与 URDF 三个 revolute 关节一一对应；单位均为 rad。
+# 顺序固定为 (joint1, joint2, joint3)；上下限来自 02 的 URDF，单位 rad。
 JOINT_LIMITS = ((-3.14, 3.14), (-1.57, 1.57), (-2.0, 2.0))
 
 def select_nearest_valid_solution(candidates, q_prev, weights=(1.0, 1.0, 1.0)):
-    """从 04 的候选中选合法且离上一帧最近的一支；不检查整条轨迹。"""
-    # 当前三个关节都是有界 revolute；q_prev 是上一帧实际角度(rad)。
+    """先筛三轴限位，再选离上一帧最近的一支；不检查整条轨迹。
+
+    candidates: 传入 04 的结果["candidates"]，不是整个结果字典；
+                每项至少有 {"q": (q1, q2, q3)}，角度单位 rad。
+    q_prev:    上一帧真正选用的 (q1, q2, q3)，单位 rad；不是上一帧的目标位置。
+    weights:   三轴代价权重；默认都为 1，表示一视同仁。
+    返回:      selected 是选中的候选字典，失败时为 None；
+               candidates 是已评估候选（上一帧非法时为空），每支附限位和 cost；
+               reason 说明失败原因，trajectory_checked 始终为 False。
+    """
+    # 本模型三个关节都是有界 revolute；先拒绝长度不对或 NaN/无穷角度。
     if len(q_prev) != 3 or not all(math.isfinite(v) for v in q_prev):
         raise ValueError("q_prev must contain three finite angles")
-    # 非负权重可表示各轴运动代价；全零会让“最近”失去意义。
+    # 权重无量纲且不得全为 0；cost 是加权角度差平方和，单位 rad²。
     if (len(weights) != 3 or not all(math.isfinite(w) and w >= 0 for w in weights)
             or not any(w > 0 for w in weights)):
         raise ValueError("weights must be finite, nonnegative, and not all zero")
 
     def violations(q):
-        """逐轴返回超限详情，方便读者定位是哪一个关节阻止执行。"""
+        """逐轴返回超限详情；空列表 [] 表示三轴全部合法。"""
+        # zip 将 q 的三个角与三个限位配对；enumerate 从 0 编号，所以报告时 +1。
+        # if not lo &lt;= v &lt;= hi 只保留超限关节；合法轴不写入错误列表。
         return [
             {"joint": i + 1, "value": v, "allowed": (lo, hi)}
             for i, (v, (lo, hi)) in enumerate(zip(q, JOINT_LIMITS))
             if not lo &lt;= v &lt;= hi
         ]
 
-    # 上一帧若已超限，不能假装正常并以它为连续性基准。
+    # 上一帧若已超限，不能以它为“连续性”基准；此时还没有评估候选。
     prev_errors = violations(q_prev)
     if prev_errors:
         return {"selected": None, "reason": "q_prev outside joint limits",
-                "violations": prev_errors}
+                "violations": prev_errors, "candidates": [],
+                "trajectory_checked": False}
 
     evaluated = []
     for candidate in candidates:
+        # 04 每项是字典，q 字段才是 (q1,q2,q3)；旧 within_limits 只查过 2/3 轴。
         q = candidate["q"]
         if len(q) != 3 or not all(math.isfinite(v) for v in q):
             raise ValueError("each candidate must contain three finite angles")
         errors = violations(q)  # 重查全部三轴，不只信任 04 的旧标记。
-        # 先过滤限位，再比较候选角与上一帧实际角度之差。
+        # errors=[] 表示没有超限项，布尔值为 False；有错误则不计算代价。
+        # 非法候选的 cost=None：不让它因“看起来很近”而被选中。
+        # zip 把同一轴的 (权重, 候选角, 上一帧角) 配到一起；逐轴平方后求和。
         cost = None if errors else sum(
             w * (v - last) ** 2 for w, v, last in zip(weights, q, q_prev)
         )
+        # **candidate 保留 04 的 q 等原字段，再覆盖/补充本篇的检查结果。
         evaluated.append({**candidate, "within_limits": not errors,
                           "violations": errors, "cost": cost})
 
@@ -147,9 +163,12 @@ def select_nearest_valid_solution(candidates, q_prev, weights=(1.0, 1.0, 1.0)):
     legal = [c for c in evaluated if c["within_limits"]]
     if not legal:
         return {"selected": None, "candidates": evaluated,
-                "reason": "no candidate within joint limits"}
-    selected = min(legal, key=lambda c: c["cost"])  # 同代价时保留输入顺序。
-    # trajectory_checked=False：单点“最近”不保证沿途速度、碰撞、奇异性安全。
+                "reason": "no candidate within joint limits",
+                "trajectory_checked": False}
+    # 只在合法候选里选 cost 最小者；同代价时 min 保留输入顺序。
+    selected = min(legal, key=lambda c: c["cost"])
+    # selected["q"] 才是下一帧关节角(rad)；调用者用它更新 q_prev。
+    # trajectory_checked=False：只比较这一帧，尚未验证沿途速度、碰撞或奇异性。
     return {"selected": selected, "candidates": evaluated, "reason": None,
             "trajectory_checked": False}</pre>
   <p class="small">这段函数只做“选择”，不重复推导 IK。几何、限位和连续性拆开，后续排错才能知道是哪一层出问题。</p>

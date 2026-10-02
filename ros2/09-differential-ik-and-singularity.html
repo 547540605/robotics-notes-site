@@ -4,8 +4,12 @@
 <h2>1. 先区分三件事</h2><div class="grid"><section class="card"><h3>微分 IK</h3><p>输入期望末端<strong>速度</strong>，输出关节<strong>速度</strong>。它是局部瞬时关系，不等同于 ROS2-04 的位置 IK。</p></section><section class="card"><h3>奇异位形</h3><p>Jacobian 降秩，某些末端方向无法由有限关节速度产生。它是运动学问题，不是障碍物。</p></section><section class="card"><h3>碰撞规避</h3><p>关心机器人与环境几何体是否相交；后续由 MoveIt Planning Scene 处理，不能拿 DLS 代替。</p></section><section class="card"><h3>降级策略</h3><p>接近奇异时允许末端速度存在误差，换取关节速度有限、可预测和安全。</p></section></div>
 <h2>2. 普通逆与阻尼最小二乘</h2><span class="formula">\[\dot q=J^{-1}v_{des}\quad(\text{仅在 J 良态且可逆时})\]</span><p>实际实现更稳妥的第一版是阻尼最小二乘（Damped Least Squares, DLS）：</p><span class="formula">\[\dot q=J^T(JJ^T+\lambda^2I)^{-1}v_{des}\]</span><div class="card warn"><strong>λ 的物理意义：</strong>λ 越大，越不执着于“末端速度必须一丝不差”；代价是跟随误差更大，收益是不会在奇异点附近把关节速度放大到危险数值。它不是一个越小越好的魔法参数。</div>
 <h2>3. 实现顺序：先有监控，再有 DLS</h2><pre class="code">def differential_ik(J, v_des, sigma_min, velocity_limits):
-    """概念骨架：末端期望线速度→限幅关节速度；不是可直接运行的节点。"""
-    # J 为当前位置的 3×3 位置 Jacobian；v_des 在同一 base frame 下，单位 m/s。
+    """概念骨架：末端期望线速度→限幅关节速度；不是可直接运行的节点。
+
+    返回 (q_dot_limited, damping)：三轴关节速度(rad/s)和本周期阻尼值。
+    """
+    # J 是当前位置的 3×3 位置 Jacobian；v_des 是 base_link 下速度(m/s)。
+    # sigma_min 为 J 的最小奇异值；velocity_limits 是逐轴 rad/s 上限。
     # SIGMA_SAFE、LAMBDA_*、I、solve、clip_each_joint 需由具体实现定义。
     # 1) 根据最小奇异值选择阻尼；阈值需由设备速度能力和任务误差决定
     if sigma_min >= SIGMA_SAFE:

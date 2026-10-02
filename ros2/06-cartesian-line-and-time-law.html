@@ -17,7 +17,10 @@ def quintic_s(u):
     return 10*u**3 - 15*u**4 + 6*u**5
 
 def cartesian_line(start, end, duration, dt=0.02):
-    """在同一 base_link 下按 dt 采样 A→B，逐帧给出 (时间, 位置)。"""
+    """在同一 base_link 下采样 A→B；每次 yield (t秒, (x,y,z)米)。
+
+    这里只生成末端目标点，不求关节角；IK/限位检查交给调用方。
+    """
     # start/end 都是 (x,y,z)，单位 m；duration/dt 单位 s 且必须为正。
     if duration &lt;= 0 or dt &lt;= 0 or len(start) != 3 or len(end) != 3:
         raise ValueError("need 3D endpoints and positive duration/dt")
@@ -27,16 +30,20 @@ def cartesian_line(start, end, duration, dt=0.02):
         # t 限于 [0,T]，u=t/T 是无量纲时间；s 只负责走到线段哪一处。
         t = min(k * dt, duration)
         s = quintic_s(t / duration)
-        # 同一个 s 同时插值三个坐标，因此 TCP 目标严格落在空间直线上。
+        # zip 把 A/B 的 x、y、z 分别配对；同一个 s 同时插值三轴，
+        # 因而目标点落在 A→B 直线上。yield 逐帧送出，不一次存整条路径。
         target = tuple(a + s * (b - a) for a, b in zip(start, end))
         yield t, target
 
 # 在 ROS 节点中（调用顺序示意，不是可直接运行的完整节点）：
 # 1) target 来自 cartesian_line
-# 2) candidates = solve_position_ik(*target)；先确认 reachable 并取出 candidates
-# 3) selected = select_nearest_valid_solution(candidates, q_prev) 的 selected 字段
+# 2) ik_result = solve_position_ik(*target)：* 把 (x,y,z) 拆成三个参数
+#    若 not ik_result["reachable"]，报告 reason 并停；否则取 ik_result["candidates"]
+# 3) choice = select_nearest_valid_solution(ik_result["candidates"], q_prev)
+#    selected = choice["selected"]；它是含 q=(q1,q2,q3) 的字典，不是角度列表
 # 4) 若 selected 为空：停止本段，并报告 t 与 target
-# 5) 若存在：发布 selected q 给数字孪生，并更新 q_prev；真机不能发 /joint_states 当命令</pre>
+# 5) 若存在：取 selected["q"] 给数字孪生，并令 q_prev = selected["q"]
+#    真机不能把 /joint_states 当成运动命令；整段执行还须先完成预扫描</pre>
 <p class="small">生成器不知道关节限位；IK 也不知道路径时间。二者之间只交接 <code>target</code> 和 <code>selected q</code>，这样才能准确指出路径在哪一帧失败。</p>
 <h2>5. 运行前必须做整段预扫描</h2><table class="table"><thead><tr><th>检查</th><th>为什么不能省</th><th>失败时正确处理</th></tr></thead><tbody><tr><td>逐点 IK</td><td>A、B 都有解不代表中间每一点都有解或在限位内。</td><td>不启动该段；缩短路径、换姿态或重设目标。</td></tr><tr><td>连续选支</td><td>每一帧独立求解会让双解随机切换。</td><td>用 ROS2-05 的 q_prev 代价选择。</td></tr><tr><td>FK 位置误差</td><td>目标点和实际关节 FK 必须对照。</td><td>记录最大误差；异常时回查 IK/URDF 约定。</td></tr><tr><td>速度、加速度限值</td><td>五次时间律不自动保证每个关节都不过速。</td><td>先拉长 T；真实控制阶段再由控制器限速。</td></tr></tbody></table>
 <section class="card end"><h2 style="margin-top:0;border:0;padding:0">本篇结束时的闭环</h2><ul><li><strong>你能解释：末端直线来自 P(t)，而不是来自某条 q(t)。</strong></li><li>你有一条从 A 到 B 的目标点列，每一点都必须经连续 IK 才能进入数字孪生。</li><li>下一篇不会改运动学，只增加可视化：目标轨迹、FK 实际轨迹和当前点同时显示。</li></ul></section>

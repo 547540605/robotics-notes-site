@@ -16,6 +16,7 @@ arm.set_pose_target(target_pose, "tool0")   # target_pose.header.frame_id 必须
 plan = arm.plan()                            # 只计算，不驱动电机
 if not plan.success:
     report(plan.error_code)                  # 不要盲目重试；查可达性/碰撞/约束
+    return                                   # 规划失败时禁止继续预览/执行空轨迹
 # 预览的是候选轨迹，不会让真实机械臂自动执行。
 preview_in_rviz(plan.trajectory)
 

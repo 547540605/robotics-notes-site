@@ -418,22 +418,26 @@ if __name__ == '__main__':
 
     <h3>4. 入口注册、编译与启动</h3>
     <p>在 <code>setup.py</code> 的 <code>entry_points</code> 中注册可执行指令，并在根目录下构建：</p>
-    <pre><code># 下半段写入 setup.py 的 setup(..., entry_points=...)；不能把它直接粘进终端。
-# 左边是 ros2 run 使用的命令名，右边指向 Python 包.模块:main。
+    <pre><code># 文件片段：写进 my_py_pkg/setup.py 的 setup(...) 参数中，不是独立 Python 文件。
+# 左边是 ros2 run 使用的命令名，右边是 包名.模块名:main 函数。
+# 两个模块文件应放在 my_py_pkg/my_py_pkg/ 目录中。
 entry_points={
     'console_scripts': [
         'my_publisher = my_py_pkg.my_publisher:main',
         'my_subscriber = my_py_pkg.my_subscriber:main',
     ],
-},
-
-# 以下才是在 Ubuntu/WSL 终端执行；构建后 source 才能发现新入口。
+},</code></pre>
+    <p>保存 <code>setup.py</code> 后，再在 Ubuntu/WSL 终端执行下面的命令；不要把上面的 Python 配置粘进终端：</p>
+    <pre><code># 在工作空间根目录构建；source 安装区后，ros2 run 才能找到两个入口。
 cd ~/ros2_ws
 colcon build --packages-select my_py_pkg
 source install/setup.bash
 
-# 终端 A 启动发布者；终端 B 也要 source install/setup.bash 再启动订阅者。
-ros2 run my_py_pkg my_publisher
+# 终端 A：启动发布者并保持运行。
+ros2 run my_py_pkg my_publisher</code></pre>
+    <p>另开终端 B；它是新 shell，必须重新加载工作空间：</p>
+    <pre><code># 终端 B：加载同一工作空间，再启动订阅者观察消息。
+source ~/ros2_ws/install/setup.bash
 ros2 run my_py_pkg my_subscriber</code></pre>
 
     <div class="tip">

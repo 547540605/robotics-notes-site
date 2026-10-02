@@ -32,6 +32,7 @@ TwistStamped
 <pre class="code"># 数学骨架（理解用，不是 MoveIt Servo 源码）
 # q 为当前关节位置(rad)，V 为已变换到 planning frame 的末端速度。
 # J 的单位与姿态任务维度必须匹配；lambda 是阻尼而非运动速度。
+# inv 只是纸面公式；可运行实现应使用稳定的线性求解器，不直接求逆。
 q_dot_raw = J(q).T @ inv(J(q) @ J(q).T + lambda**2 * I) @ V
 
 # 四种缩放来自不同风险源；最小值决定本周期能保留多少速度。
