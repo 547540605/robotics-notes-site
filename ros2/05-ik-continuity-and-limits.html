@@ -67,11 +67,25 @@
     </figure>
   </div>
   <p class="angle-note">示意图为让两点和挡块看得清，放大了靠近 ±180° 的间隙；路径角度以标注的 358° / 2° 为准，不按图上线段量角。</p>
-  <p><strong>本模型三个关节都是有界的。</strong>选择 IK 候选时用实际关节坐标直接相减，不把越过 +180° 限位的短路当成合法路径：</p>
+  <section class="card guide">
+    <h3>先读懂第一条：为什么是“候选角 − 上一帧角”？</h3>
+    <p><code>q_prev</code> 是关节现在的角度；<code>q_candidate</code> 是 IK 算出、希望它到达的角度；<code>Δq</code> 是<strong>从现在到目标要改变多少角</strong>，带正负号。先写“现在 + 变化量 = 目标”，即 <code>q_prev + Δq = q_candidate</code>；把 <code>q_prev</code> 移到右边，就得到下面的减法。这与位置的“终点坐标 − 起点坐标 = 位移”是一回事。</p>
+    <p>左图代入：<code>Δq = −179° − (+179°) = −358°</code>。负号表示沿角度减小方向走；<code>|Δq| = 358°</code> 表示路程大小。<strong>本模型三个关节都是有界的</strong>，所以比较 IK 候选时使用这种实际关节坐标之差。</p>
+  </section>
   <span class="formula" data-tex="\Delta q_i=q_{i,\mathrm{candidate}}-q_{i,\mathrm{prev}}">Δqᵢ=qᵢ,candidate−qᵢ,prev</span>
-  <p><strong>只有右图那种情况：</strong>若模型确实使用无限转动的 continuous 关节，并且任务只关心等价朝向、不要求保留转数，才可用圆周最短角差（此例从 −358° 换算为 +2°）：</p>
+  <section class="card">
+    <h3>再读第二条：wrap 差值、sin/cos 和 atan2 分别做什么？</h3>
+    <p><strong>wrap（折回）</strong>就是把角度差按整圈 360° 视为同一朝向，再选落在约 <code>−180°～+180°</code> 内的那一个。比如 <code>−358° + 360° = +2°</code>：这两个差值的终点朝向一样，但右图无挡块时，+2° 才是短路。<strong>“同一朝向”不等于“同一关节坐标或同一可走路径”</strong>，所以左图不能 wrap。</p>
+    <ol>
+      <li>先算原始差 <code>δ = θ_c − θ_p</code>，这里是 <code>−358°</code>。</li>
+      <li><code>(cos δ, sin δ)</code> 把差值画成单位圆上的一个点。sin、cos 每转 360° 都重复一次，所以 <code>δ = −358°</code> 和 <code>δ = +2°</code> 会落在<strong>同一个点</strong>；这一步只保留朝向，丢掉整圈数。</li>
+      <li><code>atan2(y, x)</code> 是“已知点的横坐标 x、纵坐标 y，求它相对正 x 轴的角度”。这里输入顺序是 <code>atan2(sin δ, cos δ)</code>：纵坐标是 sin，横坐标是 cos。它从该点读出约 <code>−180°～+180°</code> 内的角，所以本例读出 <code>+2°</code>。它不是凭空多出的三角函数，而是把圆上的点<strong>还原成短角差</strong>。</li>
+    </ol>
+    <p class="small">图中用度数帮助理解；下面公式及 Python 的 <code>sin</code>、<code>cos</code>、<code>atan2</code> 实际使用弧度。恰好相差 180° 时，正、反两条路一样短，需要另外约定取哪边。</p>
+  </section>
+  <p><strong>只有右图那种情况：</strong>若关节确实能无限转动，且任务只关心等价朝向、不要求保留转数，才把原始差送入下面的 wrap 公式：</p>
   <span class="formula" data-tex="\Delta\theta=\operatorname{atan2}\!\left(\sin(\theta_c-\theta_p),\cos(\theta_c-\theta_p)\right)">Δθ=atan2(sin(θc−θp),cos(θc−θp))</span>
-  <div class="card warn"><strong>这台教学机械臂不使用 wrap 差值。</strong>两端角度合法，不代表跨过限位的捷径合法；需要转数或绕线约束的系统也不能只比较等价朝向。</div>
+  <div class="card warn"><strong>回到本课：这台教学机械臂不使用 wrap 差值，选支代码只用第一条减法。</strong>第二条是对比另一种关节，不需要拿来改本课代码。两端角度合法，不代表跨过限位的捷径合法；需要保留转数或绕线约束的系统也不能只比较等价朝向。即使用第一条算出差值，仍须检查整段运动是否满足限位和其他约束。</div>
 
   <h2>3. 选择规则：所有关节一起比较，而不是只看肘角</h2>
   <span class="formula" data-tex="\operatorname{cost}(q)=\sum_{i=1}^{3}w_i(q_i-q_{\mathrm{prev},i})^2">cost(q)=Σᵢ wᵢ(qᵢ−qprev,ᵢ)²</span>
