@@ -101,7 +101,15 @@
   </div>
 
   <h2>5. 放进求解器：返回“为什么选它”，而不只返回角度</h2>
-  <pre class="code">import math
+  <section class="card guide">
+    <h3>这段代码写到哪？接在 04 的同一个文件后面</h3>
+    <p><a href="04-3r-analytic-ik.html">04 第 7 节</a>给出了 <code>kinematics_3r.py</code> 的算法内容；如果你已经在工作区创建了 <code>my_arm_motion</code> 包，就打开 <code>~/ros2_ws/src/my_arm_motion/my_arm_motion/kinematics_3r.py</code>：<strong>保留</strong> 04 的 <code>forward_position()</code> 和 <code>solve_position_ik()</code>，把下方的 <code>JOINT_LIMITS</code> 与 <code>select_nearest_valid_solution()</code> 追加在文件末尾。下面代码块为了独立阅读保留了 <code>import math</code>；同一文件顶部已有该导入时，不必再写第二遍。</p>
+    <p>这是 <strong>my_arm_motion 包里的纯 Python 算法</strong>，不是 03 的 <code>my_arm_description/arm_trajectory_publisher.py</code>，也不是一个新的 ROS 节点；不要把它粘到终端或 <code>setup.py</code>。06 的路径调用者再按“目标点 → 04 求候选 → 05 选一支”的顺序调用这两个函数。</p>
+    <p class="small">这里写的是<a href="implementation-handoff.md">实施目录规划</a>对应的工作区路径；当前笔记仓库只保存教程 HTML，并没有替你创建 <code>~/ros2_ws/src/my_arm_motion</code>。若你还只是在网页阅读、没有创建该包，先理解函数关系即可，不要以为本地已有这个文件。</p>
+  </section>
+  <pre class="code"># 追加到 ~/ros2_ws/src/my_arm_motion/my_arm_motion/kinematics_3r.py
+# 放在 04 的 solve_position_ik() 定义结束之后；保留 04 原有的两个函数。
+import math  # 若文件顶部已有 import math，不重复添加。
 
 # 顺序固定为 (joint1, joint2, joint3)；上下限来自 02 的 URDF，单位 rad。
 JOINT_LIMITS = ((-3.14, 3.14), (-1.57, 1.57), (-2.0, 2.0))
