@@ -107,11 +107,6 @@
     <p>这是 <strong>my_arm_motion 包里的纯 Python 算法</strong>，不是 03 的 <code>my_arm_description/arm_trajectory_publisher.py</code>，也不是一个新的 ROS 节点；不要把它粘到终端或 <code>setup.py</code>。06 的路径调用者再按“目标点 → 04 求候选 → 05 选一支”的顺序调用这两个函数。</p>
     <p class="small">这里写的是<a href="implementation-handoff.md">实施目录规划</a>对应的工作区路径；当前笔记仓库只保存教程 HTML，并没有替你创建 <code>~/ros2_ws/src/my_arm_motion</code>。若你还只是在网页阅读、没有创建该包，先理解函数关系即可，不要以为本地已有这个文件。</p>
   </section>
-  <section class="card">
-    <h3>先看限位检查的一个具体例子</h3>
-    <p>给 <code>violations()</code> 一组角度 <code>q=(0, 1.70, 0.50)</code> rad：第 1 轴的 0 落在 <code>[-3.14, 3.14]</code>，第 2 轴的 1.70 超过上限 1.57，第 3 轴的 0.50 落在 <code>[-2.00, 2.00]</code>。因此只记录第 2 轴，返回 <code>[{"joint": 2, "value": 1.70, "allowed": (-1.57, 1.57)}]</code>。若三轴都没超限，就返回空列表 <code>[]</code>。</p>
-    <p class="small">下方改用普通循环：<code>i=0,1,2</code> 是 Python 下标，对应第 1、2、3 关节；<code>v</code> 是该轴当前角度，<code>lo/hi</code> 是该轴下限/上限。只有 <code>v&lt;lo</code> 或 <code>v&gt;hi</code> 才把错误写入列表。</p>
-  </section>
   <pre class="code"># 追加到 ~/ros2_ws/src/my_arm_motion/my_arm_motion/kinematics_3r.py
 # 放在 04 的 solve_position_ik() 定义结束之后；保留 04 原有的两个函数。
 import math  # 若文件顶部已有 import math，不重复添加。
@@ -139,15 +134,14 @@ def select_nearest_valid_solution(candidates, q_prev, weights=(1.0, 1.0, 1.0)):
         raise ValueError("weights must contain three finite positive numbers")
 
     def violations(q):
-        """输入三个关节角(rad)，返回超限轴的信息；[] 表示全部合法。"""
-        errors = []
-        for i in range(3):  # i=0/1/2 分别检查 joint1/joint2/joint3。
-            v = q[i]             # 取出第 i 轴当前角度(rad)。
-            lo, hi = JOINT_LIMITS[i]  # 取出同一轴的下限和上限(rad)。
-            if v &lt; lo or v &gt; hi:
-                # 只有超限才记录；给用户看的轴号从 1 开始，所以 i+1。
-                errors.append({"joint": i + 1, "value": v, "allowed": (lo, hi)})
-        return errors
+        """逐轴返回超限详情；空列表 [] 表示三轴全部合法。"""
+        # zip 将 q 的三个角与三个限位配对；enumerate 从 0 编号，所以报告时 +1。
+        # if not lo &lt;= v &lt;= hi 只保留超限关节；合法轴不写入错误列表。
+        return [
+            {"joint": i + 1, "value": v, "allowed": (lo, hi)}
+            for i, (v, (lo, hi)) in enumerate(zip(q, JOINT_LIMITS))
+            if not lo &lt;= v &lt;= hi
+        ]
 
     # 上一帧若已超限，不能以它为“连续性”基准；此时还没有评估候选。
     prev_errors = violations(q_prev)
