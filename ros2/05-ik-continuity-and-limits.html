@@ -90,7 +90,7 @@
     </tbody></table></div>
     <p>紫色只让 q2、q3 微调；绿色要让肩部和肘部大幅转动。<strong>代价越小，表示这三个关节合起来改得越少</strong>，所以本帧选紫色 A。注意这不是拿两个候选彼此相减，而是<strong>每个候选分别减去同一个上一帧</strong>。</p>
   </section>
-  <p>公式只是把上表“分别求差、平方、加起来”的操作缩写成一行：<code>i=1,2,3</code> 分别代表三个关节；平方让正转、反转都计入改变量，并让大跳变更贵；<code>Σ</code> 表示三项相加。本课先令 <code>w1=w2=w3=1</code>，暂时不用考虑不同关节权重。</p>
+  <p>公式只是把上表“分别求差、平方、加起来”的操作缩写成一行：<code>i=1,2,3</code> 分别代表三个关节；平方让正转、反转都计入改变量，并让大跳变更贵；<code>Σ</code> 表示三项相加。本课先令 <code>w1=w2=w3=1</code>。以后即使调整权重，也必须让三项都大于 0；设成 0 会让那根关节的跳变完全不计入代价。</p>
   <span class="formula" data-tex="\operatorname{cost}(q)=\sum_{i=1}^{3}w_i(q_i-q_{\mathrm{prev},i})^2">cost(q)=Σᵢ wᵢ(qᵢ−qprev,ᵢ)²</span>
   <p class="small">表里用度数方便读，代价按代码一样先转成弧度再平方，所以单位是 rad²。若直接用度数平方，这两支的排序也不变，但数值不会是表中的 0.000061 与 8.5690。最近候选只是一条选支规则，不等于已经验证整条运动安全。</p>
 
@@ -120,7 +120,7 @@ def select_nearest_valid_solution(candidates, q_prev, weights=(1.0, 1.0, 1.0)):
     candidates: 传入 04 的结果["candidates"]，不是整个结果字典；
                 每项至少有 {"q": (q1, q2, q3)}，角度单位 rad。
     q_prev:    上一帧真正选用的 (q1, q2, q3)，单位 rad；不是上一帧的目标位置。
-    weights:   三轴代价权重；默认都为 1，表示一视同仁。
+    weights:   三轴代价权重；默认都为 1，且每项必须有限、大于 0。
     返回:      selected 是选中的候选字典，失败时为 None；
                candidates 是已评估候选（上一帧非法时为空），每支附限位和 cost；
                reason 说明失败原因，trajectory_checked 始终为 False。
@@ -128,10 +128,10 @@ def select_nearest_valid_solution(candidates, q_prev, weights=(1.0, 1.0, 1.0)):
     # 本模型三个关节都是有界 revolute；先拒绝长度不对或 NaN/无穷角度。
     if len(q_prev) != 3 or not all(math.isfinite(v) for v in q_prev):
         raise ValueError("q_prev must contain three finite angles")
-    # 权重无量纲且不得全为 0；cost 是加权角度差平方和，单位 rad²。
-    if (len(weights) != 3 or not all(math.isfinite(w) and w >= 0 for w in weights)
-            or not any(w > 0 for w in weights)):
-        raise ValueError("weights must be finite, nonnegative, and not all zero")
+    # 权重无量纲；每轴都须参与比较，0 会让该轴的跳变完全不计入代价。
+    # cost 是加权角度差平方和，角度用 rad，结果单位 rad²。
+    if len(weights) != 3 or not all(math.isfinite(w) and w > 0 for w in weights):
+        raise ValueError("weights must contain three finite positive numbers")
 
     def violations(q):
         """逐轴返回超限详情；空列表 [] 表示三轴全部合法。"""
