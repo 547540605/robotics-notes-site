@@ -7,9 +7,64 @@
 <section class="card guide"><h2 style="margin-top:0;border:0;padding:0">工程痛点：关节平滑，不代表末端走直线</h2><p>即使让 q1、q2、q3 各自做漂亮的三次或正弦曲线，末端在空间中仍会走出不可预测的曲线。若任务要求沿边缘靠近、沿直线插入或避开固定区域，路径必须先在<strong>笛卡尔空间</strong>定义，再逐点经 IK 变成关节目标。</p><div class="flow"><div><b>① 定 A、B</b>同一 base_link</div><div><b>② 定时间律</b>t → s(t)</div><div><b>③ 取目标点</b>P(t)</div><div><b>④ 连续 IK</b>选合法 q(t)</div><div><b>⑤ 发布显示</b>数字孪生</div></div></section>
 <section class="card warn"><strong>本篇边界：</strong>仍然只驱动 RViz 数字孪生。发布到 <code>/joint_states</code> 是显示状态，不是执行器命令；真实控制器的 <code>JointTrajectory</code> 在 ROS2-13 再接入。</section>
 <h2>1. 直线由位置公式定义，不由“看上去差不多”定义</h2><p>起点和终点必须都写在 <code>base_link</code> 下。令 <code>s</code> 从 0 平滑增长到 1：</p><span class="formula">P(t)=A+s(t)(B-A)</span><p>无论 A、B 在三维中怎样摆放，只要同一个标量 <code>s(t)</code> 同时作用于三个坐标分量，P(t) 就严格落在连接 A、B 的线段上。</p><div class="grid"><section class="card"><h3>不要做：关节空间直线</h3><p><code>q(t)=qA+s(qB-qA)</code> 只保证关节向量走直线。经过 FK 后，末端一般会是一条弯曲轨迹。</p></section><section class="card"><h3>本篇要做：笛卡尔空间直线</h3><p>先计算 <code>P(t)</code>，每个 P(t) 都调用 ROS2-04/05 的 IK。关节角的曲线可以弯，但 FK 出来的末端位置要贴着 P(t)。</p></section></div>
-<h2>2. 为什么不用匀速突起突停？</h2><p>若直接令 <code>s=t/T</code>，速度在起点从 0 瞬间跳到常数，终点又瞬间归零。第一版要使用五次时间律：</p><span class="formula">u=t/T,\qquad s(u)=10u^3-15u^4+6u^5</span><span class="formula">\dot{s}(0)=\dot{s}(1)=0,\qquad \ddot{s}(0)=\ddot{s}(1)=0</span><p class="small">它并不改变几何路径，只决定沿同一条路径“什么时候走到哪里”。这正是路径与时间参数化的区别。</p>
-<h2>3. 拖动时间，观察当前位置、速度和加速度</h2><div class="lab"><section class="card"><h3>演示路径</h3><p class="small">A=(0.50, 0.00, 0.65)，B=(0.40, 0.30, 0.75)。真实项目必须先用 ROS2-04/05 扫描整条路径，确认每一点都有受限合法解。</p><label class="field"><span>总时长 T</span><input id="T" type="range" min="1" max="8" step=".5" value="3"><output id="To"></output></label><label class="field"><span>当前时间 t</span><input id="t" type="range" min="0" max="3" step=".01" value="0"><output id="to"></output></label><div id="read" class="view small"></div></section><section class="view"><svg viewBox="0 0 600 360" aria-label="笛卡尔直线与五次时间律示意"><rect width="600" height="360" fill="#080e1b"/><line x1="70" y1="300" x2="535" y2="300" stroke="#536783"/><line x1="70" y1="300" x2="70" y2="45" stroke="#536783"/><path id="curve" d="M70 300" fill="none" stroke="#a78bfa" stroke-width="4"/><line x1="100" y1="260" x2="500" y2="85" stroke="#38bdf8" stroke-width="5" stroke-dasharray="9 7"/><circle cx="100" cy="260" r="8" fill="#fbbf24"/><circle cx="500" cy="85" r="8" fill="#f472b6"/><circle id="dot" cx="100" cy="260" r="10" fill="#34d399"/><text x="86" y="286" fill="#fbbf24">A</text><text x="508" y="79" fill="#f472b6">B</text><text x="80" y="35" fill="#9baec8">s(t)</text><text x="520" y="323" fill="#9baec8">t/T</text></svg><p class="small">蓝虚线：几何路径 A→B；绿点：当前 P(t)。紫线：五次时间律 s(u)，并不是空间轨迹本身。</p></section></div>
-<h2>4. 生成器与 IK 的职责边界</h2><pre class="code">import math
+<section class="card good"><h3>先拿同一组坐标走一遍：A → B</h3>
+<p>本篇始终使用 <code>base_link</code> 下的 <code>A=(0.50, 0.00, 0.65) m</code>、<code>B=(0.40, 0.30, 0.75) m</code>，总时长 <code>T=3 s</code>。先按坐标逐项相减，得到 <code>B−A=(−0.10, +0.30, +0.10) m</code>。这表示从 A 走到 B 时，x 减少 0.10 m、y 增加 0.30 m、z 增加 0.10 m；它不是关节角的变化量。</p>
+<p>若此刻路径进度 <code>s=0.5</code>，三个坐标<strong>同时</strong>走完各自差值的一半：<code>P=A+0.5(B−A)=(0.45, 0.15, 0.70) m</code>。注意同一个 <code>0.5</code> 乘在 x、y、z 上，才保证这个点真的在三维直线上。</p>
+<p class="small">A、B 和 P 都是末端<strong>位置</strong>，不是三个关节角；P 只有经过 04 求 IK、05 按上一帧选支后，才会变成这一帧的 <code>q=(q1,q2,q3)</code>。</p></section>
+<h2>2. 为什么不用匀速突起突停？</h2><p>若直接令 <code>s=t/T</code>，速度在起点从 0 瞬间跳到常数，终点又瞬间归零。第一版要使用五次时间律：</p><span class="formula">u = t/T，　s(u) = 10u³ − 15u⁴ + 6u⁵</span><span class="formula">在起点和终点：ds/dt = 0，　d²s/dt² = 0</span><p class="small">它并不改变几何路径，只决定沿同一条路径“什么时候走到哪里”。这正是路径与时间参数化的区别。</p>
+<section class="card"><h3>把 3 秒拆成五个时刻：每一行都落在同一条直线上</h3>
+<p>先算 <code>u=t/T</code>，再把 <code>u</code> 代入五次多项式得到 <code>s</code>，最后算 <code>P=A+s(B−A)</code>。例如 <code>t=0.75 s</code> 时，<code>u=0.25</code>，<code>s≈0.1035</code>，因此 x 只从 0.50 减少约 0.01035 m，而不是走完距离的四分之一。</p>
+<div style="overflow-x:auto"><table class="table"><thead><tr><th>t (s)</th><th>u=t/T</th><th>s(u)</th><th>P(t)=(x,y,z)，单位 m</th><th>怎么读</th></tr></thead><tbody>
+<tr><td>0</td><td>0</td><td>0</td><td>(0.5000, 0.0000, 0.6500)</td><td>就在 A</td></tr>
+<tr><td>0.75</td><td>0.25</td><td>0.1035</td><td>(0.4896, 0.0311, 0.6604)</td><td>起步慢，尚未走完四分之一</td></tr>
+<tr><td>1.50</td><td>0.50</td><td>0.5000</td><td>(0.4500, 0.1500, 0.7000)</td><td>走到空间中点</td></tr>
+<tr><td>2.25</td><td>0.75</td><td>0.8965</td><td>(0.4104, 0.2689, 0.7396)</td><td>接近终点，准备减速</td></tr>
+<tr><td>3.00</td><td>1.00</td><td>1.0000</td><td>(0.4000, 0.3000, 0.7500)</td><td>到达 B</td></tr>
+</tbody></table></div>
+<p class="small">表格四舍五入到四位小数；程序使用未舍入的 <code>s</code> 计算。<code>u</code> 是“过去了多少时间”，<code>s</code> 是“走完了多少线段”，所以在 0.75 s 它们不相等。五次时间律只改变到达这些点的节奏，不把蓝色直线弯成曲线。</p></section>
+<h2>3. 拖动时间：左边算数，右边分两张坐标纸看</h2>
+<div class="lab">
+  <section class="card"><h3>还是同一条 A→B</h3><p class="small">A=(0.50, 0.00, 0.65) m，B=(0.40, 0.30, 0.75) m。拖动 t，看 <code>u=t/T</code>、<code>s(u)</code> 和三个坐标如何一起变化。下面的导数描述沿路径进度变化的快慢，并不是某个关节角速度。</p>
+    <label class="field"><span>总时长 T</span><input id="T" type="range" min="1" max="8" step=".5" value="3"><output id="To"></output></label>
+    <label class="field"><span>当前时间 t</span><input id="t" type="range" min="0" max="3" step=".01" value="0"><output id="to"></output></label>
+    <div id="read" class="view small"></div>
+    <p class="small">若把 T 从 3 s 拉长到 6 s，同一个 <code>u</code> 对应的空间点不变，但走到那里用时加倍、速度变小。真实项目仍须先用 04/05 扫描整段，不能只看这张图就发布关节状态。</p>
+  </section>
+  <section style="display:grid;gap:12px">
+    <div class="view"><h3>① 空间路径：俯视 XY</h3>
+      <svg viewBox="0 0 520 265" role="img" aria-label="同一 base_link 下 A 到 B 的 XY 俯视投影，绿点随时间始终在蓝色直线上">
+        <rect width="520" height="265" fill="#080e1b"/>
+        <line x1="60" y1="230" x2="480" y2="230" stroke="#536783" stroke-width="2"/>
+        <line x1="80" y1="245" x2="80" y2="25" stroke="#536783" stroke-width="2"/>
+        <text x="482" y="235" fill="#9baec8">+x</text><text x="52" y="25" fill="#9baec8">+y</text>
+        <line x1="360" y1="230" x2="304" y2="62" stroke="#38bdf8" stroke-width="5"/>
+        <circle cx="360" cy="230" r="7" fill="#fbbf24"/><circle cx="304" cy="62" r="7" fill="#f472b6"/>
+        <circle id="dot" cx="360" cy="230" r="9" fill="#34d399" stroke="#eef5ff" stroke-width="2"/>
+        <text x="371" y="215" fill="#fbbf24">A (0.50, 0.00)</text><text x="315" y="53" fill="#f472b6">B (0.40, 0.30)</text>
+      </svg>
+      <p class="small">这是 <strong>XY 俯视</strong>，所以只画 x、y；z 从 0.65 m 到 0.75 m 的变化请看左侧读数。三轴都按同一个 s 插值，真实空间路径也保持直线。</p>
+    </div>
+    <div class="view"><h3>② 时间律：横轴 u，纵轴 s</h3>
+      <svg viewBox="0 0 520 265" role="img" aria-label="五次时间律 s 随归一化时间 u 变化，绿点标出当前时间和进度">
+        <rect width="520" height="265" fill="#080e1b"/>
+        <line x1="60" y1="220" x2="470" y2="220" stroke="#536783" stroke-width="2"/>
+        <line x1="60" y1="220" x2="60" y2="40" stroke="#536783" stroke-width="2"/>
+        <text x="475" y="225" fill="#9baec8">u</text><text x="43" y="36" fill="#9baec8">s</text>
+        <text x="52" y="241" fill="#9baec8">0</text><text x="459" y="241" fill="#9baec8">1</text><text x="42" y="45" fill="#9baec8">1</text>
+        <path id="curve" d="M60 220" fill="none" stroke="#a78bfa" stroke-width="4"/>
+        <circle id="timeDot" cx="60" cy="220" r="8" fill="#34d399" stroke="#eef5ff" stroke-width="2"/>
+      </svg>
+      <p class="small">紫线画的是 <code>s(u)</code>，不是末端在空间的轨迹。绿点在这里读“经过多少时间、走完多少线段”，再用同一个 s 定位上图的绿点。</p>
+    </div>
+  </section>
+</div>
+<h2>4. 生成器与 IK 的职责边界</h2>
+<section class="card guide"><h3>这一帧怎样接到 04、05？</h3>
+<p>仍看表里的 <code>t=1.50 s</code>：本篇先给出 <code>target=(0.45, 0.15, 0.70) m</code>。把这个三维位置传给 04 的 <code>solve_position_ik(*target)</code>，得到 <code>reachable</code> 与候选列表；几何可达时，再把候选列表和<strong>上一帧实际选用的关节角</strong> <code>q_prev</code> 传给 05 的 <code>select_nearest_valid_solution(...)</code>。最后拿选中候选的 <code>["q"]</code>，得到这一帧三个关节角。这里没有从时间律直接算出关节角的捷径。</p>
+<p>如果 04 报不可达，或 05 没有合法候选，就在这个 <code>t</code>、<code>target</code> 停下并报告；不能跳过该点继续画“直线”。初始 <code>q_prev</code> 应来自已知的当前关节状态，不能凭空填一个看着顺眼的角度。执行前要对<strong>整段</strong>先做同样的预扫描，见第 5 节。</p>
+<p class="small">下面的纯 Python 生成器对应<a href="implementation-handoff.md">规划中的</a> <code>~/ros2_ws/src/my_arm_motion/my_arm_motion/cartesian_path.py</code>；它只产出目标点，不替代 04 的 <code>kinematics_3r.py</code>，也不是完整 ROS 节点。若你还没有创建标准包，这个路径是待建目标，不代表工作区里已有该文件。</p></section>
+<pre class="code"># 规划文件：my_arm_motion/my_arm_motion/cartesian_path.py；需由调用者逐帧取样。
+import math
 
 def quintic_s(u):
     """归一化进度 u→路径比例 s；起终点速度、加速度都为零。"""
@@ -48,5 +103,42 @@ def cartesian_line(start, end, duration, dt=0.02):
 <h2>5. 运行前必须做整段预扫描</h2><table class="table"><thead><tr><th>检查</th><th>为什么不能省</th><th>失败时正确处理</th></tr></thead><tbody><tr><td>逐点 IK</td><td>A、B 都有解不代表中间每一点都有解或在限位内。</td><td>不启动该段；缩短路径、换姿态或重设目标。</td></tr><tr><td>连续选支</td><td>每一帧独立求解会让双解随机切换。</td><td>用 ROS2-05 的 q_prev 代价选择。</td></tr><tr><td>FK 位置误差</td><td>目标点和实际关节 FK 必须对照。</td><td>记录最大误差；异常时回查 IK/URDF 约定。</td></tr><tr><td>速度、加速度限值</td><td>五次时间律不自动保证每个关节都不过速。</td><td>先拉长 T；真实控制阶段再由控制器限速。</td></tr></tbody></table>
 <section class="card end"><h2 style="margin-top:0;border:0;padding:0">本篇结束时的闭环</h2><ul><li><strong>你能解释：末端直线来自 P(t)，而不是来自某条 q(t)。</strong></li><li>你有一条从 A 到 B 的目标点列，每一点都必须经连续 IK 才能进入数字孪生。</li><li>下一篇不会改运动学，只增加可视化：目标轨迹、FK 实际轨迹和当前点同时显示。</li></ul></section>
 </main><script>
-(()=>{const A=[100,260],B=[500,85],T=document.querySelector('#T'),t=document.querySelector('#t'),To=document.querySelector('#To'),to=document.querySelector('#to'),read=document.querySelector('#read'),dot=document.querySelector('#dot'),curve=document.querySelector('#curve');const s=u=>10*u**3-15*u**4+6*u**5,sd=u=>30*u*u-60*u**3+30*u**4,sdd=u=>60*u-180*u*u+120*u**3;function draw(){const total=Number(T.value);t.max=total;const now=Math.min(Number(t.value),total),u=now/total,k=s(u),x=A[0]+k*(B[0]-A[0]),y=A[1]+k*(B[1]-A[1]);dot.setAttribute('cx',x);dot.setAttribute('cy',y);let d='M70 300';for(let i=0;i<=80;i++){const uu=i/80;d+=` L${70+uu*465} ${300-s(uu)*235}`}curve.setAttribute('d',d);To.textContent=`${total.toFixed(1)} s`;to.textContent=`${now.toFixed(2)} s`;read.innerHTML=`u=${u.toFixed(3)}<br>s=${k.toFixed(4)}<br>ds/dt=${(sd(u)/total).toFixed(4)} s⁻¹<br>d²s/dt²=${(sdd(u)/(total*total)).toFixed(4)} s⁻²`;};T.addEventListener('input',draw);t.addEventListener('input',draw);draw()})();
+(()=>{
+  const A=[0.50,0.00,0.65], B=[0.40,0.30,0.75];
+  const T=document.querySelector('#T'), t=document.querySelector('#t');
+  const To=document.querySelector('#To'), to=document.querySelector('#to');
+  const read=document.querySelector('#read'), dot=document.querySelector('#dot');
+  const curve=document.querySelector('#curve'), timeDot=document.querySelector('#timeDot');
+  const s=u=>10*u**3-15*u**4+6*u**5;
+  const sd=u=>30*u*u-60*u**3+30*u**4;
+  const sdd=u=>60*u-180*u*u+120*u**3;
+  let d='M60 220';
+  for(let i=1;i<=80;i++){
+    const u=i/80;
+    d+=` L${60+u*410} ${220-s(u)*180}`;
+  }
+  curve.setAttribute('d',d);
+  function draw(){
+    const total=Number(T.value);
+    t.max=total;
+    const now=Math.min(Number(t.value),total);
+    t.value=now;
+    const u=now/total, progress=s(u);
+    const P=A.map((a,i)=>a+progress*(B[i]-a));
+    // XY 图使用与真实 x/y 成比例的坐标；z 单独放进读数。
+    dot.setAttribute('cx',80+P[0]*560);
+    dot.setAttribute('cy',230-P[1]*560);
+    timeDot.setAttribute('cx',60+u*410);
+    timeDot.setAttribute('cy',220-progress*180);
+    To.textContent=`${total.toFixed(1)} s`;
+    to.textContent=`${now.toFixed(2)} s`;
+    read.innerHTML=`u=t/T=${u.toFixed(3)}<br>s(u)=${progress.toFixed(4)}`+
+      `<br>P(t)=(${P.map(v=>v.toFixed(4)).join(', ')}) m`+
+      `<br>ds/dt=${(sd(u)/total).toFixed(4)} s⁻¹`+
+      `<br>d²s/dt²=${(sdd(u)/(total*total)).toFixed(4)} s⁻²`;
+  }
+  T.addEventListener('input',draw);
+  t.addEventListener('input',draw);
+  draw();
+})();
 </script></body></html>
