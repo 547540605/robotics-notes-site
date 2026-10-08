@@ -21,6 +21,7 @@ nav{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:.92rem
 .translation .label{color:var(--green)}
 .supplement .label{color:var(--amber)}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.cards.two-up{grid-template-columns:repeat(2,minmax(0,1fr))}
 .cards .card{margin:0}
 .muted{color:var(--muted)}
 .math{overflow-x:auto;text-align:center;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px;margin:14px 0}
@@ -34,4 +35,4 @@ iframe{display:block;width:100%;height:470px;border:1px solid var(--line);border
 details{border:1px solid var(--line);border-radius:8px;padding:9px 13px;margin:10px 0;background:var(--panel2)}
 summary{cursor:pointer;font-weight:700}
 code{font-family:ui-monospace,Consolas,monospace}
-@media(max-width:620px){main{padding:18px 14px 60px}.card,.source,.translation,.supplement{padding:14px}iframe{height:500px}}
+@media(max-width:620px){main{padding:18px 14px 60px}.card,.source,.translation,.supplement{padding:14px}.cards.two-up{grid-template-columns:1fr}iframe{height:500px}}
