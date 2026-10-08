@@ -2,57 +2,9 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>《Force Control》章节导读 · 机器人力控制与柔顺装配</title>
-  <link rel="stylesheet" href="topic.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
-  <script defer src="math.js"></script>
+  <meta http-equiv="refresh" content="0; url=learning-path.html">
+  <title>页面已迁移 · 机器人力控入门路线</title>
+  <link rel="canonical" href="learning-path.html">
 </head>
-<body><main>
-  <nav><a href="../index.html" target="_top">机器人学目录</a><a href="index.html">力控专题</a><a href="learning-path.html">学习路线</a><a href="nistir-7901.html">NISTIR 7901</a></nav>
-  <h1>《Force Control》：接触、柔顺与恒力闭环</h1>
-  <p class="lead">先弄清“为什么接触后不能只按位置走”，再看力反馈如何改变运动，以及沿哪些方向应控力、沿哪些方向应控位置。本页是可独立阅读的章节导读，不要求先通读教材。</p>
-  <div class="source"><span class="label">原始文献与可核对范围</span>Luigi Villani、Joris De Schutter，<a href="https://link.springer.com/chapter/10.1007/978-3-319-32552-1_9">Force Control</a>，载于《Springer Handbook of Robotics》第 2 版，2016 年，第 195–220 页，DOI：10.1007/978-3-319-32552-1_9。出版方公开页面提供书目信息和摘要，章节正文需按访问权限获取。下文的“摘要转述”仅据公开摘要；公式、例子、表格与 Demo 分析均为本站补充，不能当作原文章节的逐段译文或原图。</div>
-  <nav aria-label="本页跳转"><a href="#abstract">公开摘要</a><a href="#contact">硬接触问题</a><a href="#loop">恒力闭环</a><a href="#task">力与运动分工</a><a href="#evaluate">怎么评价</a></nav>
-
-  <h2 id="abstract">1. 公开摘要究竟说了什么</h2>
-  <div class="translation"><span class="label">公开摘要中文转述 · 非正文译文</span>机器人完成操作任务，必须处理与环境的物理接触。仅做运动控制时，模型误差和环境不确定性可能让接触力上升；与刚性环境接触时尤其可能造成不稳定。摘要随后提到：间接力控制可通过合适的末端柔顺行为来限制接触力，而不要求精确的环境模型。章节还讨论刚性与柔性环境中的交互任务、由任务几何形成的自然约束，以及由控制策略指定的人工约束；在合适的任务坐标系中表述这些约束，是综合力／运动控制的前提。</div>
-  <p>这三件事构成阅读主线：<strong>接触为何危险 → 希望末端怎样让位 → 哪些方向控力、哪些方向控运动</strong>。公开摘要没有给出本页后续的单轴弹簧模型、PID 公式或 Demo 参数；这些都是为了帮助理解而单独建立的例子。</p>
-
-  <h2 id="contact">2. 为什么硬物会让同一控制器突然难调</h2>
-  <div class="supplement"><span class="label">本站简化模型 · 不是章节原公式</span>只考虑接触法向，约定 \(z\) 增大表示向工件压入。假设工件与机构的等效接触刚度为 \(k_e\)，接触起点为 \(z_c\)，可用理想弹簧近似：
-    <div class="math">\[F_n \approx k_e\max(0,z-z_c),\qquad \Delta F_n\approx k_e\Delta z\quad\text{（已经接触时）}\]</div>
-    同样的 \(\Delta z\)，\(k_e\) 越大，力变化越大。这里忽略惯性、阻尼、机构柔性和传感器滤波，只用于建立直觉，不能直接作为设备的精确模型。
-  </div>
-  <p>如果机器人只走到固定 \(z\)，但工件高度 \(z_c\) 每次略有不同，最终压力就会不同。力反馈则让控制器在接触后继续看 \(F_n\)，根据偏差减小、停止或反向调整运动；不过测量、计算和运动命令都有延迟，所以“有反馈”不自动等于“不超调”。</p>
-
-  <h2 id="loop">3. 用咱们的恒力 Demo 看闭环</h2>
-  <div class="table-wrap"><table><thead><tr><th>环节</th><th>单轴恒力例子</th><th>别混淆的事</th></tr></thead><tbody>
-    <tr><td>目标</td><td>法向力 \(F_d\)，例如 2 N</td><td>目标不是某个固定 Z 坐标</td></tr>
-    <tr><td>反馈</td><td>压力板换算后的实测力 \(F_m\)</td><td>测到力还要结合接触阶段与运动方向判断</td></tr>
-    <tr><td>控制器</td><td>由 \(e=F_d-F_m\) 决定补偿方向与速度大小</td><td>PID 算法名不决定硬件命令的物理量</td></tr>
-    <tr><td>执行</td><td>Z 轴按速度和控制间隔生成相对小步</td><td>不是直接给驱动器发送“施加 2 N”</td></tr>
-  </tbody></table></div>
-  <div class="supplement"><span class="label">本站概念式 · 不是文献控制律</span>
-    <div class="math">\[e=F_d-F_m,\qquad v_{\mathrm{cmd}}=\operatorname{sat}\!\left(K_p e+K_i\!\int e\,dt+K_d\dot e\right),\qquad \Delta z\approx v_{\mathrm{cmd}}\Delta t\]</div>
-    实际 Demo 还包含接触搜索、方向配置、限速、单步完成等待、容差保持与故障停机；这行式子只提取了“力误差 → Z 轴运动”的主线。
-  </div>
-  <p>这里的<strong>控制目标</strong>是跟踪目标力，<strong>执行接口</strong>却是运动命令。不能只因为输出速度就把整个方案等同于标准导纳控制，也不能只因为用了 PID 就说驱动器在执行力矩控制。</p>
-
-  <h2 id="task">4. “自然约束”和“人为选择”放到工位上</h2>
-  <div class="cards">
-    <section class="card"><h3>任务几何给出的约束</h3><p>工件表面阻止末端继续自由穿透；接触发生后，法向位移与接触力被环境耦合起来。这是任务本身带来的约束，而不是 PID 参数产生的。</p></section>
-    <section class="card"><h3>控制策略选择的目标</h3><p>例如压合时沿表面法向保持 2 N，同时在表面切向按轨迹移动；前者是力目标，后者是运动目标。要先定义工件坐标和接触法向，才能谈“哪个方向”应控什么。</p></section>
-  </div>
-  <p>当前单轴 Demo 先到记录的 XY 工位，再沿 Z 搜索接触并恒力保持；它说明法向力调节的一个环节，不等于已经实现了沿曲面移动的混合力／位置控制，更不等于能自动判断 USB 插头的偏斜和卡滞。</p>
-
-  <h2 id="evaluate">5. 怎么知道“稳住了”而不只是碰巧读到目标值</h2>
-  <p>一个 2 N 瞬时读数不够。至少看首次接触与目标切换时的最大超调、进入容差带的时间、保持期间的波动和稳态误差；如果工件高度或受力突然改变，再看恢复过程。这些是本站建议的观察项。<a href="https://www.nist.gov/publications/benchmarking-robot-force-control-capabilities-experimental-results">NISTIR 8097</a>另有正式的稳定收敛和扰动处理测试方法与实验结果；这里不声称复现其试验规程。</p>
-  <div class="supplement"><span class="label">带着三个问题看自己的曲线</span><ol>
-    <li>换更硬的工件后，相同步长和最大速度会不会带来更大的力增量或超调？</li>
-    <li>接触搜索切入恒力闭环的瞬间，曲线是平稳接管还是先冲高再回退？</li>
-    <li>目标从 2 N 改成 1 N、再改成 5 N 时，稳定时间与超调是否相同？</li>
-  </ol></div>
-  <p>下一步若要研究“希望机器人遇力后按什么动态关系让位”，进入<a href="learning-path.html">学习路线的第 3 步：阻抗与导纳</a>；若要按原文系统比较六类方法，回到<a href="nistir-7901.html">NISTIR 7901 专页</a>。</p>
-</main></body></html>
+<body><p>此页已并入<a href="learning-path.html">六轴机械手力控与插拔入门路线</a>。</p></body>
+</html>
