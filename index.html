@@ -37,6 +37,7 @@
     .nav-link { display: flex; align-items: baseline; gap: 6px; color: inherit; border-radius: 7px; padding: 7px 9px 7px 24px; margin: 2px 3px; text-decoration: none; }
     .nav-link:hover { background: color-mix(in srgb, var(--soft) 76%, transparent); }
     .nav-link.active { background: var(--accent); color: white; font-weight: 700; }
+    .nav-status { color: var(--muted); font-size: .84rem; padding: 3px 10px 9px 24px; }
     .number { flex: 0 0 auto; min-width: 27px; color: var(--muted); font: 12px/1.5 ui-monospace, "Cascadia Mono", monospace; }
     .active .number { color: color-mix(in srgb, white 82%, transparent); }
     .rail-footer { border-top: 1px solid var(--line); padding: 12px 15px; color: var(--muted); font-size: .82rem; }
@@ -129,11 +130,20 @@
           ['31d', 'RNEA 四类力矩来源逐项深推导', '31d-rnea-four-torque-terms.html'],
           ['32', '两连杆动力学结构式：M(q)、h、g', '32-two-link-dynamics-structure.html']
         ] },
-        { name: '第八部分 · 轨迹规划、控制与辨识 (Ch 07~11)', items: [
-          ['33', '轨迹时间律：三次、五次、LSPB', '33-trajectory-time-laws.html'],
-          ['34', '单关节 PD / PID 位置闭环控制', '34-pid-position-control.html'],
-          ['35', '计算力矩控制 CTC：动力学解耦前馈', '35-computed-torque-control.html'],
-          ['36', '力控制、阻抗控制与导纳顺应', '36-force-impedance-admittance-control.html'],
+        { name: '教材第 7 章 · 轨迹生成（现有入门）', items: [
+          ['33', '轨迹时间律：三次、五次、LSPB', '33-trajectory-time-laws.html']
+        ] },
+        { name: '教材第 8 章 · 操作臂机械设计', status: '尚无独立主线课程', items: [] },
+        { name: '教材第 9 章 · 线性控制（现有入门）', items: [
+          ['34', '单关节 PD / PID 位置闭环控制', '34-pid-position-control.html']
+        ] },
+        { name: '教材第 10 章 · 非线性控制（现有入门）', items: [
+          ['35', '计算力矩控制 CTC：动力学解耦前馈', '35-computed-torque-control.html']
+        ] },
+        { name: '教材第 11 章 · 力控制（现有入门）', items: [
+          ['36', '接触、阻抗控制与导纳顺应', '36-force-impedance-admittance-control.html']
+        ] },
+        { name: '工程扩展 · 验证、辨识与驱动接口', items: [
           ['37', '两连杆端到端闭环动力学仿真', '37-two-link-closed-loop-simulation.html'],
           ['38', '动力学参数辨识与基参数回归', '38-dynamics-parameter-identification.html'],
           ['39', '伺服三环级联与驱动器接口限幅', '39-servo-cascade-and-limits.html']
@@ -187,7 +197,7 @@
       function itemFor(file) { return entries.find(item => item.file === file.split('#')[0]) || entries[0]; }
       function requestedFile() { const match = location.hash.match(/^#note=(.+)$/); return match ? decodeURIComponent(match[1]) : '00-progress.html'; }
       function renderNav() {
-        nav.innerHTML = chapters.map((chapter, index) => `<details data-chapter="${chapter.name}" ${index === 0 ? 'open' : ''}><summary>${chapter.name}</summary>${chapter.items.map(([number, label, file]) => `<a class="nav-link" href="#note=${encodeURIComponent(file)}" data-file="${file}"><span class="number">${number}</span>${label}</a>`).join('')}</details>`).join('');
+        nav.innerHTML = chapters.map((chapter, index) => `<details data-chapter="${chapter.name}" ${index === 0 ? 'open' : ''}><summary>${chapter.name}</summary>${chapter.status ? `<div class="nav-status">${chapter.status}</div>` : ''}${chapter.items.map(([number, label, file]) => `<a class="nav-link" href="#note=${encodeURIComponent(file)}" data-file="${file}"><span class="number">${number}</span>${label}</a>`).join('')}</details>`).join('');
       }
 
       function updateActive() {
