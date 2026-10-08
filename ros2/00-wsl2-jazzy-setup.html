@@ -101,7 +101,18 @@ ros2 run demo_nodes_cpp talker</code></pre>
 source /opt/ros/jazzy/setup.bash
 ros2 run demo_nodes_py listener</code></pre>
   <div class="note ok"><p>验收：<code>ROS_DISTRO</code> 显示 <code>jazzy</code>，A 持续出现 <code>Publishing</code>，B 持续出现 <code>I heard</code>。用 <code>Ctrl+C</code> 结束两个示例。</p></div>
-  <p>通过后可把 <code>source /opt/ros/jazzy/setup.bash</code> 加到 Ubuntu 用户的 <code>~/.bashrc</code>，方便以后打开终端自动加载；先手动验证再加，且不要把不同 ROS 发行版同时写进去。</p>
+  <p>上面的通信测试通过后，在 Ubuntu 终端把 Jazzy 环境加入当前用户的 <code>~/.bashrc</code>。先检查有没有旧配置；若看到其他发行版的 <code>setup.bash</code>，先编辑 <code>~/.bashrc</code> 移除或注释旧行，不要同时加载两个发行版。</p>
+  <p class="terminal">在 Ubuntu 终端中</p>
+  <pre><code># 查看已有的 ROS 自动加载行；没有输出表示尚未配置。
+grep -n 'source /opt/ros/.*/setup.bash' ~/.bashrc
+
+# 仅在尚未添加 Jazzy 时追加一次，避免重复写入。
+grep -qxF 'source /opt/ros/jazzy/setup.bash' ~/.bashrc || printf '%s\n' 'source /opt/ros/jazzy/setup.bash' &gt;&gt; ~/.bashrc
+
+# 让当前终端也立即生效；以后新开的 Ubuntu Bash 终端会自动加载。
+source ~/.bashrc
+echo "$ROS_DISTRO"</code></pre>
+  <p>最后应输出 <code>jazzy</code>。如果 <code>grep</code> 检查时发现其他发行版，用 <code>nano ~/.bashrc</code> 打开文件，在对应行开头加 <code>#</code> 注释掉，按 <code>Ctrl+O</code>、回车保存，再按 <code>Ctrl+X</code> 退出，然后重新运行 <code>source ~/.bashrc</code>。</p>
 
   <h2>5. 验证图形界面</h2>
   <p>后续 RViz 实验需要 WSLg。先更新 WSL 并重开 Ubuntu；在 Ubuntu 终端运行 <code>rviz2</code>。出现 RViz 窗口才算图形链路通过。窗口可打开不等于一定有硬件 3D 加速，实际渲染能力还取决于 Windows、WSL 与显卡驱动。</p>
