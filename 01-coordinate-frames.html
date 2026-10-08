@@ -78,7 +78,7 @@
     #three-d-canvas.is-dragging { cursor: grabbing; }
     .three-d-controls { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     #rotation-matrix-3d { min-height: 90px; }
-    .axis-projection { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 20px; align-items: center; margin: 18px 0; }
+    .axis-projection { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 20px; align-items: start; margin: 18px 0; }
     .axis-projection figure { margin: 0; min-width: 0; overflow-x: auto; }
     .axis-projection figure > svg { min-width: 420px; border: 1px solid var(--line); border-radius: 8px; background: #101a2b; }
     .axis-projection figcaption { color: var(--muted); font-size: .85rem; margin-top: 6px; }
@@ -496,7 +496,7 @@
     <p>从 A 原点指向 B 原点的箭头是 <span class="math-inline" data-tex="{}^A p_{BORG}" aria-label="A坐标系中表示的B原点位置向量"></span>；B 的三根轴在 A 中的三个坐标列向量，按 <strong>x<sub>B</sub>、y<sub>B</sub>、z<sub>B</sub></strong> 的顺序排起来，就是 <span class="math-inline" data-tex="{}^A R_B" aria-label="A坐标系中表示的B旋转矩阵"></span>。两者一起描述 B 的完整位姿。</p>
 
     <h2 id="rotation-axis-dot-products">轴的坐标为什么等于点积？对照 Craig 式 (2.2)、(2.3)</h2>
-    <p>上图已经把 B 的三根轴排成了矩阵的三列，但<strong>每一列里的三个数从哪里来</strong>？先只算第一列：B 的单位 x 轴在 A 的 x、y、z 方向上各占多少。两根单位轴的点积等于夹角的余弦，所以它就是沿对应 A 轴的<strong>有符号投影长度</strong>；反向时点积为负。</p>
+    <p>上图已经把 B 的三根轴排成了矩阵的三列，但<strong>每一列里的三个数从哪里来</strong>？先只算第一列：B 的单位 x 轴在 A 的 x、y、z 方向上各占多少。下面先从图上量出这些投影，再看它们为什么能写成点积。</p>
     <div class="axis-projection">
       <figure>
         <svg viewBox="0 0 480 355" role="img" aria-labelledby="axis-projection-title axis-projection-desc">
@@ -525,9 +525,15 @@
         <figcaption>只为比较方向，把两组轴的起点画在一起；平移坐标系不会改变轴间夹角。</figcaption>
       </figure>
       <div>
-        <p><strong>先读图中的第一列。</strong>B 的 x 轴是单位向量：沿 A 的 x 方向占 <span data-tex="\hat X_B\cdot\hat X_A=\cos30^\circ=\sqrt3/2"></span>；沿 A 的 y 方向占 <span data-tex="\hat X_B\cdot\hat Y_A=\sin30^\circ=1/2"></span>。此图没有绕出纸面的分量，故沿 A 的 z 方向为 0。</p>
+        <p><strong>先只看蓝色 B-x 轴。</strong>它是长度为 1 的单位箭头，与 A-x 正方向夹角为 30°。紫色 B-y 轴只是标出 B 的另一个方向，这次求<strong>第一列</strong>还用不到它。</p>
+        <ol>
+          <li><strong>看黄色投影。</strong>从蓝色箭头尖端沿黄色虚线落到 A-x 轴；原点到落点的水平长度，是直角三角形的邻边。斜边长为 1，所以这段长 <span data-tex="1\cdot\cos30^\circ=\sqrt3/2\approx0.866"></span>。</li>
+          <li><strong>看绿色投影。</strong>从同一个尖端沿绿色虚线落到 A-y 轴；原点到落点的竖直长度是对边，因此为 <span data-tex="1\cdot\sin30^\circ=1/2=0.5"></span>。从 A-y 轴看，夹角是 60°，用 <span data-tex="\cos60^\circ"></span> 算也一样。</li>
+          <li><strong>把长度写成点积。</strong>两根单位轴相点积，就是它们夹角的余弦：<span data-tex="\hat X_B\cdot\hat X_A=\cos30^\circ"></span>，<span data-tex="\hat X_B\cdot\hat Y_A=\cos60^\circ"></span>。本图里的 B-x 还与纸面外的 A-z 垂直，所以 <span data-tex="\hat X_B\cdot\hat Z_A=\cos90^\circ=0"></span>。</li>
+        </ol>
+        <p>于是，把沿 A-x、A-y、A-z 的三个数<strong>从上到下</strong>写在一起，就是 B-x 轴在 A 中的坐标：</p>
         <div class="formula" data-tex="{}^A\hat X_B=\begin{bmatrix}\sqrt3/2\\1/2\\0\end{bmatrix}"></div>
-        <p>这就是式 (2.2) 的<strong>第一列</strong>。换成 B 的 y 轴、z 轴分别做同样的三次投影，便得到第二列、第三列。</p>
+        <p>这就是式 (2.2) 的<strong>第一列</strong>，也是式 (2.3) 最左边那一列点积。以后若轴指向 A 轴的反方向，投影和点积都带负号；换成 B-y、B-z 轴照此计算，才得到另两列。</p>
       </div>
     </div>
     <div class="formula" data-tex="{}^A R_B=\begin{bmatrix}{}^A\hat X_B&amp;{}^A\hat Y_B&amp;{}^A\hat Z_B\end{bmatrix}=\begin{bmatrix}\hat X_B\cdot\hat X_A&amp;\hat Y_B\cdot\hat X_A&amp;\hat Z_B\cdot\hat X_A\\\hat X_B\cdot\hat Y_A&amp;\hat Y_B\cdot\hat Y_A&amp;\hat Z_B\cdot\hat Y_A\\\hat X_B\cdot\hat Z_A&amp;\hat Y_B\cdot\hat Z_A&amp;\hat Z_B\cdot\hat Z_A\end{bmatrix}"></div>
