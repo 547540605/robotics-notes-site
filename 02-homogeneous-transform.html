@@ -116,7 +116,7 @@
           ③ 齐次求逆与避坑铁律
         </div>
         <p style="color:#94a3b8; font-size:0.84rem; margin:0; line-height:1.55;">
-          推导 Craig 原书式 2.40：彻底铲除“求逆时位移项直接加负号”的高危常识错误，深挖左乘旋转矩阵转置 \(-R^T p_{BORG}\) 的绝对物理必要性。
+          对照 Craig 原书式 (2.42)–(2.47)：从两坐标系原点的位置逐步求出逆变换的旋转项和位移项，并用书中数值核对为什么不能只给位移加负号。
         </p>
       </div>
 
@@ -220,28 +220,34 @@
   </div>
 </div>
 
-<h2>齐次变换矩阵的求逆公式（Craig 原书 §2.6 式 2.40）</h2>
-<div class="card">
-  <p>已知从坐标系 \(\{B\}\) 到 \(\{A\}\) 的齐次变换为 \({}^A_B\boldsymbol{T} = \begin{bmatrix} {}^A_B\boldsymbol{R} & {}^A\boldsymbol{P}_{BORG} \\ \boldsymbol{0} & 1 \end{bmatrix}\)，如何快速求出反向逆变换 \({}^B_A\boldsymbol{T} = ({}^A_B\boldsymbol{T})^{-1}\)？</p>
-  
-  <div class="derive">
-    <p><strong>严谨代数推导（利用<a href="ref-linear-algebra-orthogonality.html#orthogonal-matrix">正交矩阵性质</a> \(\boldsymbol{R}^T\boldsymbol{R} = \boldsymbol{I}\)）：</strong></p>
-    <p>1. 由一般坐标变换公式：\({}^A\boldsymbol{P} = {}^A\boldsymbol{P}_{BORG} + {}^A_B\boldsymbol{R} {}^B\boldsymbol{P}\)</p>
-    <p>2. 两边同时左乘<a href="ref-linear-algebra-orthogonality.html#transpose">转置矩阵</a> \({}^A_B\boldsymbol{R}^T\)：</p>
-    \[{}^A_B\boldsymbol{R}^T {}^A\boldsymbol{P} = {}^A_B\boldsymbol{R}^T {}^A\boldsymbol{P}_{BORG} + \underbrace{{}^A_B\boldsymbol{R}^T {}^A_B\boldsymbol{R}}_{\boldsymbol{I}} {}^B\boldsymbol{P} \]
-    <p>3. 移项整理，解出 \({}^B\boldsymbol{P}\)：</p>
-    \[{}^B\boldsymbol{P} = {}^A_B\boldsymbol{R}^T {}^A\boldsymbol{P} - {}^A_B\boldsymbol{R}^T {}^A\boldsymbol{P}_{BORG}\]
-    <p>4. 重新打包为 \(4 \times 4\) 齐次矩阵，即为 Craig 原书<strong>求逆公式（式 2.40）</strong>：</p>
-    \[\boxed{{}^A_B\boldsymbol{T}^{-1} = {}^B_A\boldsymbol{T} = \begin{bmatrix} {}^A_B\boldsymbol{R}^T & -{}^A_B\boldsymbol{R}^T {}^A\boldsymbol{P}_{BORG} \\ \boldsymbol{0}_{1 \times 3} & 1 \end{bmatrix}}\]
-  </div>
+<h2 id="inverse-transform-derivation">逆变换怎么一步步得到？对照 Craig 图 2-13、式 (2.42)–(2.47)</h2>
+<p>已知 \({}^A_B T\)：它把一个点的 B 坐标换成 A 坐标。要求 \({}^B_A T\)，就要分别求出<strong>反向旋转</strong> \({}^B_A R\) 和<strong>A 原点在 B 中的位置</strong> \({}^B P_{AORG}\)。后者是反向矩阵的右上角；它与“B 原点在 A 中的位置” \({}^A P_{BORG}\) 不是同一组坐标。</p>
+<div class="derive">
+  <p><strong>第 0 步：把正向与反向的通式都写出来。</strong>同一个空间点 \(P\) 没有移动，只是改用另一组轴和原点报坐标：</p>
+  <div class="math-block" data-tex="{}^A P={}^A_B R\,{}^B P+{}^A P_{BORG}"></div>
+  <div class="math-block" data-tex="{}^B P={}^B_A R\,{}^A P+{}^B P_{AORG}"></div>
+  <p>第一式的平移项是从 A 原点指向 B 原点、用 A 表示；第二式的平移项是从 B 原点指向 A 原点、用 B 表示。接下来要分别求第二式里的两个未知量。</p>
 
-  <div class="warn">
-    <strong>🚨 核心避坑红牌（工程与考试最高频丢分点！）：</strong><br>
-    求逆矩阵右上角的位置向量<strong>绝对不是简单的加负号 \(-{}^A\boldsymbol{P}_{BORG}\)</strong>！<br>
-    必须<strong>额外左乘旋转矩阵的转置 \(-{}^A_B\boldsymbol{R}^T {}^A\boldsymbol{P}_{BORG}\)</strong>！<br>
-    💡 <strong>物理原因</strong>：\({}^A\boldsymbol{P}_{BORG}\) 是站在 \(\{A\}\) 视角测量的平移，要换到 \(\{B\}\) 的视角下，必须先用 \(\boldsymbol{R}^T\) 把坐标轴方向调正，才能算出正确的反向位移！
-  </div>
+  <p><strong>第 1 步：求反向旋转，对应式 (2.42)。</strong>旋转矩阵的列是<a href="ref-linear-algebra-orthogonality.html#orthonormal-basis">单位正交轴</a>，因此逆矩阵等于转置矩阵：</p>
+  <div class="math-block" data-tex="{}^B_A R=({}^A_B R)^{-1}=({}^A_B R)^T"></div>
+  <p>这只解决了<strong>轴朝向</strong>；右上角的平移还没有算。</p>
+
+  <p><strong>第 2 步：选一个最容易代入的点，对应式 (2.43)。</strong>取 \(P\) 为 <strong>B 原点</strong>。它在 A 中的坐标是 \({}^A P_{BORG}\)，在 B 自己的坐标系中必为零：\({}^B P_{BORG}=\boldsymbol{0}\)。把这两个值代入第 0 步的<strong>反向通式</strong>：</p>
+  <div class="math-block" data-tex="\underbrace{{}^B P_{BORG}}_{\boldsymbol{0}}={}^B_A R\,\underbrace{{}^A P_{BORG}}_{\text{B 原点在 A 中的坐标}}+{}^B P_{AORG}"></div>
+  <p>书里的 \({}^B({}^A P_{BORG})\) 是说“把那个用 A 描述的 B 原点，改用 B 描述”；它不是两个向量相乘。左边变成零，原因仅仅是<strong>B 原点在 B 中是 \((0,0,0)^T\)</strong>。</p>
+
+  <p><strong>第 3 步：把右上角解出来，对应式 (2.44)。</strong>从上式两边减去第一项，再用第 1 步的转置关系替换反向旋转：</p>
+  <div class="math-block" data-tex="{}^B P_{AORG}=-{}^B_A R\,{}^A P_{BORG}"></div>
+  <div class="math-block" data-tex="{}^B P_{AORG}=-({}^A_B R)^T{}^A P_{BORG}"></div>
+  <p>负号表示“从 B 指回 A”；左乘转置表示<strong>把这支反向箭头改用 B 的轴报坐标</strong>。因此不能只把 \({}^A P_{BORG}\) 前面加负号，就直接塞进要求用 B 坐标表示的右上角。</p>
+
+  <p><strong>第 4 步：组装齐次矩阵，对应式 (2.45)。</strong>左上角放第 1 步的旋转，右上角放第 3 步的位置；底行仍是 \([0\;0\;0\;1]\)：</p>
+  <div class="math-block" data-tex="{}^B_A T=({}^A_B T)^{-1}=\begin{bmatrix}({}^A_B R)^T &amp; -({}^A_B R)^T{}^A P_{BORG}\\0\;0\;0 &amp; 1\end{bmatrix}"></div>
 </div>
+<p><strong>用书里例 2.5 核对右上角（图 2-13，式 2.46–2.47）。</strong>B 原点在 A 中是 \((4,3,0)^T\)，B 相对 A 绕 z 轴转 30°。转回 B 的坐标后：</p>
+<div class="math-block" data-tex="{}^B P_{AORG}=-\begin{bmatrix}0.866 &amp; 0.500 &amp; 0\\-0.500 &amp; 0.866 &amp; 0\\0 &amp; 0 &amp; 1\end{bmatrix}\begin{bmatrix}4\\3\\0\end{bmatrix}"></div>
+<div class="math-block" data-tex="{}^B P_{AORG}=\begin{bmatrix}-(0.866\cdot4+0.500\cdot3)\\-(-0.500\cdot4+0.866\cdot3)\\0\end{bmatrix}=\begin{bmatrix}-4.964\\-0.598\\0\end{bmatrix}"></div>
+<p>这与教材式 (2.47) 的最后一列一致。若只取 \(-(4,3,0)^T\)，得到的仍是<strong>A 坐标里的反向箭头</strong>，不是逆变换所需的 B 坐标。</p>
 
 <h2>变换链与「左乘 vs 右乘」法则（Craig 原书 §2.5）</h2>
 <div class="card">
