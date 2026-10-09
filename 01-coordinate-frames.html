@@ -577,8 +577,11 @@
         <p><strong>先认两组轴，再读数。</strong>白色是 A 的轴，紫色是 B 的轴，共用原点 O。这次 B 相对 A 逆时针转了 90°：B-x 指向 A-y，B-y 指向 A-x 的反方向。因此沿 B-x 走 2 格、沿 B-y 走 1 格，就到了 A 坐标 <span data-tex="(-1,2)^T"></span> 的 P。黄色向左为 -1，绿色向上为 +2。</p>
         <p><strong>再把图上的投影写成点积。</strong>要算沿 A-x 的分量，就拿 A-x 的<strong>单位方向</strong>与 <span data-tex="\overrightarrow{OP}"></span> 点积；沿 A-y 同理。点积两边必须先用<strong>同一个坐标系</strong>写：这里题目已给 <span data-tex="{}^B p"></span>，于是把 A 的两根轴也改写成 B 坐标。</p>
         <div class="formula" data-tex="{}^B\hat X_A=\begin{bmatrix}0\\-1\end{bmatrix},\quad {}^B\hat Y_A=\begin{bmatrix}1\\0\end{bmatrix},\quad {}^B p=\begin{bmatrix}2\\1\end{bmatrix}"></div>
-        <p>A-x 与 B-y 反向，所以它在 B 中是 <span data-tex="(0,-1)^T"></span>；A-y 与 B-x 同向，所以是 <span data-tex="(1,0)^T"></span>。现在两个点积就能逐项计算：</p>
-        <div class="formula" data-tex="{}^A p_x={}^B\hat X_A\cdot{}^B p=0\cdot2+(-1)\cdot1=-1\qquad {}^A p_y={}^B\hat Y_A\cdot{}^B p=1\cdot2+0\cdot1=2"></div>
+        <p>A-x 与 B-y 反向，所以它在 B 中是 <span data-tex="(0,-1)^T"></span>；A-y 与 B-x 同向，所以是 <span data-tex="(1,0)^T"></span>。分别投影到这两根轴：</p>
+        <p><strong>沿 A-x（图中黄色，向左为负）：</strong></p>
+        <div class="formula" data-tex="\begin{aligned}{}^A p_x &amp;= {}^B\hat X_A\cdot{}^B p\\ &amp;= 0\cdot2+(-1)\cdot1=-1\end{aligned}"></div>
+        <p><strong>沿 A-y（图中绿色，向上为正）：</strong></p>
+        <div class="formula" data-tex="\begin{aligned}{}^A p_y &amp;= {}^B\hat Y_A\cdot{}^B p\\ &amp;= 1\cdot2+0\cdot1=2\end{aligned}"></div>
       </div>
     </div>
     <p>这就是式 (2.12) 在二维的样子。把两根 A 轴在 B 中的坐标<strong>转成行、上下叠放</strong>，便得到把 B 坐标换成 A 坐标的矩阵：</p>
