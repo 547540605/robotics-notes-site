@@ -544,14 +544,17 @@
     <div class="axis-projection">
       <figure>
         <svg viewBox="0 0 480 350" role="img" aria-labelledby="vector-projection-title vector-projection-desc">
-          <title id="vector-projection-title">位移 OP 在 A 的两根轴上的有符号投影</title>
-          <desc id="vector-projection-desc">从共同原点 O 到 P 的蓝色箭头向左上方。投影到 A-x 得到向左的负 1，投影到 A-y 得到向上的正 2。B 的 x 轴与 A-y 同向，B 的 y 轴与 A-x 反向。</desc>
+          <title id="vector-projection-title">A、B 两组坐标轴与位移 OP 在 A 轴上的投影</title>
+          <desc id="vector-projection-desc">白色为 A 轴，紫色为 B 轴，两组轴共用原点 O。B-x 与 A-y 同向，B-y 与 A-x 反向。蓝色位移箭头指向左上方的 P；沿 A-x 的黄色分量为负 1，沿 A-y 的绿色分量为正 2。</desc>
           <defs>
             <marker id="vector-projection-arrow-a" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#cbd5e1"></path></marker>
+            <marker id="vector-projection-arrow-b" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#c4b5fd"></path></marker>
             <marker id="vector-projection-arrow-p" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9 Z" fill="#38bdf8"></path></marker>
           </defs>
           <line x1="65" y1="260" x2="445" y2="260" stroke="#cbd5e1" stroke-width="2" marker-end="url(#vector-projection-arrow-a)"></line>
           <line x1="270" y1="315" x2="270" y2="42" stroke="#cbd5e1" stroke-width="2" marker-end="url(#vector-projection-arrow-a)"></line>
+          <line x1="270" y1="260" x2="270" y2="72" stroke="#c4b5fd" stroke-width="3" marker-end="url(#vector-projection-arrow-b)"></line>
+          <line x1="270" y1="260" x2="92" y2="260" stroke="#c4b5fd" stroke-width="3" marker-end="url(#vector-projection-arrow-b)"></line>
           <line x1="190" y1="100" x2="190" y2="260" stroke="#fbbf24" stroke-width="2" stroke-dasharray="7 5"></line>
           <line x1="190" y1="100" x2="270" y2="100" stroke="#34d399" stroke-width="2" stroke-dasharray="7 5"></line>
           <line x1="270" y1="260" x2="190" y2="260" stroke="#fbbf24" stroke-width="5"></line>
@@ -561,15 +564,17 @@
           <circle cx="190" cy="100" r="5" fill="#38bdf8"></circle>
           <text x="445" y="285" fill="#e2e8f0" font-size="21" font-weight="700">A-x</text>
           <text x="283" y="47" fill="#e2e8f0" font-size="21" font-weight="700">A-y</text>
+          <text x="286" y="91" fill="#c4b5fd" font-size="21" font-weight="700">B-x</text>
+          <text x="60" y="239" fill="#c4b5fd" font-size="21" font-weight="700">B-y</text>
           <text x="283" y="293" fill="#f8fafc" font-size="20" font-weight="700">O</text>
           <text x="144" y="86" fill="#38bdf8" font-size="22" font-weight="700">P</text>
           <text x="194" y="294" fill="#fbbf24" font-size="21" font-weight="700">-1</text>
           <text x="282" y="183" fill="#34d399" font-size="21" font-weight="700">+2</text>
         </svg>
-        <figcaption>蓝色是原点到 P 的位移；黄色和绿色实线是它在 A 两轴上的有符号分量。虚线只帮助找落点。</figcaption>
+        <figcaption>白色是 A 轴，紫色是 B 轴；90° 时两组轴部分重合，所以紫色箭头画得短一些。蓝色是位移，黄色和绿色是它沿 A 轴的有符号分量。</figcaption>
       </figure>
       <div>
-        <p><strong>先在图上读数。</strong>这次 B 相对 A 逆时针转了 90°：B-x 指向 A-y，B-y 指向 A-x 的反方向。因此沿 B-x 走 2 格、沿 B-y 走 1 格，就到了 A 坐标 <span data-tex="(-1,2)^T"></span> 的 P。黄色向左为 -1，绿色向上为 +2。</p>
+        <p><strong>先认两组轴，再读数。</strong>白色是 A 的轴，紫色是 B 的轴，共用原点 O。这次 B 相对 A 逆时针转了 90°：B-x 指向 A-y，B-y 指向 A-x 的反方向。因此沿 B-x 走 2 格、沿 B-y 走 1 格，就到了 A 坐标 <span data-tex="(-1,2)^T"></span> 的 P。黄色向左为 -1，绿色向上为 +2。</p>
         <p><strong>再把图上的投影写成点积。</strong>要算沿 A-x 的分量，就拿 A-x 的<strong>单位方向</strong>与 <span data-tex="\overrightarrow{OP}"></span> 点积；沿 A-y 同理。点积两边必须先用<strong>同一个坐标系</strong>写：这里题目已给 <span data-tex="{}^B p"></span>，于是把 A 的两根轴也改写成 B 坐标。</p>
         <div class="formula" data-tex="{}^B\hat X_A=\begin{bmatrix}0\\-1\end{bmatrix},\quad {}^B\hat Y_A=\begin{bmatrix}1\\0\end{bmatrix},\quad {}^B p=\begin{bmatrix}2\\1\end{bmatrix}"></div>
         <p>A-x 与 B-y 反向，所以它在 B 中是 <span data-tex="(0,-1)^T"></span>；A-y 与 B-x 同向，所以是 <span data-tex="(1,0)^T"></span>。现在两个点积就能逐项计算：</p>
