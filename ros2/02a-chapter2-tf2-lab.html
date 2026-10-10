@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ROS 2 配套实验：Craig 第 2 章坐标变换与 TF2</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let retries = 0;
+      const render = () => {
+        if (!window.renderMathInElement) {
+          if (retries++ < 40) setTimeout(render, 80);
+          return;
+        }
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false}
+          ],
+          throwOnError: false
+        });
+      };
+      render();
+    });
+  </script>
+  <style>
+    :root { color-scheme: dark; --bg:#0b1322; --fg:#edf5ff; --muted:#a9bbd0; --line:#304157; --accent:#55c7ec; --green:#5ed2a1; --warn:#ffd079; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif; }
+    main { max-width:920px; margin:auto; padding:24px 20px 72px; }
+    h1 { font-size:1.9rem; line-height:1.3; margin:14px 0; }
+    h2 { font-size:1.25rem; margin:34px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--line); }
+    h3 { font-size:1.05rem; margin:23px 0 8px; }
+    p, li { max-width:78ch; }
+    a { color:var(--accent); }
+    .crumb, .meta { color:var(--muted); font-size:.92rem; }
+    .lead { border-left:4px solid var(--accent); padding:8px 0 8px 16px; }
+    .status { color:var(--warn); }
+    .formula { overflow-x:auto; padding:8px 0; }
+    .steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .steps > div { border-top:2px solid var(--line); padding-top:8px; }
+    .steps strong { display:block; color:var(--green); }
+    pre { overflow-x:auto; padding:15px; border:1px solid var(--line); border-radius:6px; background:#080f1c; color:#dbeaff; font:14px/1.55 ui-monospace,Consolas,monospace; }
+    code { font: .92em ui-monospace,Consolas,monospace; }
+    .compare { width:100%; border-collapse:collapse; }
+    .compare th, .compare td { border-bottom:1px solid var(--line); padding:10px 8px; text-align:left; vertical-align:top; }
+    .compare th { color:var(--accent); }
+    details { border-top:1px solid var(--line); padding:10px 0; }
+    summary { cursor:pointer; font-weight:600; }
+    @media(max-width:650px) { main { padding:18px 14px 48px; } .steps { grid-template-columns:1fr; } .compare { font-size:.9rem; } }
+  </style>
+</head>
+<body><main>
+  <p class="crumb"><a href="00-progress.html">ROS 2 看板</a> / <a href="02-urdf-and-arm-modeling.html">ROS2-02</a> / Craig 第 2 章配套实验</p>
+  <h1>把第二章的坐标变换交给 TF2 验算</h1>
+  <p class="lead">这里不求机械臂逆解。只让同一个点和同一个方向从 <code>camera</code> 换到 <code>base_link</code>：先按书算，再运行 ROS 2，确认两边相同。</p>
+  <p class="meta"><strong>教材对照：</strong>点的旋转和平移见式（2.17）；反向变换见式（2.42）—（2.45）；自由矢量只旋转见式（2.93）、（2.94）及图 2-22。</p>
+  <p class="status"><strong>当前状态：</strong>独立 Python 脚本已在本机 WSL2 Ubuntu 24.04 / ROS 2 Jazzy 运行，四项数值自检通过。这不是 3R 工作区，也不控制机械臂。</p>
+
+  <h2>1. 先把题目和坐标系钉住</h2>
+  <p>令 <code>camera</code> 坐标系相对 <code>base_link</code> 绕共同的 $z$ 轴转 $+90^\circ$，且 <code>camera</code> 原点在 <code>base_link</code> 中的位置为 $(1,2,0)$ m。书中的 $A$ 对应 <code>base_link</code>，$B$ 对应 <code>camera</code>。</p>
+  <div class="formula">$$ {}^{base}R_{camera}=\begin{bmatrix}0&-1&0\\1&0&0\\0&0&1\end{bmatrix},\qquad {}^{base}p_{camera\,ORG}=\begin{bmatrix}1\\2\\0\end{bmatrix}\ {\rm m}. $$</div>
+  <p><strong>先算点。</strong><code>camera</code> 中的点 $p$ 为 $(1,0,0)$ m。它在 <code>base_link</code> 中的位置是：</p>
+  <div class="formula">$$ {}^{base}p={} ^{base}R_{camera}\,{}^{camera}p+{}^{base}p_{camera\,ORG}=\begin{bmatrix}0\\1\\0\end{bmatrix}+\begin{bmatrix}1\\2\\0\end{bmatrix}=\begin{bmatrix}1\\3\\0\end{bmatrix}\ {\rm m}. $$</div>
+  <p><strong>再算方向。</strong><code>camera</code> 中沿 $+x$ 的单位方向 $v=(1,0,0)$，按式（2.94）只旋转：</p>
+  <div class="formula">$$ {}^{base}v={} ^{base}R_{camera}\,{}^{camera}v=\begin{bmatrix}0\\1\\0\end{bmatrix}. $$</div>
+  <p>点的结果有 $(1,2,0)$ 的平移，方向没有。这个差别正是本实验要验证的；不要把点的输出 $(1,3,0)$ 当成方向的输出。</p>
+
+  <h2>2. 运行独立脚本</h2>
+  <p>在安装了 ROS 2 Jazzy 的 Ubuntu 终端执行。<a href="#source">完整脚本在本页下方</a>，也可下载为 <code>frame_lab.py</code>；下面的路径是本仓库在 WSL 中的默认挂载位置。若从网页下载脚本，先进入保存它的目录再运行最后一行。</p>
+  <pre><code>source /opt/ros/jazzy/setup.bash
+python3 -c 'import rclpy, tf2_ros, tf2_geometry_msgs, geometry_msgs'
+cd /mnt/c/Repository/547540605/robotics-notes/robotics-notes/ros2/labs/ch02_tf2
+python3 frame_lab.py</code></pre>
+  <p>脚本广播 <code>base_link → camera → target</code> 两段静态变换，再用 TF2 查询正向、反向及跨两段的结果。它会逐项核对，数值不符就以非零状态退出。</p>
+  <pre><code>PASS point: R p + t: (1.0, 3.0, 0.0)
+PASS vector: R v: (0.0, 1.0, 0.0)
+PASS inverse: camera &lt;- base_link: (1.0, 0.0, 0.0)
+PASS chain: base_link &lt;- camera &lt;- target: (1.0, 2.5, 0.0)</code></pre>
+  <p>以上四项已在本机 WSL2 / Jazzy 运行核对；在你的终端也应得到相同数值。若依赖检查失败，先核对是否已 <code>source</code> Jazzy；若缺少 <code>tf2_geometry_msgs</code>，核对 <code>ros-jazzy-tf2-geometry-msgs</code> 是否已安装。</p>
+
+  <h2>3. 逐项对回教材</h2>
+  <table class="compare">
+    <thead><tr><th>脚本检查</th><th>书中的动作</th><th>你应该看到</th></tr></thead>
+    <tbody>
+      <tr><td>point</td><td>式（2.17）：$Rp+t$</td><td>$(1,3,0)$ m</td></tr>
+      <tr><td>vector</td><td>式（2.94）：$Rv$</td><td>$(0,1,0)$，平移没有混进来</td></tr>
+      <tr><td>inverse</td><td>式（2.42）—（2.45）：用反向变换返回原坐标</td><td>又得到 $(1,0,0)$ m</td></tr>
+      <tr><td>chain</td><td>连续两段变换相乘</td><td><code>target</code> 原点在 <code>base_link</code> 下为 $(1,2.5,0)$ m</td></tr>
+    </tbody>
+  </table>
+  <p>最后一行就是后续 ROS2-10 的缩小版：相机给出目标，再转换到机械臂基座下。这里<strong>只完成坐标转换</strong>，尚未把目标送给 IK。</p>
+
+  <h2>4. 自己改一处，再核对</h2>
+  <div class="steps">
+    <div><strong>改平移</strong>把 <code>camera</code> 的平移从 $(1,2,0)$ 改成 $(2,2,0)$。先预测点和方向哪个会变；再修改脚本中的预期值运行。</div>
+    <div><strong>查反向</strong>运行 <code>python3 frame_lab.py --keep-alive</code>，另开已加载 Jazzy 的终端执行 <code>ros2 run tf2_ros tf2_echo camera base_link</code>。启动瞬间可能先提示帧不存在，等到出现数值输出再看旋转和平移；按 Ctrl+C 结束。</div>
+    <div><strong>辨数据类型</strong>故意给方向调用点的变换函数，比较结果。查出多出的 $(1,2,0)$ 从哪里来，然后改回 <code>Vector3Stamped</code> 的函数。</div>
+  </div>
+  <p><a href="10-tf2-workcell-frames.html">继续到 ROS2-10</a> 时，重点会变成真实工位里不同发布者、动态目标和时间戳；本实验只用固定坐标系，避免一次引入太多问题。</p>
+
+  <h2>检查自己是否真懂</h2>
+  <details><summary>为什么同样输入 $(1,0,0)$，点和方向的输出不同？</summary><p>点的位置受原点差影响，计算 $Rp+t$；方向只描述朝向，计算 $Rv$。本题中 $t=(1,2,0)$。</p></details>
+  <details><summary>式（2.45）的反向变换为什么不能只把平移改为 $-t$？</summary><p>反向平移必须写在 <code>camera</code> 的坐标轴中，因此是 $-R^Tt$，旋转也要变成 $R^T$。</p></details>
+  <details><summary><code>tf2_echo base_link camera</code> 与反过来查询是不是同一组数？</summary><p>不是。查询方向反过来时得到逆变换；两者作用于同一个点后应能往返到原坐标。</p></details>
+  <details><summary>为何这段代码还不能称为“相机引导机械臂运动”？</summary><p>它只发布教学用固定变换并换算点，没有图像检测、关节逆解、控制器、硬件执行或安全停止条件。</p></details>
+  <h2 id="source">完整 Python 脚本</h2>
+  <p>这与源码仓库中的 <code>frame_lab.py</code> 内容相同。<button id="download" type="button">下载 frame_lab.py</button></p>
+  <pre><code id="python-source">#!/usr/bin/env python3
+"""Craig chapter 2: verify point, vector and inverse transforms with ROS 2 tf2."""
+
+import argparse
+import math
+import sys
+import time
+
+import rclpy
+from geometry_msgs.msg import PointStamped, TransformStamped, Vector3Stamped
+from rclpy.node import Node
+from rclpy.time import Time
+from tf2_geometry_msgs import do_transform_point, do_transform_vector3
+from tf2_ros import Buffer, StaticTransformBroadcaster, TransformException, TransformListener
+
+
+def make_static_transform(node, parent, child, xyz, quaternion):
+    transform = TransformStamped()
+    transform.header.stamp = node.get_clock().now().to_msg()
+    transform.header.frame_id = parent
+    transform.child_frame_id = child
+    transform.transform.translation.x = xyz[0]
+    transform.transform.translation.y = xyz[1]
+    transform.transform.translation.z = xyz[2]
+    transform.transform.rotation.x = quaternion[0]
+    transform.transform.rotation.y = quaternion[1]
+    transform.transform.rotation.z = quaternion[2]
+    transform.transform.rotation.w = quaternion[3]
+    return transform
+
+
+def coordinates(message):
+    value = message.point if hasattr(message, "point") else message.vector
+    return (value.x, value.y, value.z)
+
+
+def check(label, actual, expected):
+    if not all(math.isclose(a, e, abs_tol=1e-6) for a, e in zip(actual, expected)):
+        raise AssertionError(f"{label}: got {actual}, expected {expected}")
+    print(f"PASS {label}: {tuple(round(value, 6) for value in actual)}")
+
+
+class FrameLab(Node):
+    def __init__(self):
+        super().__init__("craig_ch02_frame_lab")
+        self.buffer = Buffer()
+        self.listener = TransformListener(self.buffer, self)
+        self.broadcaster = StaticTransformBroadcaster(self)
+
+        half_turn = math.sqrt(0.5)
+        self.broadcaster.sendTransform(
+            [
+                make_static_transform(
+                    self, "base_link", "camera", (1.0, 2.0, 0.0),
+                    (0.0, 0.0, half_turn, half_turn),
+                ),
+                make_static_transform(
+                    self, "camera", "target", (0.5, 0.0, 0.0),
+                    (0.0, 0.0, 0.0, 1.0),
+                ),
+            ]
+        )
+
+    def lookup(self, target, source):
+        return self.buffer.lookup_transform(target, source, Time())
+
+    def verify(self):
+        base_from_camera = self.lookup("base_link", "camera")
+        camera_from_base = self.lookup("camera", "base_link")
+        base_from_target = self.lookup("base_link", "target")
+
+        point = PointStamped()
+        point.header.frame_id = "camera"
+        point.point.x = 1.0
+        direction = Vector3Stamped()
+        direction.header.frame_id = "camera"
+        direction.vector.x = 1.0
+
+        point_in_base = do_transform_point(point, base_from_camera)
+        direction_in_base = do_transform_vector3(direction, base_from_camera)
+        check("point: R p + t", coordinates(point_in_base), (1.0, 3.0, 0.0))
+        check("vector: R v", coordinates(direction_in_base), (0.0, 1.0, 0.0))
+        check(
+            "inverse: camera &lt;- base_link",
+            coordinates(do_transform_point(point_in_base, camera_from_base)),
+            (1.0, 0.0, 0.0),
+        )
+
+        target_origin = PointStamped()
+        target_origin.header.frame_id = "target"
+        check(
+            "chain: base_link &lt;- camera &lt;- target",
+            coordinates(do_transform_point(target_origin, base_from_target)),
+            (1.0, 2.5, 0.0),
+        )
+        print("The target origin is now expressed in base_link; no IK is called.")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--keep-alive", action="store_true",
+        help="keep publishing /tf_static so another terminal can run tf2_echo",
+    )
+    args = parser.parse_args()
+
+    rclpy.init()
+    node = FrameLab()
+    try:
+        deadline = time.monotonic() + 10.0
+        while rclpy.ok():
+            rclpy.spin_once(node, timeout_sec=0.1)
+            try:
+                node.verify()
+                break
+            except TransformException:
+                if time.monotonic() &gt;= deadline:
+                    raise TimeoutError("tf2 frames were not available within 10 seconds")
+        if args.keep_alive:
+            print("Publishing static frames; press Ctrl+C to stop.")
+            rclpy.spin(node)
+        return 0
+    except (AssertionError, TimeoutError) as exc:
+        print(f"FAIL {exc}", file=sys.stderr)
+        return 1
+    except KeyboardInterrupt:
+        return 0
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    sys.exit(main())</code></pre>
+  <script>
+    document.getElementById('download').addEventListener('click', () => {
+      const code = document.getElementById('python-source').textContent + '\n';
+      const url = URL.createObjectURL(new Blob([code], {type: 'text/x-python;charset=utf-8'}));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'frame_lab.py';
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  </script>
+  <p class="meta">接口依据：<a href="https://github.com/ros2/ros2_documentation/blob/jazzy/source/Tutorials/Intermediate/Tf2/Writing-A-Tf2-Static-Broadcaster-Py.rst">ROS 2 Jazzy 静态变换教程</a>、<a href="https://github.com/ros2/ros2_documentation/blob/jazzy/source/Tutorials/Intermediate/Tf2/Writing-A-Tf2-Listener-Py.rst">TF2 监听教程</a>。</p>
+</main></body>
+</html>
