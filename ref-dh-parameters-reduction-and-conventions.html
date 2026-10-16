@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>专题：DH 参数的降维本质、门派之争与现代工业演进</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      let n = 0;
+      const boot = () => {
+        if (!window.katex) { if (n++ < 40) setTimeout(boot, 80); return; }
+        if (window.renderMathInElement) {
+          renderMathInElement(document.body, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false },
+              { left: '\\[', right: '\\]', display: true },
+              { left: '\\(', right: '\\)', display: false }
+            ],
+            throwOnError: false
+          });
+        }
+        document.querySelectorAll('[data-tex]').forEach(el => {
+          katex.render(el.dataset.tex, el, { displayMode: el.classList.contains('math-block'), throwOnError: false });
+        });
+      };
+      boot();
+    });
+  </script>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #1e293b;
+      --card-sub: #172033;
+      --fg: #f8fafc;
+      --muted: #94a3b8;
+      --line: #334155;
+      --primary: #38bdf8;
+      --accent: #0284c7;
+      --warn: rgba(245, 158, 11, 0.12);
+      --soft: rgba(56, 189, 248, 0.12);
+      --danger: #f43f5e;
+      --success: #10b981;
+      --rail: #0f172a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+      line-height: 1.72;
+    }
+    main {
+      max-width: 960px;
+      margin: auto;
+      padding: 28px 20px 72px;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1 { font-size: 2.1rem; line-height: 1.3; margin: 14px 0 10px; }
+    h2 { font-size: 1.42rem; margin-top: 2.4rem; border-bottom: 1px solid var(--line); padding-bottom: 0.4rem; color: #fff; }
+    h3 { font-size: 1.15rem; margin-top: 1.6rem; color: var(--primary); }
+    .muted { color: var(--muted); }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; margin: 18px 0; }
+    .card-sub { background: var(--card-sub); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin: 14px 0; }
+    .tip { background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--success); padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0; }
+    .warn-box { background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0; }
+    .danger-box { background: rgba(244, 63, 94, 0.1); border-left: 4px solid var(--danger); padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0; }
+    .derive { background: var(--card-sub); border: 1px solid var(--line); border-radius: 6px; padding: 14px 18px; margin: 14px 0; }
+    .table-wrap { overflow-x: auto; margin: 18px 0; }
+    table.compare-table { width: 100%; border-collapse: collapse; text-align: left; }
+    table.compare-table th, table.compare-table td { padding: 10px 14px; border: 1px solid var(--line); vertical-align: top; }
+    table.compare-table th { background: #182637; color: var(--primary); font-weight: 700; }
+    table.compare-table tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+    .check-question { border: 1px solid var(--line); background: var(--card-sub); border-radius: 8px; padding: 12px 16px; margin: 12px 0; }
+    .check-question summary { cursor: pointer; font-weight: 700; color: var(--fg); list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    .check-question summary::-webkit-details-marker { display: none; }
+    .check-question summary::after { content: "＋"; font-size: 1.1rem; color: var(--primary); transition: transform 0.2s; }
+    .check-question[open] summary::after { content: "－"; }
+    .check-question p { margin: 10px 0 0; color: var(--muted); font-size: 0.95rem; border-top: 1px dashed var(--line); padding-top: 8px; }
+    .code-snippet { background: #070d18; border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; font-family: ui-monospace, Consolas, monospace; font-size: 0.9rem; overflow-x: auto; color: #7dd3fc; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="muted">
+    <a href="00-progress.html">学习看板</a> · 
+    <a href="index.html">总目录</a> · 
+    <a href="08b-craig-frame-assignment.html">§3.4 连杆坐标系建立</a> · 
+    <a href="09-dh-single-link-transform.html">§3.5 单段 DH 齐次变换</a>
+  </p>
+  
+  <h1>专题：DH 参数的降维本质、门派之争与现代工业演进</h1>
+  <p class="muted">直击《机器人学导论》第 3 章核心疑惑：为什么空间 6 自由度能浓缩成 4 个参数？Standard DH 与 Modified DH 到底为何分裂？现代 ROS 2 与旋量理论又为何做出不同抉择？</p>
+
+  <!-- 🧭 开篇导读与学习路线图 -->
+  <div class="card" style="border-left: 4px solid var(--primary); background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(16, 185, 129, 0.05));">
+    <div style="font-weight: 700; font-size: 1.15rem; color: #fff; margin-bottom: 8px;">
+      🧭 开篇导读与学习路线图
+    </div>
+    <div style="margin-bottom: 12px;">
+      <strong style="color: var(--primary);">工业痛点与认知断层：</strong>
+      刚在第 2 章学完“空间中描述一个刚体位姿非要 6 个自由度不可（3 个位置 + 3 个姿态角）”，为什么一翻开第 3 章操作臂运动学，教材就理直气壮地说“相邻坐标系的变换是由 4 个参数构成的函数”？少掉的那 2 个自由度到底去哪了？
+      更要命的是，很多人上网搜正运动学代码，发现算出来的矩阵经常跟 Craig 教材对不上；等学完 DH 去看现代工业 ROS 2 机械臂的 <code>urdf</code> 模型时，却发现根本没有这 4 个参数，全都在老老实实用 6 个数（<code>xyz</code> 与 <code>rpy</code>）。这到底是为什么？
+    </div>
+    <div style="background: var(--card-sub); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px;">
+      <strong style="color: var(--accent);">本篇四步心智解构路线：</strong>
+      <ol style="margin: 6px 0 0 18px; padding: 0;">
+        <li><strong>几何降维机理：</strong>从 $SE(3)$ 的 6 维自由流形，看 DH 的 2 个几何硬约束如何干净利落地砍掉 2 个自由度；</li>
+        <li><strong>门派之争与照妖镜：</strong>彻底理清经典 Standard DH（1955 原版）与 Craig Modified DH（1986 改进版）的建系位置与乘法顺序差异，搞懂 Craig 为什么要改；</li>
+        <li><strong>DH 的阿喀琉斯之踵：</strong>揭开连续平行轴微小公差下的“公垂线奇异性跳变”，搞懂为什么工业机器人运动学校准时 DH 会导致导数数值爆炸；</li>
+        <li><strong>现代工业的破局之路：</strong>看懂 ROS 2 URDF 为什么在算力富裕时代主动回归 6 自由度，以及高阶旋量理论（PoE）如何用李代数彻底治愈 DH 的病态。</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- 第一章 -->
+  <h2>一、从 6 自由度到 4 参数：几何降维的数学机理</h2>
+  
+  <h3>1. 空间刚体的 6 个自由度</h3>
+  <p>
+    在三维欧几里得空间中，一个毫无约束、自由漂浮的刚体，其位姿属于特殊欧几里得群 $SE(3)$。描述一个任意坐标系 $\{B\}$ 相对于另一个参考坐标系 $\{A\}$ 的位置和姿态，在数学上需要 <strong>6 个独立的自由参数</strong>：
+  </p>
+  <ul>
+    <li><strong>3 个位置平移量</strong>：$(x, y, z)$ 确定原点在空间的三维平移；</li>
+    <li><strong>3 个姿态旋转角</strong>：如欧拉角 $(\phi, \theta, \psi)$ 或横滚-俯仰-偏航角 $(\text{Roll, Pitch, Yaw})$ 确定三轴朝向。</li>
+  </ul>
+  <p>如果机械臂的相邻连杆是两条没有机械相连、悬空飞行的骨头，要在它们上面随便放坐标系，描述它们的变换矩阵必然需要 6 个参数。</p>
+
+  <h3>2. 机械关节的物理锁死：从混沌到降维</h3>
+  <p>
+    但机械臂不是空中的无人机！连杆 $i-1$ 与连杆 $i$ 之间，被<strong>单自由度运动副（1-DOF Lower Pair）</strong>死死铰接在一起：
+  </p>
+  <ul>
+    <li>如果是<strong>转动关节（Revolute Joint）</strong>，机构在物理上只允许绕着一根特定的轴相对转动；</li>
+    <li>如果是<strong>移动关节（Prismatic Joint）</strong>，机构在物理上只允许沿着一根特定的轴相对滑移。</li>
+  </ul>
+  <p>
+    也就是说，两根连杆之间的相对运动，其<strong>真实的物理自由度只有 1 个</strong>！另外 5 个相对运动维度（比如轴向晃动、径向晃动）在机械出厂装配时就已经被轴承与导轨彻底锁死为 0。
+  </p>
+
+  <div class="tip">
+    <strong>核心问题：</strong>既然连杆之间的物理运动自由度只有 1 个，我们为什么还要在两个坐标系之间保留 6 个复杂的几何自由度？
+  </div>
+
+  <h3>3. Denavit-Hartenberg 的两条死规矩：干掉 2 个自由度</h3>
+  <p>
+    1955 年，学者 Jacques Denavit 和 Richard Hartenberg 提出了一个天才般的建系约束——<strong>不准把坐标系随便扔，必须让每一个坐标系的 $x_i$ 轴死死咬在相邻两根关节轴的“公垂线”上</strong>！
+  </p>
+  <p>这个要求在空间几何上等价于强加了 <strong>2 个极其苛刻的几何死约束</strong>：</p>
+
+  <div class="card-sub">
+    <ol style="margin: 0 0 0 18px; padding: 0;">
+      <li style="margin-bottom: 8px;">
+        <strong>约束一（垂直约束）：</strong>$x_i$ 轴必须严格垂直于上一根关节轴 $z_{i-1}$，即内积为零：
+        $$\hat x_i \cdot \hat z_{i-1} = 0$$
+        $\to$ <strong>这一条约束直接消灭了 1 个姿态旋转自由度！</strong>（$x_i$ 无法在包含 $z_{i-1}$ 的平面内随意俯仰）。
+      </li>
+      <li>
+        <strong>约束二（相交约束）：</strong>$x_i$ 轴必须实打实地与上一根关节轴 $z_{i-1}$ 相交于一点：
+        $$\text{公垂线必须相交于 } z_{i-1} \text{ 轴心}$$
+        $\to$ <strong>这一条约束直接消灭了 1 个平移自由度！</strong>（$x_i$ 的直线方程必须与 $z_{i-1}$ 的直线方程共面相交，不得悬空错开）。
+      </li>
+    </ol>
+  </div>
+
+  <div class="derive">
+    <strong>自由度精确核算：</strong>
+    $$6 \text{（空间刚体自由度）} - 2 \text{（DH 几何约束）} = 4 \text{（DH 连杆参数）}$$
+    <p style="margin: 6px 0 0;">
+      正是因为这两条几何死规矩，相邻两连杆坐标系之间的位姿关系，被<strong>严格降维压缩成了 4 个参数</strong>：
+      沿 $X$ 平移（$a$）、绕 $X$ 旋转（$\alpha$）、沿 $Z$ 平移（$d$）、绕 $Z$ 旋转（$\theta$）。
+      $Y$ 轴完全不需要任何参数（自动根据右手定则 $\hat y = \hat z \times \hat x$ 补齐）。
+    </p>
+  </div>
+
+  <!-- 第二章 -->
+  <h2>二、门派之争：Standard DH 与 Craig Modified DH</h2>
+  <p>
+    这是所有学习机器人学的人最容易感到困惑的地方：网上的很多代码、ROS 早期包、日本教材常常采用 <strong>Standard DH（标准 DH）</strong>，而 Craig《机器人学导论》、ABB 机器人内部推导却普遍采用 <strong>Modified DH（改进型 DH，也称 Craig DH）</strong>。
+  </p>
+
+  <div class="table-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>对比维度</th>
+          <th>经典标准型 (Standard DH / 1955)</th>
+          <th>Craig 改进型 (Modified DH / 1986)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>原点与坐标系位置</strong></td>
+          <td>坐标系 $\{i\}$ 固定在连杆 $i$ 的<strong>末端</strong>（放在关节 $i+1$ 处）</td>
+          <td>坐标系 $\{i\}$ 固定在连杆 $i$ 的<strong>始端</strong>（放在关节 $i$ 处）</td>
+        </tr>
+        <tr>
+          <td><strong>参数下标</strong></td>
+          <td>$a_i, \alpha_i, d_i, \theta_i$</td>
+          <td>$a_{i-1}, \alpha_{i-1}, d_i, \theta_i$</td>
+        </tr>
+        <tr>
+          <td><strong>变换动作顺序</strong></td>
+          <td><strong>先 $Z$ 后 $X$</strong>：<br>绕 $Z$ 转 $\to$ 沿 $Z$ 走 $\to$ 沿 $X$ 走 $\to$ 绕 $X$ 转</td>
+          <td><strong>先 $X$ 后 $Z$</strong>：<br>绕 $X$ 转 $\to$ 沿 $X$ 走 $\to$ 绕 $Z$ 转 $\to$ 沿 $Z$ 走</td>
+        </tr>
+        <tr>
+          <td><strong>单段齐次矩阵通式</strong></td>
+          <td>
+            $${}^{i-1}T_i = R_z(\theta_i) D_z(d_i) D_x(a_i) R_x(\alpha_i)$$
+          </td>
+          <td>
+            $${}^{i-1}_i T = R_x(\alpha_{i-1}) D_x(a_{i-1}) R_z(\theta_i) D_z(d_i)$$
+          </td>
+        </tr>
+        <tr>
+          <td><strong>最大痛点 / 优势</strong></td>
+          <td>推导运动学符合传统习惯，但推导动力学时连杆质量、质心与坐标系下标错位。</td>
+          <td>连杆 $i$ 的质量、惯量、受力与坐标系 $\{i\}$ <strong>完全同属一个下标</strong>，动力学推导极度流畅！</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="tip">
+    <strong>为什么 John Craig 偏要特立独行搞个 Modified DH？</strong><br>
+    Craig 在 1986 年写《机器人学导论》时，深刻地意识到：<strong>学运动学只是前菜，动力学（第 6 章的递归 Newton-Euler 动力学算法）才是真正的硬仗！</strong><br>
+    在原版 Standard DH 中，第 $i$ 根连杆的坐标系 $\{i\}$ 竟然画在下一根连杆的关节上！这导致在推导牛顿-欧拉方程时：外推线速度用一个下标，内推关节力矩又是另一个下标，质心坐标还要倒退一级，公式里全是错位下标，极易推错。<br>
+    Craig 索性将坐标系移到连杆的始端（即关节 $i$ 处），让<strong>连杆编号、关节编号、质心编号与坐标系编号 100% 严格对齐</strong>。数据流顺流而下，逻辑极其工整！
+  </div>
+
+  <!-- 第三章 -->
+  <h2>三、DH 的阿喀琉斯之踵：平行轴奇异性与标定灾难</h2>
+  <p>
+    既然 DH 4 参数如此简洁优美，为什么现代工业有时对它“又爱又恨”？
+  </p>
+
+  <div class="danger-box">
+    <strong style="color: var(--danger); font-size: 1.05rem;">致命死穴：相邻两轴平行时的几何奇异性（Singularity）</strong>
+    <p style="margin: 8px 0 4px;">
+      回顾 §3.4 的公垂线规则：两轴既不平行也不相交时，空间最短公垂线是<strong>唯一存在且确定</strong>的。
+      然而，当两轴<strong>严格平行</strong>时（比如常见六轴机械臂的大臂关节与小臂关节），两平行线之间的公垂线有<strong>无数条</strong>！
+    </p>
+    <p style="margin: 4px 0;">
+      在理论设计中，我们可以任选一条固定下来；但是在<strong>现实工厂制造中，没有任何机床能加工出夹角绝对为 $0.0000^\circ$ 的平行轴</strong>！
+    </p>
+  </div>
+
+  <h3>为什么会导致工业机器人标定崩溃？</h3>
+  <p>
+    在机器人出厂高精度几何标定（Robot Calibration）中，工程师需要通过激光跟踪仪测量末端位置，用非线性优化算法辨识出机械臂各连杆的真实加工几何误差：
+  </p>
+  <ul>
+    <li>设两根轴原本设计为平行（夹角为 0）；</li>
+    <li>由于机加工微小公差，装配后两轴之间产生了极其微小的微倾角 $\Delta\alpha = 0.001^\circ$；</li>
+    <li>数学上，两轴一旦从“严格平行”变成“微小错开”，它们之间的<strong>唯一最短公垂线位置，会在轴向上瞬间发生几十厘米的剧烈跳变！</strong></li>
+  </ul>
+  <p>
+    这种公垂线位置对微小角度误差的极端敏感性，使得在数学优化中，末端位姿对 DH 参数的偏导数（参数辨识雅可比矩阵）直接<strong>趋于无穷大（数值爆炸）</strong>！最小二乘辨识算法当场发散、矩阵病态。
+  </p>
+  <p class="muted">
+    历史注记：为了弥补 DH 的这一致命缺陷，Hayati 和 Mirmirani 在 1985 年提出了改进模型（在平行轴之间临时补充一个绕 $Y$ 轴的偏角 $\beta$），但这实质上破坏了 4 参数的纯粹性。
+  </p>
+
+  <!-- 第四章 -->
+  <h2>四、现代工业的抉择：ROS 2 URDF 与旋量理论（PoE）</h2>
+
+  <h3>1. ROS 2 / URDF 的务实妥协：回归 6 自由度</h3>
+  <p>
+    当你进入现代开源机器人操作系统（ROS / ROS 2）时，打开一个机械臂的 <code>.urdf</code> 描述文件，你会惊讶地发现：<strong>里面根本没有 $a, \alpha, d, \theta$ 这 4 个参数！</strong>
+  </p>
+  <p>每个关节（Joint）的父子连杆相对变换，全部是用最直白、最通用的 <strong>6 个自由度</strong> 描述的：</p>
+  <div class="code-snippet">
+&lt;joint name="joint_2" type="revolute"&gt;
+  &lt;parent link="link_1"/&gt;
+  &lt;child link="link_2"/&gt;
+  &lt;!-- 3 个平移 (x, y, z) + 3 个旋转姿态角 (Roll, Pitch, Yaw) --&gt;
+  &lt;origin xyz="0.0 0.15 0.45" rpy="0.0 1.5707963 0.0"/&gt;
+  &lt;axis xyz="0 0 1"/&gt;
+&lt;/joint&gt;
+  </div>
+  <p>
+    <strong>为什么现代工程宁可多用 2 个参数？</strong>
+    因为在现代算力充沛的时代，多存两个浮点数、多做两次乘法对于 CPU 来说只需微秒级时间；
+    而 6 自由度表示（笛卡尔平移矢量 + 姿态四元数/欧拉角）在空间中具有全局连续性，<strong>完全不存在任何由于“人为挑选公垂线”而带来的奇异性跳变</strong>！无论轴是否平行，误差都是平滑的，几何标定极其稳定。
+  </p>
+
+  <h3>2. 高阶机器人学的新王：旋量理论指数积公式 (PoE)</h3>
+  <p>
+    在近二十年兴起的高阶机器人学教材中（如 Murray 的《A Mathematical Introduction to Robotic Manipulation》以及 Lynch &amp; Park 的《Modern Robotics》），开始广泛采用基于李群与李代数的<strong>指数积公式（Product of Exponentials, PoE）</strong>：
+  </p>
+  <div class="derive">
+    $$T(q) = e^{\hat\xi_1 q_1} e^{\hat\xi_2 q_2} \cdots e^{\hat\xi_n q_n} M$$
+  </div>
+  <ul>
+    <li><strong>零建系负担</strong>：完全不需要像 DH 那样为机械臂的每一节骨头小心翼翼地定原点、找公垂线；</li>
+    <li><strong>全局基座统一</strong>：所有关节的旋量坐标 $\xi_i = (\omega_i, v_i)$ 直接在基座坐标系或末端坐标系下一次性测量；</li>
+    <li><strong>彻底消灭平行轴奇异性</strong>：两个关节轴无论是垂直、平行、相交还是任意倾斜，旋量坐标全部平滑过渡，毫无数学奇点。</li>
+  </ul>
+
+  <!-- 总结卡片 -->
+  <div class="card" style="border: 1px solid var(--accent); background: rgba(2, 132, 199, 0.06);">
+    <strong style="color: var(--primary); font-size: 1.1rem;">总结：回望 Craig §3.5 开篇的第一句话</strong>
+    <p style="margin: 8px 0 0;">
+      现在你终于可以彻底读懂教材第 53 页开篇那句话的千钧分量：
+      <em>“我们希望建立坐标系 $\{i\}$ 相对于坐标系 $\{i-1\}$ 的变换。一般这个变换是由 4 个连杆参数构成的函数。对任意给定的机器人，这个变换是只有一个变量的函数，另外 3 个参数由机械系统确定。”</em>
+    </p>
+    <p style="margin: 8px 0 0; color: var(--fg);">
+      它是在告诉你：我们通过巧妙的几何公垂线约束，把原本 6 维的空间自由度压缩到了理论极限的 4 个；对于实物机械臂，杆长 $a$、扭角 $\alpha$、偏距 $d$ 是加工定死的 3 个物理常数，整个 $4\times 4$ 矩阵就是电机转角 $\theta_i$ 这 1 个变量的函数。
+      现在，我们可以放心地把这 4 个动作按顺序乘起来，得到正运动学的通用大矩阵了！
+    </p>
+  </div>
+
+  <!-- 🎯 本节核心目的自检 -->
+  <h2>🎯 本节核心目的自检：抓住本质，不被推导淹没</h2>
+
+  <details class="check-question">
+    <summary>1. 任意两个空间坐标系的相对位姿原本需要 6 个参数，为什么 DH 只需要 4 个？</summary>
+    <p>
+      因为 DH 建系时强加了两个苛刻的几何约束：一是 $x_i$ 轴必须垂直于上一根关节轴 $z_{i-1}$（点积为 0，消灭 1 个旋转自由度）；二是 $x_i$ 轴必须与 $z_{i-1}$ 轴共面相交（公垂线打在轴心，消灭 1 个平移自由度）。$6 - 2 = 4$，因此 4 个参数足以唯一、充分且必要地描述开链连杆的相对位姿。
+    </p>
+  </details>
+
+  <details class="check-question">
+    <summary>2. Standard DH 和 Modified DH（Craig 改进型）最根本的区别在哪里？为什么 Craig 坚持要改？</summary>
+    <p>
+      最根本区别在于坐标系绑定的位置与变换动作顺序：Standard DH 将坐标系 $\{i\}$ 放在连杆末端，先沿 $Z$ 变换再沿 $X$ 变换；Craig Modified DH 将坐标系 $\{i\}$ 放在连杆始端（关节 $i$ 处），先沿 $X$ 变换再沿 $Z$ 变换。Craig 坚持改进是为了后面的动力学推导（第 6 章 Newton-Euler 动力学）：把坐标系 $\{i\}$ 放在始端后，连杆编号、质量惯量编号和受力编号完全同属一个下标，动力学递归的数据流顺流而下，逻辑极其工整。
+    </p>
+  </details>
+
+  <details class="check-question">
+    <summary>3. 为什么当机械臂相邻两根轴平行时，DH 参数会导致几何标定算法崩溃？</summary>
+    <p>
+      两轴严格平行时公垂线有无数条。物理加工中若产生微小夹角误差（如 $0.001^\circ$），两轴在数学上变成空间微小错开，它们唯一的公垂线位置会在轴向上瞬间产生数十厘米的剧烈跳变。这种对微小装配公差的极端不连续性，会导致在非线性优化标定算法中，位姿对 DH 参数的偏导数（辨识雅可比）趋向无穷大（数值爆炸），导致辨识算法发散。
+    </p>
+  </details>
+
+  <details class="check-question">
+    <summary>4. 为什么现代 ROS 2 的 URDF 描述机械臂时普遍不用 DH 参数，而是用 6 自由度？</summary>
+    <p>
+      现代计算机算力非常充沛，无需为了节省 2 个参数而承受建系的人为约束；URDF 采用 6 自由度（3 笛卡尔平移 <code>xyz</code> + 3 姿态欧拉角 <code>rpy</code>）在空间中完全连续，没有任何由于人为挑选公垂线而导致的奇异性跳变，在几何标定、碰撞检测和逆解求解中都更加稳定可靠。
+    </p>
+  </details>
+
+  <details class="check-question">
+    <summary>5. 对于一台制造完毕的六轴机械臂，单个连杆的 $4\times 4$ 齐次变换矩阵本质上是几个自变量的函数？</summary>
+    <p>
+      本质上是 1 个自变量的单变量函数！因为连杆长度 $a_{i-1}$ 和扭转角 $\alpha_{i-1}$ 是机械加工定死的物理常数；对于转动关节，偏距 $d_i$ 也是出厂装配定死的常数。整张矩阵中仅有随电机实时旋转的关节角度 $\theta_i$ 是唯一的自变量（$T = T(\theta_i)$）。
+    </p>
+  </details>
+
+  <div style="margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+    <a href="08b-craig-frame-assignment.html">← 回看 §3.4 连杆坐标系建立（三维交互图）</a>
+    <a href="09-dh-single-link-transform.html" style="font-weight: 700;">继续学习 §3.5 连杆变换矩阵推导与连乘 →</a>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Craig 3.4：连杆坐标系怎样一步步建立</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js"}}</script>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1120;--fg:#f8fafc;--muted:#b9c6d7;--line:#35465c;--blue:#59c6ff;--green:#7ae6aa;--orange:#ffbc59;--violet:#c8a8ff}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif;letter-spacing:0}
+    main{max-width:1160px;margin:auto;padding:24px 20px 64px}a{color:#75d7ff}h1{font-size:2rem;line-height:1.3;margin:14px 0 10px}h2{font-size:1.25rem;margin:28px 0 8px}.eyebrow{color:var(--muted);font-size:.9rem}.intro{max-width:82ch;margin:0 0 18px}
+    .stage{position:relative;width:100%;height:min(68vh,680px);min-height:480px;background:#131d2b;border-block:1px solid var(--line)}.stage canvas{display:block;width:100%;height:100%;touch-action:none}.stage-hint{position:absolute;left:16px;top:12px;color:var(--muted);background:rgba(11,17,32,.82);padding:3px 8px;font-size:.88rem;pointer-events:none}
+    .legend{display:flex;flex-wrap:wrap;gap:8px 18px;padding:12px 0;color:var(--muted);font-size:.92rem}.legend span{display:flex;align-items:center;gap:7px}.swatch{width:16px;height:4px;background:var(--color);display:inline-block}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:14px 0;border-block:1px solid var(--line)}.modes{display:inline-flex;flex-wrap:wrap;gap:0}.modes button{font:inherit;color:var(--fg);background:#182637;border:1px solid #52718b;padding:8px 14px;cursor:pointer}.modes button+button{border-left:0}.modes button:first-child{border-radius:6px 0 0 6px}.modes button:last-child{border-radius:0 6px 6px 0}.modes button[aria-pressed=true]{background:#1d6282;border-color:#52bde8;font-weight:700}.flip{display:flex;align-items:center;gap:8px;color:var(--fg);cursor:pointer}.flip input{width:18px;height:18px;accent-color:#59c6ff}.flip[hidden]{display:none}
+    .summary{margin:16px 0 0;font-weight:600}.formula{margin:18px 0;overflow:auto}.note{color:var(--muted);font-size:.94rem}.next{margin-top:24px;padding-top:16px;border-top:1px solid var(--line)}
+    .steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin:18px 0 12px}.steps button{min-height:48px;padding:5px 6px;color:var(--fg);background:#182637;border:1px solid #52718b;border-radius:4px;cursor:pointer;font:inherit;font-size:.88rem}.steps button[aria-current=step]{background:#1d6282;border-color:#52bde8;font-weight:700}.step-explain{min-height:5.5em;padding:12px 0;border-block:1px solid var(--line)}.step-explain strong{color:var(--blue)}.step-explain p{margin:3px 0}.step-nav{display:flex;justify-content:space-between;gap:12px;margin:12px 0 18px}.step-nav button{font:inherit;color:var(--fg);background:#182637;border:1px solid #52718b;border-radius:4px;padding:6px 13px;cursor:pointer}.step-nav button:disabled{opacity:.45;cursor:default}
+    .content-band{border-top:1px solid var(--line);margin-top:28px;padding-top:4px}.content-band p{margin:8px 0 12px}.parameter-table{width:100%;border-collapse:collapse}.parameter-table th,.parameter-table td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}.parameter-table th{color:var(--green);white-space:nowrap}.parameter-table td:first-child{white-space:nowrap}.case-list{padding-left:1.4em}.case-list li{margin:8px 0}.check-question{border-bottom:1px solid var(--line);padding:10px 0}.check-question summary{cursor:pointer;font-weight:600}.check-question p{margin:8px 0 0;color:var(--muted)}
+    @media(max-width:720px){main{padding:16px 12px 48px}h1{font-size:1.65rem}.stage{height:55vh;min-height:390px}.modes{width:100%}.modes button{flex:1;padding:8px 6px}.legend{gap:5px 12px}.steps{grid-template-columns:repeat(3,minmax(0,1fr))}.step-explain{min-height:8em}.parameter-table th,.parameter-table td{padding:8px 6px;font-size:.9rem}}
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow"><a href="00-progress.html">第三章目录</a> / <a href="08a-craig-link-connection.html">§3.3 偏距与关节角</a></p>
+  <h1>Craig §3.4：连杆坐标系怎样一步步建立</h1>
+  <p class="intro">对照 Craig §3.4、图 3-5（书页 48–49）。先认关节轴，给中间连杆建系，再读四个 DH 参数和首末端约定。灰色机械手是本站自制的教学结构，不是教材原图或真机。</p>
+
+  <section aria-labelledby="before-title">
+    <h2 id="before-title">动手前，先认三个对象</h2>
+    <p><strong>连杆坐标系 <span data-tex="\{i\}"></span>：</strong>固定在连杆 <span data-tex="i"></span> 上的一个原点和三根正交单位轴，随连杆运动。建系就是决定它的位置与朝向。</p>
+    <p><strong>关节轴：</strong>转动关节绕它转，移动关节沿它滑；轴线穿过关节中心，不由外壳或连杆外形决定。</p>
+    <p><strong>为什么看两根：</strong>建 <span data-tex="\{i\}"></span> 时，先找相邻的轴 <span data-tex="i"></span>、<span data-tex="i+1"></span>，延长并找公垂线，才能确定原点和 <span data-tex="x_i"></span> 的方向。</p>
+  </section>
+
+  <h2>先按书页 49 的六步走</h2>
+  <p>图中白、绿线对应中间与右侧关节。先看“错开”，再切“相交”或“平行”；<strong>它们是三种不同的局部机构，不是同一台机械手的三个姿态</strong>。</p>
+  <div class="steps" role="group" aria-label="Craig 3.4 建系步骤">
+    <button type="button" data-step="1" aria-current="step">1 找轴</button><button type="button" data-step="2">2 取原点</button><button type="button" data-step="3">3 定 z</button><button type="button" data-step="4">4 定 x</button><button type="button" data-step="5">5 补 y</button><button type="button" data-step="6">6 首末端</button>
+  </div>
+  <div id="step-explain" class="step-explain" aria-live="polite"></div>
+  <div class="step-nav"><button id="prev-step" type="button">上一步</button><button id="next-step" type="button">下一步</button></div>
+
+  <div id="scene" class="stage" role="img" aria-label="Craig 3.4 可旋转三维机械手结构，显示底座、连杆、关节实体及穿过关节中心的轴线，并逐步显示公垂线、原点和坐标轴"></div>
+  <div class="legend" aria-hidden="true">
+    <span><i class="swatch" style="--color:#93a4b5"></i>底座、连杆与关节外壳</span>
+    <span><i class="swatch" style="--color:#e7edf4"></i>关节轴 i（随后定为 zᵢ）</span>
+    <span><i class="swatch" style="--color:#7ae6aa"></i>关节轴 i+1 / zᵢ₊₁</span>
+    <span><i class="swatch" style="--color:#ffbc59"></i>两轴公垂线（线段长 aᵢ）</span>
+    <span><i class="swatch" style="--color:#59c6ff"></i>坐标轴 xᵢ</span>
+    <span><i class="swatch" style="--color:#c8a8ff"></i>坐标轴 yᵢ</span>
+  </div>
+  <div class="toolbar">
+    <div class="modes" role="group" aria-label="相邻关节轴关系">
+      <button type="button" data-case="skew" aria-pressed="true">错开</button><button type="button" data-case="intersect" aria-pressed="false">相交：aᵢ = 0</button><button type="button" data-case="parallel" aria-pressed="false">平行</button>
+    </div>
+    <label class="flip"><input id="show-robot" type="checkbox" checked>显示机械手结构</label>
+    <label id="flip-label" class="flip" hidden><input id="flip" type="checkbox">翻转 xᵢ 的方向</label>
+  </div>
+  <p id="state" class="summary" aria-live="polite"></p>
+  <p class="note">拖动图面旋转视角，滚轮或双指缩放。勾选结构看轴线如何穿过关节；隐藏结构再看纯几何。结构只是示意三关节运动链，关节的外壳形状不决定转轴方向；第 6 步的首末端按下方约定选取。</p>
+
+  <section class="content-band" aria-labelledby="middle-title">
+    <h2 id="middle-title">放好坐标系后，再读图 3-5 的前后关系</h2>
+    <p>刚才用轴 <span data-tex="i"></span> 与 <span data-tex="i+1"></span> 得到的是本条公垂线 <span data-tex="a_i"></span>。图 3-5 还画了轴 <span data-tex="i-1"></span> 与 <span data-tex="i"></span> 之间的<strong>前一条</strong>公垂线 <span data-tex="a_{i-1}"></span>。它们在轴 <span data-tex="i"></span> 上的交点可能不重合：沿轴 <span data-tex="i"></span> 从前一交点走到本次原点 <span data-tex="O_i"></span>，有符号距离是 <span data-tex="d_i"></span>；绕同一根轴从前一条公垂线转到本条，角度是 <span data-tex="\theta_i"></span>。想在三维图中同时看到这两条线，可回看 <a href="08a-craig-link-connection.html">§3.3 图 3-4 的三维图</a>。</p>
+    <p>再对照上面的“相交”和“平行”按钮理解建系不唯一：相交时 <span data-tex="a_i=0"></span> 是<strong>距离</strong>为零，不能把单位方向 <span data-tex="\hat x_i"></span> 写成零向量；它垂直两轴所在平面，正反可选。平行时能选不同的公垂线，原点沿轴的位置也可以另选，常让某个 <span data-tex="d_i=0"></span>。选择可以不同，但一旦选定就要在后续计算中保持一致。</p>
+  </section>
+
+  <section class="content-band" aria-labelledby="ends-title">
+    <h2 id="ends-title">首末端为什么要单独约定：捅破教材的“偷懒技巧”</h2>
+    
+    <div style="background:var(--card-sub); border:1px solid var(--line); border-radius:8px; padding:16px 18px; margin:16px 0;">
+      <strong style="color:var(--orange); font-size:1.05rem;">核心痛点：为什么前 5 步好好的，头尾非要“单独处理”？</strong>
+      <p style="margin:8px 0 4px;">前 1～5 步的命脉全在<strong>“找相邻两根轴做公垂线”</strong>：中间连杆被前后两根轴夹住，公垂线唯一，坐标系没得选。</p>
+      <p style="margin:4px 0;">但在整台机器人的两端：</p>
+      <ul style="margin:4px 0 8px 20px; padding:0;">
+        <li><strong>基座（连杆 0）</strong>：上面只有关节轴 1，<strong>屁股后面根本没有“轴 0”</strong>；</li>
+        <li><strong>末端（连杆 N）</strong>：上面只有关节轴 N，<strong>前面也根本没有“轴 N+1”</strong>。</li>
+      </ul>
+      <p style="margin:4px 0; color:var(--blue);"><strong>缺了一根轴，公垂线直接“缺货”！</strong>这就意味着数学上没有唯一约束，<strong>首尾坐标系爱怎么放就怎么放，你有完全的自由度</strong>。工程师绝不瞎放，原则只有一个：<strong>怎么让后面的变换矩阵里全是 0、算起来最省事，就怎么放！</strong></p>
+    </div>
+
+    <ol class="case-list">
+      <li>
+        <strong>基座坐标系 <span data-tex="\{0\}"></span>（大白话：零位盖章法）：</strong>
+        <p style="margin:4px 0;">既然 <span data-tex="\{0\}"></span> 随便定，那我们最希望从 <span data-tex="\{0\}"></span> 到 <span data-tex="\{1\}"></span> 的初始变换直接是个<strong>单位阵 <span data-tex="I"></span></strong>，没有任何多余偏置。</p>
+        <p style="margin:4px 0;"><strong>操作方法：</strong>趁关节 1 在零位还没动（复位状态），<strong>把坐标系 <span data-tex="\{0\}"></span> 像复印机盖章一样，直接完整重合在 <span data-tex="\{1\}"></span> 上！</strong></p>
+        <p style="margin:4px 0; color:var(--muted);">这样一来，在零位时两原点完全重合、三轴完全平行：连杆长度 <span data-tex="a_0 = 0"></span>、扭转角 <span data-tex="\alpha_0 = 0"></span>；沿轴无多余错开，偏距 <span data-tex="d_1 = 0"></span>（若关节 1 为移动关节，则初始转角 <span data-tex="\theta_1 = 0"></span>）。三个参数被一口气<strong>强行凑成了 0</strong>，矩阵计算最干净。</p>
+      </li>
+      <li>
+        <strong>末端坐标系 <span data-tex="\{N\}"></span>（大白话：顺着指、就近放）：</strong>
+        <p style="margin:4px 0;">手爪前面没有轴 <span data-tex="N+1"></span>。唯一的硬性规定是：<span data-tex="\hat z_N"></span> 必须沿着最后一个转轴（关节轴 N）。剩下的原点和 <span data-tex="\hat x_N"></span> 朝向<strong>完全由你决定</strong>：</p>
+        <p style="margin:4px 0;"><strong>怎么放最爽？</strong></p>
+        <ul style="margin:4px 0 8px 20px; padding:0;">
+          <li>让 <span data-tex="\hat x_N"></span> 的朝向顺着前一个 <span data-tex="\hat x_{N-1}"></span>（零位时两轴平行），这样夹角 <span data-tex="\theta_N = 0"></span>；</li>
+          <li>把原点 <span data-tex="O_N"></span> 选在轴线上让沿轴偏距为零的位置（使 <span data-tex="d_N = 0"></span>），或者直接放到工具尖端（TCP 点）便于描述工件。</li>
+        </ul>
+      </li>
+    </ol>
+    <p class="note" style="border-left:3px solid var(--orange); padding-left:10px; margin-top:12px;"><strong>记住一句话：</strong>中间连杆是“被两根轴锁死的”（没得选）；首末两端是“缺了邻轴没人管你的”（随便选）。所谓第 6 步，就是工程师在挑一个<strong>能把最多参数强行凑成 0、让公式最简单</strong>的位置来偷懒！</p>
+  </section>
+
+  <section class="content-band" aria-labelledby="parameters-title">
+    <h2 id="parameters-title">四个参数怎样从建好的坐标系读出来</h2>
+    <p>对应 Craig §3.4 书页 49。先辨认下标：<span data-tex="a_i,\alpha_i"></span> 比较轴 <span data-tex="i"></span> 和 <span data-tex="i+1"></span>；<span data-tex="d_i,\theta_i"></span> 比较前后两条 <span data-tex="x"></span> 轴，且都沿或绕轴 <span data-tex="i"></span> 测量。</p>
+    <table class="parameter-table"><thead><tr><th>参数</th><th>沿 / 绕哪根轴</th><th>从哪里到哪里</th></tr></thead><tbody>
+      <tr><td><span data-tex="a_i"></span></td><td>沿 <span data-tex="\hat x_i"></span>，长度</td><td>从轴 <span data-tex="i"></span> 到轴 <span data-tex="i+1"></span>；通常取非负，图中橙色公垂线线段。</td></tr>
+      <tr><td><span data-tex="\alpha_i"></span></td><td>绕 <span data-tex="\hat x_i"></span>，有符号角</td><td>从 <span data-tex="\hat z_i"></span> 转到 <span data-tex="\hat z_{i+1}"></span>；按右手定则定正负。相交模式翻转蓝轴，可看到角度符号反转。</td></tr>
+      <tr><td><span data-tex="d_i"></span></td><td>沿 <span data-tex="\hat z_i"></span>，有符号距离</td><td>从前一条 <span data-tex="x_{i-1}"></span> 到本条 <span data-tex="x_i"></span>，也就是它们与轴 <span data-tex="i"></span> 的两个交点之间；见图 3-5 和<a href="08a-craig-link-connection.html">前页三维图</a>。</td></tr>
+      <tr><td><span data-tex="\theta_i"></span></td><td>绕 <span data-tex="\hat z_i"></span>，有符号角</td><td>从 <span data-tex="\hat x_{i-1}"></span> 转到 <span data-tex="\hat x_i"></span>；见图 3-5 和<a href="08a-craig-link-connection.html">前页三维图</a>。</td></tr>
+    </tbody></table>
+    <p>转动关节的关节变量是 <span data-tex="\theta_i"></span>，移动关节的关节变量是 <span data-tex="d_i"></span>；其余参数由连杆几何和建系选择确定。这里先会<strong>找轴、放系、读参数</strong>，再进入书里的 §3.5 变换矩阵。</p>
+  </section>
+  <p class="note">本页严格按 Craig 图 3-5 的编号；站内既有 DH 四步动画采用另一套建系/编号约定，下标和矩阵顺序不能直接混用。</p>
+  <section class="content-band" aria-labelledby="check-title">
+    <h2 id="check-title">读完先自检</h2>
+    <details class="check-question"><summary>1. 从机械手结构中怎么找关节轴，随后怎样确定 Oᵢ？</summary><p>关节轴穿过关节的转动或滑动中心，不由连杆外形决定。找出相邻的轴 i、i+1 后，取两轴的公垂线；它与轴 i 的交点是 Oᵢ。两轴相交时直接用交点，平行时需说明选哪一条公垂线。</p></details>
+    <details class="check-question"><summary>2. 两轴相交，aᵢ = 0，为什么 xᵢ 不能也取零？</summary><p>aᵢ 是距离，等于零；xᵢ 是坐标轴的单位方向，取垂直于两轴所在平面的方向，并可选正反。</p></details>
+    <details class="check-question"><summary>3. aᵢ、αᵢ 与 dᵢ、θᵢ 分别比较哪两样东西？</summary><p>前两者比较关节轴 i 与 i+1：沿 / 绕 xᵢ。后两者比较前后两条 x 轴：沿 / 绕 zᵢ。</p></details>
+    <details class="check-question"><summary>4. 为什么书页 49 还要为基座和末端单独补一步？</summary><p>因为中间连杆靠前后两轴做公垂线（受唯一约束锁死）；而基座后面没有“轴 0”，末端前面没有“轴 N+1”，公垂线缺货，存在摆放自由度。单独约定的本质不是物理限制，而是工程师的“偷懒技巧”——趁关节处于零位时把基座 {0} 直接重叠盖在 {1} 上，把 a₀、α₀、d₁ 等参数一口气强行凑成 0，让变换矩阵最简单。</p></details>
+  </section>
+  <p class="next">按六步完成一遍后，再继续书里的 §3.5；若 <span data-tex="d_i,\theta_i"></span> 还抽象，先回看 <a href="08a-craig-link-connection.html">§3.3 的三维图</a>。</p>
+  <div style="background:rgba(56,189,248,0.08); border:1px solid #38bdf8; border-radius:8px; padding:12px 16px; margin-top:16px;">
+    💡 <strong>深度延伸：</strong>为什么相邻关节坐标系只要 4 个参数就能完全确定？空间 6 自由度如何被两条约束消减？请查阅专题支撑：<a href="ref-dh-parameters-reduction-and-conventions.html" style="color:#38bdf8; font-weight:bold;">DH 参数降维本质与门派之争（SDH vs MDH / 奇异性 / URDF）</a>。
+  </div>
+</main>
+<script>
+  addEventListener('load',()=>{if(!window.katex)return;document.querySelectorAll('[data-tex]').forEach(el=>katex.render(el.dataset.tex,el,{displayMode:el.classList.contains('formula'),throwOnError:false}))});
+</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/controls/OrbitControls.js';
+
+const host=document.getElementById('scene'),scene=new THREE.Scene();scene.background=new THREE.Color('#131d2b');
+const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.up.set(0,0,1);camera.position.set(5.5,-4.3,5.2);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));host.appendChild(renderer.domElement);
+const orbit=new OrbitControls(camera,renderer.domElement);orbit.target.set(.2,0,0);orbit.enableDamping=true;orbit.minDistance=3.5;orbit.maxDistance=18;
+scene.add(new THREE.HemisphereLight(0xffffff,0x344052,2.1));const lamp=new THREE.DirectionalLight(0xffffff,1.3);lamp.position.set(3,-4,7);scene.add(lamp);
+const grid=new THREE.GridHelper(8,8,0x344a59,0x263847);grid.rotation.x=Math.PI/2;grid.position.z=-2.1;scene.add(grid);
+const model=new THREE.Group();scene.add(model);const C={current:0xe7edf4,next:0x7ae6aa,length:0xffbc59,x:0x59c6ff,y:0xc8a8ff};let mode='skew',step=1;
+function mat(color,opacity=1){return new THREE.MeshBasicMaterial({color,transparent:opacity<1,opacity,side:THREE.DoubleSide,depthWrite:opacity===1})}
+function shellMat(color,opacity){return new THREE.MeshStandardMaterial({color,roughness:.52,metalness:.24,transparent:true,opacity,depthWrite:false,side:THREE.DoubleSide})}
+function segment(a,b,color,r=.03,opacity=1){const d=b.clone().sub(a),mesh=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),12),mat(color,opacity));mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());model.add(mesh)}
+function bodyBar(a,b,r,color,opacity){const d=b.clone().sub(a);if(d.length()<.01)return;const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),20),shellMat(color,opacity));mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());model.add(mesh)}
+function housing(center,axis,r=.34){const d=axis.clone().normalize(),half=d.clone().multiplyScalar(.34);bodyBar(center.clone().sub(half),center.clone().add(half),r,0x9baabb,.53);for(const sign of [-1,1]){const p=center.clone().addScaledVector(d,sign*.32),ring=new THREE.Mesh(new THREE.CylinderGeometry(r+.045,r+.045,.07,24),shellMat(0xc9d4dc,.72));ring.position.copy(p);ring.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d);model.add(ring)}}
+function robotBody(origin,foot,nextDir,intersect){if(!document.getElementById('show-robot').checked)return;
+  const upstream=new THREE.Vector3(-1.65,0,0),z=new THREE.Vector3(0,0,1);
+  const plate=new THREE.Mesh(new THREE.BoxGeometry(1.05,.95,.13),shellMat(0x657688,.85));plate.position.set(upstream.x,0,-1.78);model.add(plate);
+  bodyBar(new THREE.Vector3(upstream.x,0,-1.71),new THREE.Vector3(upstream.x,0,-.34),.24,0x8293a5,.7);
+  for(const side of [-1,1]){
+    const shift=new THREE.Vector3(0,side*.17,.06);
+    bodyBar(upstream.clone().add(shift),origin.clone().add(shift),.12,0x8b9aa9,.52);
+    if(!intersect)bodyBar(origin.clone().add(shift),foot.clone().add(shift),.12,0x8b9aa9,.52);
+  }
+  housing(upstream,z,.3);housing(origin,z);housing(foot,nextDir,.34);
+  if(intersect){const wrist=new THREE.Mesh(new THREE.SphereGeometry(.43,24,16),shellMat(0x8b9aa9,.22));wrist.position.copy(origin);model.add(wrist)}
+  if(step===1){label('上游关节',upstream.clone().add(new THREE.Vector3(-.2,-.1,.7)),'#cbd6df',.68);if(!intersect&&host.clientWidth>=600)label('连杆 i',new THREE.Vector3(1,.48,.2),'#cbd6df',.7);label('底座',new THREE.Vector3(upstream.x,-.6,-1.62),'#cbd6df',.67)}
+}
+function arrow(a,b,color){const d=b.clone().sub(a),len=d.length(),tip=.2,body=b.clone().addScaledVector(d.clone().normalize(),-tip);segment(a,body,color,.045);const cone=new THREE.Mesh(new THREE.ConeGeometry(.105,tip,16),mat(color));cone.position.copy(body).lerp(b,.5);cone.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());model.add(cone)}
+function dot(p,color,r=.09){const m=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),mat(color));m.position.copy(p);m.material.depthTest=false;m.renderOrder=3;model.add(m)}
+function label(t,p,color='#ffffff',scale=1){const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');x.font='700 55px system-ui';x.textAlign='center';x.lineWidth=9;x.strokeStyle='rgba(9,16,27,.95)';x.strokeText(t,256,82);x.fillStyle=color;x.fillText(t,256,82);const texture=new THREE.CanvasTexture(c),s=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthTest:false}));s.scale.set(2.2*scale,.55*scale,1);s.position.copy(p);model.add(s)}
+function clear(){for(const o of model.children){if(o.geometry)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms){if(m.map)m.map.dispose();m.dispose()}}}model.clear()}
+function draw(){clear();const intersect=mode==='intersect',parallel=mode==='parallel',flip=document.getElementById('flip').checked,xSign=intersect&&flip?-1:1,origin=new THREE.Vector3(0,0,0),foot=new THREE.Vector3(intersect?0:2,0,0),x=new THREE.Vector3(xSign,0,0),y=new THREE.Vector3(0,xSign,0),tilt=55*Math.PI/180,nextDir=new THREE.Vector3(0,parallel?0:-Math.sin(tilt),parallel?1:Math.cos(tilt));
+  robotBody(origin,foot,nextDir,intersect);
+  const currentStart=new THREE.Vector3(0,0,-1.8),currentEnd=new THREE.Vector3(0,0,2.05);
+  if(step>=3)arrow(currentStart,currentEnd,C.current);else segment(currentStart,currentEnd,C.current,.027);
+  label(step>=3?'zᵢ / 轴 i':'关节轴 i',new THREE.Vector3(-.38,-.16,2.2),'#f8fafc',.8);
+  const nextStart=foot.clone().addScaledVector(nextDir,-1.8),nextEnd=foot.clone().addScaledVector(nextDir,1.8);
+  const nextLabel=intersect?nextStart.clone().add(new THREE.Vector3(.35,0,.65)):host.clientWidth<600?foot.clone().add(new THREE.Vector3(0,0,.9)):nextStart.clone().add(new THREE.Vector3(.45,0,-.22));
+  segment(nextStart,nextEnd,C.next,.035);label('关节轴 i+1',nextLabel,'#a7f3c4',host.clientWidth<600?.7:.78);
+  if(step>=2){
+    if(intersect){const plane=new THREE.Mesh(new THREE.PlaneGeometry(3.6,3.7),mat(0x7ae6aa,.13));plane.rotation.y=Math.PI/2;model.add(plane);dot(origin,C.length,.115);label('aᵢ = 0',new THREE.Vector3(-.8,0,-.42),'#ffd28a',.78)}
+    else{segment(origin,foot,C.length,.048);dot(foot,C.length,.085);label('公垂线 aᵢ',new THREE.Vector3(1,-.2,.26),'#ffd28a',.8)}
+    dot(origin,0xffefb0,.105);label('Oᵢ',new THREE.Vector3(-.32,-.24,.22),'#fff1ba',.85);
+  }
+  if(step>=4){arrow(origin,origin.clone().addScaledVector(x,intersect?1.25:1.05),C.x);label('xᵢ',origin.clone().addScaledVector(x,intersect?1.55:1.25).add(new THREE.Vector3(0,0,.12)),'#89dbff',.85)}
+  if(step>=5){arrow(origin,origin.clone().addScaledVector(y,1.1),C.y);label('yᵢ',origin.clone().addScaledVector(y,1.4).add(new THREE.Vector3(0,0,.12)),'#dac2ff',.85)}
+  document.querySelectorAll('[data-case]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.case===mode)));document.getElementById('flip-label').hidden=!intersect||step<4;
+  document.querySelectorAll('[data-step]').forEach(b=>{if(Number(b.dataset.step)===step)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
+  document.getElementById('prev-step').disabled=step===1;document.getElementById('next-step').disabled=step===6;
+  const steps=[
+    ['1. 从机械手结构找出关节轴','看灰色关节外壳的中心：白线穿过中间关节，绿线穿过右侧关节。这两条转动中心线分别是关节轴 i 和 i+1；左侧是上游关节，不参与本轮两轴建系。此时还没有选原点或坐标轴。书页 49 的步骤 1。'],
+    ['2. 选公垂线与原点','找两轴间的最短公垂线（橙色线），直接连接两轴心。它与轴 i 的交点定为 <span data-tex="O_i"></span>，与轴 i+1 的交点为垂足，线段长度为 <span data-tex="a_i"></span>。若两轴相交，交点就是 <span data-tex="O_i"></span> 且 <span data-tex="a_i=0"></span>；若平行，可选其中一条公垂线。书页 49 的步骤 2。'],
+    ['3. 规定 zᵢ','让 <span data-tex="\\hat z_i"></span> 与关节轴 i 重合，再明确箭头朝向。轴线本身没有正向，朝向选定后后续角度符号才确定。书页 49 的步骤 3。'],
+    ['4. 规定 xᵢ','蓝色 <span data-tex="\\hat x_i"></span> 沿公垂线从轴 i 指向轴 i+1。两轴相交时，改取垂直两轴所在平面的方向，正反均可选；<span data-tex="\\hat x_i"></span> 是单位方向，不能因为 <span data-tex="a_i=0"></span> 就把它写成零向量。书页 49 的步骤 4。'],
+    ['5. 用右手定则补 yᵢ','紫色 <span data-tex="\\hat y_i"></span> 由 <span data-tex="\\hat z_i"></span> 和 <span data-tex="\\hat x_i"></span> 决定：<span data-tex="\\hat y_i=\\hat z_i\\times \\hat x_i"></span>。到这里，中间连杆的 <span data-tex="O_i,\\hat x_i,\\hat y_i,\\hat z_i"></span> 才齐全。书页 49 的步骤 5。'],
+    ['6. 单独处理基座与末端（缺轴偷懒法）','为什么非要第 6 步？中间连杆前后都有轴，被公垂线锁死（没得选）；但基座 0 屁股后没有“轴 0”，末端 N 前面没有“轴 N+1”，两头公垂线“缺货”！因为缺唯一约束，坐标系可以自由摆放。工程师怎么偷懒？趁机械臂在零位还没转动时，直接把基座 <span data-tex="\\{0\\}"></span> 像盖章一样完整重合在 <span data-tex="\\{1\\}"></span> 上（强行把 <span data-tex="a_0=\\alpha_0=d_1=0"></span> 凑成 0）；末端 <span data-tex="\\{N\\}"></span> 的 <span data-tex="\\hat x_N"></span> 轴顺着前一个 <span data-tex="\\hat x_{N-1}"></span> 轴、原点让 <span data-tex="d_N=0"></span>。怎么让矩阵全是 0 就怎么放！书页 49 步骤 6。']
+  ];
+  document.getElementById('step-explain').innerHTML='<strong>'+steps[step-1][0]+'</strong><p>'+steps[step-1][1]+'</p>';
+  if(window.katex){document.querySelectorAll('#step-explain [data-tex]').forEach(el=>katex.render(el.dataset.tex,el,{throwOnError:false}))}
+  const states={skew:'错开且不平行：橙色线段是两轴间唯一的最短公垂线，实打实相交于两轴心，长度 aᵢ > 0。Oᵢ 在轴 i 上。',parallel:'平行：同样短的公垂线有无数条。图中橙色线是选定的一条，直接连通两轴心，长度 aᵢ > 0。',intersect:'相交：两轴在 Oᵢ 相遇，所以 aᵢ = 0；橙色点不是一根有长度的线。蓝色 xᵢ 垂直于两轴张成的半透明平面。'};
+  document.getElementById('state').textContent=step===1?'白线穿过中间关节，绿线穿过下一关节；轴线来自关节的转动中心，不是连杆外形的中线。第 2 步才开始选原点和公垂线。':step===2?'先看橙色公垂线与 Oᵢ：'+(intersect?'两轴相交，aᵢ = 0；半透明片表示两轴所在平面。':parallel?'两轴平行，公垂线有无数条；图中选定一条连接两轴心。':'两轴错开，橙色公垂线两端实打实连接两轴心，长为 aᵢ。'):step===3?'白色箭头现在给出了 zᵢ 的正方向；关节轴 i 的位置和 Oᵢ 不变。':step===6?'中间连杆建好；首末端因缺少一侧邻轴而自由度大开，按“零位盖章法”把基座与 {1} 重叠强行凑 0。':states[mode]+(intersect?' 当前示例 αᵢ='+(flip?'−55°。':'+55°。'):'');
+}
+document.querySelectorAll('[data-case]').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.case;draw()}));document.getElementById('flip').addEventListener('change',draw);
+document.getElementById('show-robot').addEventListener('change',draw);
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>{step=Number(b.dataset.step);draw()}));
+document.getElementById('prev-step').addEventListener('click',()=>{if(step>1){step--;draw()}});
+document.getElementById('next-step').addEventListener('click',()=>{if(step<6){step++;draw()}});
+new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;camera.position.set(...(w<600?[5.5,-4.7,5.3]:[5.5,-4.3,5.2]));camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}).observe(host);
+function loop(){orbit.update();renderer.render(scene,camera);requestAnimationFrame(loop)}draw();loop();
+</script>
+</body>
+</html>

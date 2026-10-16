@@ -36,6 +36,8 @@
 <main>
   <p class="muted"><a href="00-progress.html">学习进度</a> · <a href="06-3d-arm-coordinate-frames.html">笔记 04：三维机械臂</a> · <a href="05-3d-single-axis-rotations.html">笔记 04：三维单轴旋转</a></p>
   <h1>笔记 04：DH 建系——先规定坐标系，再谈参数</h1>
+  <p><strong>正在读 Craig §3.3、图 3-4？</strong>先看 <a href="08a-craig-link-connection.html">按原书编号重绘的三维图：连杆偏距 d_i 与关节角 θ_i</a>。本页使用另一套 DH 建系/编号约定，下标和变换顺序不要直接与 Craig 式 (3.4) 混用。</p>
+  <p><strong>正在读 Craig §3.4、图 3-5？</strong>看 <a href="08b-craig-frame-assignment.html">按原书编号逐步建系的三维图与四参数说明</a>。</p>
   <div class="card key"><strong>DH（Denavit–Hartenberg）不是一条凭空出现的矩阵公式。</strong>它是一套统一的“给每个关节附近放坐标系”的规则。只要相邻坐标系放法固定，描述它们相对位姿所需的数字就自然固定为四个。</div>
   <div class="card"><strong>这四个数到底是谁的参数？</strong>它们不是“机械臂整体”的参数，也不是某一个点或某一根轴单独的参数；它们共同描述一小段从坐标系 <span data-tex="\{i-1\}"></span> 到坐标系 <span data-tex="\{i\}"></span> 的<strong>相对位姿</strong>。也就是说，第 <span data-tex="i"></span> 组 <span data-tex="\theta_i,d_i,a_i,\alpha_i"></span> 是这一次局部齐次变换 <span data-tex="{}^{i-1}T_i"></span> 的四个参数。下面先用四个动作看清它们各自的几何意义；下一笔记再把四步相乘。</div>
 

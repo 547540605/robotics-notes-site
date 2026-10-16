@@ -37,6 +37,9 @@
   <p class="muted"><a href="00-progress.html">学习进度</a> · <a href="08-dh-coordinate-assignment.html">笔记 04：DH 建系</a></p>
   <h1>笔记 04：一段 DH 变换怎样写成矩阵</h1>
   <div class="card key"><strong>这一页只回答一个问题：</strong>既然 <span data-tex="\theta_i,d_i,a_i,\alpha_i"></span> 描述的是 {<span data-tex="i-1"></span>} 与 {<span data-tex="i"></span>} 的相对位姿，那么怎样把这四个动作合成一个 <span data-tex="4\times4"></span> 矩阵？答案不是新规则：就是按已经见过的“旋转/平移变换相乘”。</div>
+  <div class="tip">
+    💡 <strong>理论底座与门派警示：</strong>为什么自由刚体需要 6 自由度而相邻连杆恰为 4 个参数？本页交互基于经典<strong>标准 DH (SDH)</strong>（矩阵顺序为 <span data-tex="R_z T_z T_x R_x"></span>），而 Craig 教材采用<strong>改进 DH (MDH)</strong>（顺序为 <span data-tex">R_x T_x R_z T_z</span>）。两者的底层降维约束、矩阵连乘次序及树状链局限性，详见理论支撑专题：<a href="ref-dh-parameters-reduction-and-conventions.html" style="color:var(--primary);font-weight:bold;">DH 参数降维本质与门派之争</a>。
+  </div>
   <div class="card"><strong>“上一帧”到底是什么？</strong>这里的<strong>帧</strong>是 coordinate frame，意思是“一套局部坐标系”，不是时间上的一帧画面。<span data-tex="\{i-1\}"></span> 是当前这段连杆前面的局部坐标系，所以简称“上一帧”；<span data-tex="\{i\}"></span> 是当前这段完成后的局部坐标系。<span data-tex="{}^{i-1}T_i"></span> 只描述这两帧之间的一小段关系。把很多小段接起来，才回到你学过的变换链：<span data-tex="{}^0T_i={}^0T_1\,{}^1T_2\cdots{}^{i-1}T_i"></span>。</div>
 
   <h2>先在空间里走完四步</h2>

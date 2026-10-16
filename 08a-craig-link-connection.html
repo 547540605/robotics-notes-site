@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Craig 3.3：连杆偏距与关节角</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js"}}</script>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1120;--fg:#f8fafc;--muted:#b9c6d7;--line:#35465c;--cyan:#4ad7ed;--orange:#ffbc59;--pink:#f58ac9}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.7 system-ui,"Microsoft YaHei",sans-serif;letter-spacing:0}
+    main{max-width:1160px;margin:auto;padding:24px 20px 64px}a{color:#75d7ff}h1{font-size:clamp(1.5rem,2rem,2rem);line-height:1.3;margin:14px 0 10px}h2{font-size:1.25rem;margin:30px 0 8px}.eyebrow{color:var(--muted);font-size:.9rem}.intro{max-width:82ch;margin:0 0 18px}.stage{position:relative;width:100%;height:min(68vh,680px);min-height:480px;background:#131d2b;border-block:1px solid var(--line)}.stage canvas{display:block;width:100%;height:100%;touch-action:none}.stage-overlay{position:absolute;left:16px;top:12px;pointer-events:none;color:var(--muted);font-size:.88rem;background:rgba(11,17,32,.8);padding:3px 8px}.legend{display:flex;flex-wrap:wrap;gap:8px 20px;padding:12px 0;color:var(--muted);font-size:.92rem}.legend span{display:flex;align-items:center;gap:8px}.swatch{width:16px;height:4px;display:inline-block;background:var(--color)}.controls{display:grid;grid-template-columns:1fr 1fr auto;gap:18px;align-items:end;padding:16px 0;border-block:1px solid var(--line)}.control{display:grid;grid-template-columns:1fr 76px;gap:6px 12px;align-items:center}.control label{grid-column:1/-1;font-weight:650}.control input[type=range]{width:100%;accent-color:#4ad7ed}.control output{font-variant-numeric:tabular-nums;text-align:right}.reset{height:40px;padding:0 16px;background:#17435b;border:1px solid #3985a3;border-radius:6px;color:var(--fg);font:inherit;cursor:pointer}.reset:hover{background:#1c5675}.readout{margin:16px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:20px}.readout>div{border-left:3px solid var(--color);padding-left:12px}.readout strong{color:var(--color)}.readout p{margin:4px 0}.formula{margin:18px 0;overflow:auto}.note{color:var(--muted);font-size:.94rem}.next{margin-top:26px;padding-top:16px;border-top:1px solid var(--line)}
+    @media(max-width:720px){main{padding:16px 12px 48px}.stage{height:55vh;min-height:390px}.controls{grid-template-columns:1fr;gap:12px}.reset{width:100%}.readout{grid-template-columns:1fr;gap:14px}.stage-overlay{left:8px;top:6px;font-size:.78rem}.legend{gap:5px 12px}}
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow"><a href="00-progress.html">第三章目录</a> / <a href="08-dh-coordinate-assignment.html">DH 建系笔记</a></p>
+  <h1>同一根关节轴上的“走”和“转”</h1>
+  <p class="intro">对照 Craig 第 3 章 §3.3、图 3-4（书页 47）。这里重绘的是相邻连杆的<strong>几何关系</strong>，不是教材原图。先找中间的关节轴 <span data-tex="i"></span>，再看前后两条公垂线分别落在它的哪里、朝向哪里。</p>
+
+  <div id="scene" class="stage" role="img" aria-label="Craig 图 3-4 的可旋转三维示意：关节轴 i、前后公垂线、沿轴偏距 d_i 和绕轴关节角 theta_i"></div>
+  <div class="legend" aria-hidden="true">
+    <span><i class="swatch" style="--color:#d9e3ef"></i>中间的关节轴 i</span>
+    <span><i class="swatch" style="--color:#4ad7ed"></i>前一条公垂线 aᵢ₋₁</span>
+    <span><i class="swatch" style="--color:#ffbc59"></i>后一条公垂线 aᵢ</span>
+    <span><i class="swatch" style="--color:#f58ac9"></i>偏距 dᵢ</span>
+    <span><i class="swatch" style="--color:#95e5ac"></i>角度 θᵢ</span>
+  </div>
+
+  <div class="controls">
+    <div class="control"><label for="offset">沿关节轴走：偏距 <span data-tex="d_i"></span></label><input id="offset" type="range" min="-1.8" max="1.8" step="0.1" value="1.2"><output id="offset-value" for="offset"></output></div>
+    <div class="control"><label for="angle">绕关节轴转：关节角 <span data-tex="\theta_i"></span></label><input id="angle" type="range" min="-170" max="170" step="1" value="55"><output id="angle-value" for="angle"></output></div>
+    <button id="reset" class="reset" type="button">恢复示例</button>
+  </div>
+
+  <div class="readout">
+    <div style="--color:var(--pink)"><strong>先找 <span data-tex="d_i"></span> 的两端</strong><p>青线 <span data-tex="a_{i-1}"></span> 与轴 <span data-tex="i"></span> 相交处是<strong>起点</strong>；橙线 <span data-tex="a_i"></span> 与轴相交处是<strong>终点</strong>。从起点到终点沿轴的<strong>有向距离</strong>就是 <span data-tex="d_i"></span>，不是两根弯曲连杆的长度。</p></div>
+    <div style="--color:#95e5ac"><strong>再找 <span data-tex="\theta_i"></span> 的两条边</strong><p>把青线的朝向<strong>平移到橙线的起点</strong>，得到白色虚线；它与橙线的夹角，绕轴 <span data-tex="i"></span> 按右手定则量，就是 <span data-tex="\theta_i"></span>。不要量屏幕投影上的夹角。</p></div>
+  </div>
+  <div class="formula" data-tex="d_i:\ \text{沿关节轴 }i\text{ 从 }a_{i-1}\text{ 的落点到 }a_i\text{ 的落点},\qquad \theta_i:\ \text{绕关节轴 }i\text{ 从 }a_{i-1}\text{ 转到 }a_i"></div>
+  <p class="note">拖动图面旋转视角，滚轮或双指缩放。滑块改变的是示意几何；真实机构中，移动关节通常改变 <span data-tex="d_i"></span>，转动关节通常改变 <span data-tex="\theta_i"></span>。图中线段长度仅供辨认，未指定实际单位。</p>
+  <p class="note">符号提醒：这页严格按 Craig 图 3-4，用关节轴 <span data-tex="i"></span> 定义 <span data-tex="d_i,\theta_i"></span>。站内既有 DH 四步动画使用另一套建系/编号约定，不能把两页的下标和矩阵顺序直接混用。</p>
+  <p class="next">认清这两个量后，继续看 <a href="08b-craig-frame-assignment.html">Craig §3.4：连杆坐标系怎样放</a>。</p>
+</main>
+<script>
+  addEventListener('load',()=>{if(!window.katex)return;document.querySelectorAll('[data-tex]').forEach(el=>katex.render(el.dataset.tex,el,{displayMode:el.classList.contains('formula'),throwOnError:false}))});
+</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/controls/OrbitControls.js';
+
+const host=document.getElementById('scene');
+const scene=new THREE.Scene();scene.background=new THREE.Color('#131d2b');
+const camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.up.set(0,0,1);camera.position.set(4.7,-5.8,4.2);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));host.appendChild(renderer.domElement);
+const orbit=new OrbitControls(camera,renderer.domElement);orbit.target.set(.15,0,.3);orbit.enableDamping=true;orbit.minDistance=4;orbit.maxDistance=18;
+scene.add(new THREE.HemisphereLight(0xffffff,0x354257,2.1));const sun=new THREE.DirectionalLight(0xffffff,1.4);sun.position.set(4,-3,7);scene.add(sun);
+const grid=new THREE.GridHelper(8,8,0x344a59,0x263847);grid.rotation.x=Math.PI/2;grid.position.z=-2.3;scene.add(grid);
+const figure=new THREE.Group();scene.add(figure);
+const C={axis:0xd9e3ef,prev:0x4ad7ed,next:0xffbc59,offset:0xf58ac9,angle:0x95e5ac,dim:0x8fa1b4};
+function material(color,opacity=1){return new THREE.MeshBasicMaterial({color,transparent:opacity<1,opacity,depthTest:true})}
+function line(a,b,color,r=.025,opacity=1){const dir=b.clone().sub(a),mesh=new THREE.Mesh(new THREE.CylinderGeometry(r,r,dir.length(),12),material(color,opacity));mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());figure.add(mesh);return mesh}
+function arrow(a,b,color,r=.034){const u=b.clone().sub(a),len=u.length(),tip=b.clone(),body=b.clone().addScaledVector(u.clone().normalize(),-Math.min(.2,len*.3));line(a,body,color,r);const cone=new THREE.Mesh(new THREE.ConeGeometry(r*2.4,Math.min(.2,len*.3),16),material(color));cone.position.copy(body).lerp(tip,.5);cone.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),u.normalize());figure.add(cone)}
+function dot(p,color,r=.07){const mesh=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),material(color));mesh.position.copy(p);figure.add(mesh)}
+function label(text,p,color='#ffffff',scale=1){const canvas=document.createElement('canvas');canvas.width=512;canvas.height=128;const ctx=canvas.getContext('2d');ctx.font='700 54px system-ui';ctx.textAlign='center';ctx.lineWidth=9;ctx.strokeStyle='rgba(9,16,27,.92)';ctx.strokeText(text,256,81);ctx.fillStyle=color;ctx.fillText(text,256,81);const tex=new THREE.CanvasTexture(canvas),sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));sprite.scale.set(2.1*scale,.53*scale,1);sprite.position.copy(p);figure.add(sprite)}
+function dashed(a,b,color){const points=[a,b],mesh=new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineDashedMaterial({color,dashSize:.11,gapSize:.08}));mesh.computeLineDistances();figure.add(mesh)}
+function arc(center,angle){if(Math.abs(angle)<.03)return;const pts=[],r=.67,steps=Math.max(8,Math.ceil(Math.abs(angle)*22));for(let j=0;j<=steps;j++){const t=angle*j/steps;pts.push(center.clone().add(new THREE.Vector3(r*Math.cos(t),r*Math.sin(t),0)))}const curve=new THREE.CatmullRomCurve3(pts),mesh=new THREE.Mesh(new THREE.TubeGeometry(curve,steps,.022,8,false),material(C.angle));figure.add(mesh);const end=pts.at(-1),tangent=new THREE.Vector3(-Math.sin(angle),Math.cos(angle),0).multiplyScalar(Math.sign(angle));arrow(end.clone().addScaledVector(tangent,-.18),end.clone().addScaledVector(tangent,.08),C.angle,.018);label('θᵢ',center.clone().add(new THREE.Vector3(.99*Math.cos(angle/2),.99*Math.sin(angle/2),.12)),'#a7f3ba',.7)}
+function clearFigure(){for(const child of figure.children){if(child.geometry)child.geometry.dispose();if(child.material){const mats=Array.isArray(child.material)?child.material:[child.material];for(const mat of mats){if(mat.map)mat.map.dispose();mat.dispose()}}}figure.clear()}
+function draw(){clearFigure();const d=Number(document.getElementById('offset').value),theta=Number(document.getElementById('angle').value),rad=theta*Math.PI/180;
+  document.getElementById('offset-value').textContent=d.toFixed(1);document.getElementById('angle-value').textContent=theta+'°';
+  const lower=new THREE.Vector3(0,0,0),upper=new THREE.Vector3(0,0,d),prevEnd=new THREE.Vector3(-2,0,0),nextEnd=upper.clone().add(new THREE.Vector3(2.15*Math.cos(rad),2.15*Math.sin(rad),0));
+  const prevAxisDir=new THREE.Vector3(0,.43,.9).normalize(),prevAxisBase=prevEnd.clone().addScaledVector(prevAxisDir,-1.55),prevAxisTip=prevEnd.clone().addScaledVector(prevAxisDir,1.55);
+  line(new THREE.Vector3(0,0,-2.2),new THREE.Vector3(0,0,2.7),C.axis,.026,.85);arrow(new THREE.Vector3(0,0,2.15),new THREE.Vector3(0,0,2.7),C.axis,.037);label('关节轴 i',new THREE.Vector3(.3,-.23,2.45),'#e5edf5',.84);
+  line(prevAxisBase,prevAxisTip,C.dim,.025,.8);label('轴 i−1',prevAxisBase.clone().add(new THREE.Vector3(-.25,0,-.12)),'#a9bac9',.72);
+  line(prevEnd,lower,C.prev,.065);dot(prevEnd,C.prev,.055);label('aᵢ₋₁',prevEnd.clone().lerp(lower,.5).add(new THREE.Vector3(0,-.2,.18)),'#67e8f9',.8);
+  const foldedBack=Math.cos(rad)<-.65;
+  line(upper,nextEnd,C.next,.065);dot(nextEnd,C.next,.055);label('aᵢ',upper.clone().lerp(nextEnd,.5).add(new THREE.Vector3(0,0,foldedBack?.67:.27)),'#ffd28a',.8);
+  const nextAxisBase=nextEnd.clone().add(new THREE.Vector3(0,0,-.85)),nextAxisTip=nextEnd.clone().add(new THREE.Vector3(0,0,.85));line(nextAxisBase,nextAxisTip,C.dim,.023,.65);
+  dot(lower,C.axis,.09);dot(upper,C.axis,.09);label('起点',lower.clone().add(new THREE.Vector3(-.45,-.32,-.18)),'#ffffff',.7);label('终点',upper.clone().add(new THREE.Vector3(foldedBack?.48:-.45,-.32,foldedBack?.36:.18)),'#ffffff',.7);
+  if(Math.abs(d)>.015){arrow(lower.clone().add(new THREE.Vector3(.08,0,.08*Math.sign(d))),upper.clone().add(new THREE.Vector3(.08,0,-.08*Math.sign(d))),C.offset,.045);label('dᵢ',lower.clone().lerp(upper,.5).add(new THREE.Vector3(.35,-.25,0)),'#ffabd9',.8)}else label('dᵢ = 0',upper.clone().add(new THREE.Vector3(.45,-.25,-.2)),'#ffabd9',.7);
+  const refEnd=upper.clone().add(new THREE.Vector3(1.55,0,0));dashed(upper,refEnd,C.axis);label('aᵢ₋₁ 的平移方向',refEnd.clone().add(new THREE.Vector3(.15,-.22,.15)),'#d9e3ef',.62);arc(upper,rad);
+}
+document.getElementById('offset').addEventListener('input',draw);document.getElementById('angle').addEventListener('input',draw);document.getElementById('reset').addEventListener('click',()=>{document.getElementById('offset').value=1.2;document.getElementById('angle').value=55;draw()});
+new ResizeObserver(()=>{const w=host.clientWidth,h=host.clientHeight;camera.position.set(...(w<600?[5.5,-6.8,4.8]:[4.7,-5.8,4.2]));camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}).observe(host);
+function loop(){orbit.update();renderer.render(scene,camera);requestAnimationFrame(loop)}draw();loop();
+</script>
+</body>
+</html>
