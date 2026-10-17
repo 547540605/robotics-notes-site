@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>笔记 04：单段 DH 齐次变换</title>
+  <title>笔记 09 · Craig §3.5：连杆变换的推导（图 3-15 与式 3.1–3.7）</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js"}}</script>
   <style>
     :root {
@@ -21,94 +22,764 @@
       --soft: rgba(56, 189, 248, 0.12);
       --danger: #f43f5e;
       --success: #10b981;
-      --rail: #0f172a;
+      --amber: #f59e0b;
     }
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,"Microsoft YaHei",sans-serif;line-height:1.72}main{max-width:1120px;margin:auto;padding:28px 20px 72px}h1,h2{line-height:1.25}h2{margin-top:2.35rem;border-bottom:1px solid var(--line);padding-bottom:.35rem}.muted{color:var(--muted)}.card{border:1px solid var(--line);border-radius:11px;padding:16px;margin:14px 0}.key{background:var(--soft)}.workspace{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(290px,.85fr);gap:20px;align-items:start}.viewport{width:100%;aspect-ratio:1.42;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#20242b}.viewport canvas{display:block;width:100%;height:100%;touch-action:none}.legend{display:flex;gap:13px;flex-wrap:wrap;margin-top:8px;font-size:.9rem}.legend>span{display:flex;gap:5px;align-items:center}.dot{width:10px;height:10px;border-radius:50%;display:inline-block}.steps{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.step{color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px;cursor:pointer;font:inherit}.step.active{background:#dbeef5;border-color:#5ca0bc;font-weight:700}.math-block{display:block;text-align:center;margin:.95rem 0;overflow:auto}.small{color:var(--muted);font-size:.93rem}.table-wrap{overflow:auto}.dh-table{width:100%;border-collapse:collapse}.dh-table th,.dh-table td{padding:10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}.dh-table th{white-space:nowrap}.derivation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}@media(max-width:760px){main{padding:22px 14px}.workspace,.derivation{grid-template-columns:1fr}.viewport{aspect-ratio:1.1}}
-  
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin: 16px 0; }
-    .tip { background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--success); padding: 12px 16px; margin: 14px 0; border-radius: 0 6px 6px 0; }
-    .warn { background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 12px 16px; margin: 14px 0; border-radius: 0 6px 6px 0; }
-    .derive { background: var(--card-sub); border: 1px solid var(--line); border-radius: 6px; padding: 14px 18px; margin: 14px 0; }
-        
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg); font-family: system-ui, "Microsoft YaHei", sans-serif; line-height: 1.72; }
+    main { max-width: 1120px; margin: auto; padding: 28px 20px 72px; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1, h2, h3 { line-height: 1.3; }
+    h1 { font-size: clamp(1.55rem, 2.4vw, 2.05rem); margin: 10px 0 14px; }
+    h2 { margin-top: 2.3rem; border-bottom: 1px solid var(--line); padding-bottom: .4rem; font-size: 1.32rem; color: #e2e8f0; }
+    h3 { margin-top: 1.4rem; font-size: 1.08rem; color: var(--primary); }
+    .muted { color: var(--muted); }
+    .small { color: var(--muted); font-size: .92rem; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 15px 18px; margin: 16px 0; }
+    .key { background: var(--soft); border-color: rgba(56, 189, 248, 0.35); }
+    .tip { background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--success); padding: 12px 16px; margin: 14px 0; border-radius: 0 8px 8px 0; }
+    .warn-box { background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--amber); padding: 12px 16px; margin: 14px 0; border-radius: 0 8px 8px 0; }
+    .derive { background: var(--card-sub); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; margin: 14px 0; overflow-x: auto; }
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.38fr) minmax(300px, .88fr); gap: 20px; align-items: start; margin-top: 14px; }
+    .viewport-wrap { position: relative; }
+    .viewport { width: 100%; aspect-ratio: 1.38; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #131d2b; }
+    .viewport canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+    .stage-overlay { position: absolute; left: 12px; top: 10px; background: rgba(11, 17, 32, .85); border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; font-size: .84rem; color: var(--muted); pointer-events: none; }
+    .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .mode-group, .steps { display: flex; flex-wrap: wrap; gap: 7px; }
+    .btn { color: var(--fg); background: var(--card-sub); border: 1px solid var(--line); border-radius: 6px; padding: 6px 11px; cursor: pointer; font: inherit; font-size: .9rem; transition: all .15s; }
+    .btn:hover { border-color: var(--primary); }
+    .btn.active { background: rgba(56, 189, 248, 0.2); border-color: var(--primary); color: #fff; font-weight: 700; }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 9px; font-size: .88rem; color: var(--muted); }
+    .legend > span { display: flex; gap: 6px; align-items: center; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .math-block { display: block; text-align: center; margin: .85rem 0; overflow-x: auto; }
+    .table-wrap { overflow-x: auto; margin: 14px 0; }
+    .dh-table { width: 100%; border-collapse: collapse; background: var(--card-sub); border-radius: 8px; overflow: hidden; font-size: .94rem; }
+    .dh-table th, .dh-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .dh-table th { background: rgba(56, 189, 248, 0.1); color: var(--primary); white-space: nowrap; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    details.check-question { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; margin: 10px 0; }
+    details.check-question summary { cursor: pointer; font-weight: 600; color: var(--primary); }
+    details.check-question p { margin: 10px 0 0; color: var(--fg); }
+    code { background: rgba(15, 23, 42, 0.65); padding: 2px 6px; border-radius: 4px; color: #38bdf8; font-family: Consolas, monospace; }
+    @media (max-width: 780px) {
+      main { padding: 20px 14px; }
+      .workspace, .grid-2 { grid-template-columns: 1fr; }
+      .viewport { aspect-ratio: 1.12; }
+    }
   </style>
 </head>
 <body>
 <main>
-  <p class="muted"><a href="00-progress.html">学习进度</a> · <a href="08-dh-coordinate-assignment.html">笔记 04：DH 建系</a></p>
-  <h1>笔记 04：一段 DH 变换怎样写成矩阵</h1>
-  <div class="card key"><strong>这一页只回答一个问题：</strong>既然 <span data-tex="\theta_i,d_i,a_i,\alpha_i"></span> 描述的是 {<span data-tex="i-1"></span>} 与 {<span data-tex="i"></span>} 的相对位姿，那么怎样把这四个动作合成一个 <span data-tex="4\times4"></span> 矩阵？答案不是新规则：就是按已经见过的“旋转/平移变换相乘”。</div>
-  <div class="tip">
-    💡 <strong>理论底座与门派警示：</strong>为什么自由刚体需要 6 自由度而相邻连杆恰为 4 个参数？本页交互基于经典<strong>标准 DH (SDH)</strong>（矩阵顺序为 <span data-tex="R_z T_z T_x R_x"></span>），而 Craig 教材采用<strong>改进 DH (MDH)</strong>（顺序为 <span data-tex">R_x T_x R_z T_z</span>）。两者的底层降维约束、矩阵连乘次序及树状链局限性，详见理论支撑专题：<a href="ref-dh-parameters-reduction-and-conventions.html" style="color:var(--primary);font-weight:bold;">DH 参数降维本质与门派之争</a>。
-  </div>
-  <div class="card"><strong>“上一帧”到底是什么？</strong>这里的<strong>帧</strong>是 coordinate frame，意思是“一套局部坐标系”，不是时间上的一帧画面。<span data-tex="\{i-1\}"></span> 是当前这段连杆前面的局部坐标系，所以简称“上一帧”；<span data-tex="\{i\}"></span> 是当前这段完成后的局部坐标系。<span data-tex="{}^{i-1}T_i"></span> 只描述这两帧之间的一小段关系。把很多小段接起来，才回到你学过的变换链：<span data-tex="{}^0T_i={}^0T_1\,{}^1T_2\cdots{}^{i-1}T_i"></span>。</div>
+  <p class="muted">
+    <a href="00-progress.html">学习进度</a> ·
+    <a href="08b-craig-frame-assignment.html">上一节：Craig §3.4 逐步建系</a> ·
+    <a href="ref-dh-parameters-reduction-and-conventions.html">理论支撑：DH 6降4与门派之争</a> ·
+    <a href="10-dh-table-to-forward-kinematics.html">下一节：DH 表到正运动学</a>
+  </p>
 
-  <h2>先在空间里走完四步</h2>
-  <p>固定上一帧 <span data-tex="\{i-1\}"></span>。点击右侧步骤；左图显示截至该步的几何结果。第 3 步会同时画出“尚未扭转的中间 z 轴”和作为目标参照的最终 <span data-tex="z_i"></span>，方便区分变换过程与机械结构关系。拖动图面可换视角，滚轮可缩放。</p>
+  <h1>笔记 09 · Craig §3.5：连杆变换矩阵的推导（图 3-15 与式 3.1–3.7）</h1>
+
+  <!-- 开篇导读卡片 -->
+  <div class="card key">
+    <strong>🧭 开篇导读（对应 Craig 原书 P52–53 §3.5）：</strong>
+    <p style="margin: 6px 0 0;">
+      在 §3.4 中，我们已经在每根关节轴上放好了局部坐标系 $\{i-1\}$ 和 $\{i\}$，并量出了 4 个参数（$\alpha_{i-1}, a_{i-1}, \theta_i, d_i$）。
+      <strong>这一节只解决一件事：</strong>怎样把这 4 个参数合成一个 $4\times 4$ 的齐次变换矩阵 ${}^{i-1}_i T$？
+      书上没有凭空默写大矩阵，而是把“从 $\{i-1\}$ 挪到 $\{i\}$”拆成了一场 <strong>4 棒接力赛（借用 3 个中间过渡坐标系 $\{R\} \to \{Q\} \to \{P\}$）</strong>，每一棒只做一个你早就学过的单轴旋转或单轴平移，最后把 4 个基础矩阵乘起来！
+    </p>
+  </div>
+
+  <div class="warn-box">
+    <strong>💣 帮你排掉原书 P52–53 最让人抓狂的 2 个“阅读巨坑”：</strong>
+    <ol style="margin: 6px 0 0 20px; padding: 0;">
+      <li><strong>字母顺序是倒着起的：</strong>正常人习惯按 $P \to Q \to R$ 排序，但 Craig 原书图 3-15 从起点 $\{i-1\}$ 出发，依次经过的中间系是 <strong>$\{i-1\} \to \{R\} \to \{Q\} \to \{P\} \to \{i\}$</strong>（倒着按字母排）！</li>
+      <li><strong>图 3-15 里的短斜杠记号：</strong>书上为了省线条，把全部 $\hat{Y}$ 轴省略了，并用几何学平行记号表示对准关系——<strong>三道杠 <code>///</code></strong> 表示 $\hat{Z}_R$ 已扭到与右边关节轴 $\hat{Z}_i$ 平行；<strong>两道杠 <code>//</code></strong> 表示 $\hat{X}_P$ 已转到与终点 $\hat{X}_i$ 平行。</li>
+    </ol>
+  </div>
+
+  <!-- 第一节：3D 交互接力 -->
+  <h2>一、三维接力交互：亲眼走完 Craig 图 3-15 的四步（$\{i-1\}\to\{R\}\to\{Q\}\to\{P\}\to\{i\}$）</h2>
+  <p>
+    下图严格按 <strong>Craig §3.5 图 3-15（书 P53）</strong> 的几何关系重绘（自制可旋转三维示意图，非教材原图）。点击右侧的 4 个接力步骤按钮，观察左边关节轴上的 $\{i-1\}$ 是如何经过 $\{R\}、\{Q\}、\{P\}$ 三个垫脚石，一步步盖到右边关节轴的 $\{i\}$ 上的。
+  </p>
+
+  <div class="toolbar">
+    <div class="mode-group" role="group" aria-label="DH 门派切换">
+      <button id="mode-mdh" class="btn active" type="button">📘 Craig §3.5 改进型 (图 3-15: αᵢ₋₁ → aᵢ₋₁ → θᵢ → dᵢ)</button>
+      <button id="mode-sdh" class="btn" type="button">📗 经典标准型对照 (SDH: θᵢ → dᵢ → aᵢ → αᵢ)</button>
+    </div>
+    <label class="small" style="cursor:pointer; user-select:none;">
+      <input id="show-shell" type="checkbox" checked> 显示半透明连杆与关节圆筒
+    </label>
+  </div>
+
   <div class="workspace">
-    <section>
-      <div id="dh10-view" class="viewport" role="img" aria-label="标准 DH 单段变换的四步三维交互图"></div>
-      <div class="legend"><span><i class="dot" style="background:#aab3c2"></i>上一帧 <span data-tex="\{i-1\}"></span></span><span><i class="dot" style="background:#38bdf8"></i>第 3 步中间 z</span><span><i class="dot" style="background:#22c55e"></i>最终 <span data-tex="z_i"></span>（参照）</span><span><i class="dot" style="background:#f59e0b"></i>最终 <span data-tex="x_i"></span></span><span><i class="dot" style="background:#d946ef"></i>最终 <span data-tex="y_i"></span></span></div>
-      <p class="small">示例只为看清动作，固定取 <span data-tex="\theta_i=35^\circ,d_i=0.70,a_i=1.60,\alpha_i=60^\circ"></span>；这里不是又引入四个新变量。</p>
+    <section class="viewport-wrap">
+      <div id="dh-view" class="viewport" role="img" aria-label="Craig 图 3-15 单段连杆变换四步三维交互图"></div>
+      <div class="stage-overlay">鼠标左键拖拽旋转 · 滚轮缩放 · 右键平移</div>
+      <div class="legend">
+        <span><i class="dot" style="background:#94a3b8"></i>起点系 $\{i-1\}$ 与左轴 $i-1$</span>
+        <span><i class="dot" style="background:#f59e0b"></i>公垂线 $a_{i-1}$ 与中间 $X$ 轴</span>
+        <span><i class="dot" style="background:#38bdf8"></i>中间过渡 $Z$ 轴（$\hat{Z}_R, \hat{Z}_Q, \hat{Z}_P$）</span>
+        <span><i class="dot" style="background:#10b981"></i>终点系 $\{i\}$ 与右轴 $i$</span>
+        <span><i class="dot" style="background:#d946ef"></i>补齐的 $Y$ 轴</span>
+      </div>
+      <p class="small" style="margin-top:6px;">
+        示例几何参数固定取：扭角 $\alpha_{i-1}=40^\circ$，杆长 $a_{i-1}=2.0$，关节转角 $\theta_i=45^\circ$，偏距 $d_i=1.1$。
+      </p>
     </section>
-    <section class="card">
-      <strong>从 <span data-tex="\{i-1\}"></span> 到 <span data-tex="\{i\}"></span> 的固定顺序</strong>
-      <div class="steps" role="group" aria-label="DH 单段变换步骤"><button class="step active" type="button" data-step="1">1. 绕 z 转 θ</button><button class="step" type="button" data-step="2">2. 沿 z 走 d</button><button class="step" type="button" data-step="3">3. 沿 x 走 a</button><button class="step" type="button" data-step="4">4. 绕 x 转 α</button></div>
-      <p id="step-text"></p>
-      <span id="step-formula" class="math-block"></span>
-      <p class="small">左图是在按 θ → d → a → α 的顺序建出下一帧；下面的矩阵则用于把点的坐标从 {i} 改写到 {i−1}。不要把“建系顺序”误读成矩阵乘点时的代数执行顺序。</p>
+
+    <section class="card" style="margin:0;">
+      <strong id="panel-title" style="color:var(--primary); font-size:1.02rem;">Craig 图 3-15：从 $\{i-1\}$ 到 $\{i\}$ 的 4 棒接力</strong>
+      <div class="steps" id="step-buttons" role="group" aria-label="单段变换四步" style="margin: 12px 0;">
+        <button class="btn active" type="button" data-step="1">1. 绕 X 扭 α → {R}</button>
+        <button class="btn" type="button" data-step="2">2. 沿 X 走 a → {Q}</button>
+        <button class="btn" type="button" data-step="3">3. 绕 Z 转 θ → {P}</button>
+        <button class="btn" type="button" data-step="4">4. 沿 Z 爬 d → {i}</button>
+      </div>
+      <div id="step-badge" style="display:inline-block; background:rgba(56,189,248,0.15); color:var(--primary); padding:2px 8px; border-radius:4px; font-size:.84rem; font-weight:600; margin-bottom:6px;"></div>
+      <p id="step-text" style="margin: 6px 0 10px;"></p>
+      <div class="derive" style="padding:10px 12px; margin:8px 0;">
+        <span id="step-formula" class="math-block" style="margin:0;"></span>
+      </div>
+      <p id="step-book-hint" class="small" style="margin: 8px 0 0; border-top: 1px solid var(--line); padding-top: 8px;"></p>
     </section>
   </div>
 
-  <h2>每一步各自是一个已知的齐次矩阵</h2>
-  <p>这里先不把四个矩阵硬乘。每一块都只是“旋转矩阵 + 平移列 + 最后一行齐次坐标”的老结构。</p>
-  <div class="card key"><strong>这里的 <span data-tex="T"></span> 到底是“齐次”还是“平移”？</strong><br><span data-tex="{}^{i-1}T_i"></span> 不带方向下标时，表示<strong>完整的齐次变换矩阵</strong>：<span data-tex="\begin{bmatrix}R&p\\0^T&1\end{bmatrix}"></span>，它一般同时包含旋转 <span data-tex="R"></span> 和平移列 <span data-tex="p"></span>。而 <span data-tex="T_z(d_i)"></span>、<span data-tex="T_x(a_i)"></span> 是“translation”的缩写，表示<strong>纯平移的齐次变换</strong>；它们仍是 4×4 矩阵，只是旋转部分恰好为单位矩阵。相对地，<span data-tex="R_z(\theta_i)"></span>、<span data-tex="R_x(\alpha_i)"></span> 是纯旋转的齐次变换。看下标即可：<span data-tex="T_z,T_x"></span> 是沿某轴平移；<span data-tex="{}^{i-1}T_i"></span> 是从一帧到另一帧的总变换。</div>
-  <div class="derivation">
-    <div class="card"><strong>1. 绕 <span data-tex="z_{i-1}"></span> 转 <span data-tex="\theta_i"></span></strong><span class="math-block" data-tex="R_z(\theta_i)=\begin{bmatrix}\cos\theta_i&-\sin\theta_i&0&0\\\sin\theta_i&\cos\theta_i&0&0\\0&0&1&0\\0&0&0&1\end{bmatrix}"></span></div>
-    <div class="card"><strong>2. 沿 <span data-tex="z_{i-1}"></span> 走 <span data-tex="d_i"></span></strong><span class="math-block" data-tex="T_z(d_i)=\begin{bmatrix}1&0&0&0\\0&1&0&0\\0&0&1&d_i\\0&0&0&1\end{bmatrix}"></span></div>
-    <div class="card"><strong>3. 沿 <span data-tex="x_i"></span> 走 <span data-tex="a_i"></span></strong><span class="math-block" data-tex="T_x(a_i)=\begin{bmatrix}1&0&0&a_i\\0&1&0&0\\0&0&1&0\\0&0&0&1\end{bmatrix}"></span></div>
-    <div class="card"><strong>4. 绕 <span data-tex="x_i"></span> 转 <span data-tex="\alpha_i"></span></strong><span class="math-block" data-tex="R_x(\alpha_i)=\begin{bmatrix}1&0&0&0\\0&\cos\alpha_i&-\sin\alpha_i&0\\0&\sin\alpha_i&\cos\alpha_i&0\\0&0&0&1\end{bmatrix}"></span></div>
+  <!-- 第二节：图 3-15 对照表与式 3.1-3.5 -->
+  <h2>二、对照原书 P52–53：式 (3.1)～(3.5) 的“变换链消消乐”</h2>
+  <p>
+    看懂了上面的三维接力，现在翻开原书第 52 页最后一段到第 53 页上半部分，所有的文字和公式就能逐字对上了：
+  </p>
+
+  <div class="table-wrap">
+    <table class="dh-table">
+      <thead>
+        <tr>
+          <th>接力棒次序</th>
+          <th>起点 $\to$ 终点</th>
+          <th>单步纯动作（书 P52–53 原文）</th>
+          <th>单步齐次矩阵</th>
+          <th>对应图 3-15 中的几何标志</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>第 1 棒</strong></td>
+          <td>$\{i-1\} \to \{R\}$</td>
+          <td>绕 $\hat{X}_{i-1}$ 旋转扭角 $\alpha_{i-1}$（原地扭腰，原点仍在左轴 $O_{i-1}$）</td>
+          <td>${}^{i-1}_R T = R_X(\alpha_{i-1})$</td>
+          <td>$\hat{X}_R$ 与 $\hat{X}_{i-1}$ 重合；$\hat{Z}_R$ 标有<strong>三道杠 <code>///</code></strong>，已与右轴 $\hat{Z}_i$ 平行</td>
+        </tr>
+        <tr>
+          <td><strong>第 2 棒</strong></td>
+          <td>$\{R\} \to \{Q\}$</td>
+          <td>沿 $\hat{X}_R$ 平移杆长 $a_{i-1}$（顺公垂线滑到右轴底端）</td>
+          <td>${}^R_Q T = D_X(a_{i-1})$</td>
+          <td>原点到达右轴底端；$\hat{Z}_Q$ 已与右轴 $i$ 共线，$\hat{X}_Q$ 仍在公垂线延长线上</td>
+        </tr>
+        <tr>
+          <td><strong>第 3 棒</strong></td>
+          <td>$\{Q\} \to \{P\}$</td>
+          <td>绕 $\hat{Z}_Q$ 旋转关节角 $\theta_i$（在右轴底端原地转圈）</td>
+          <td>${}^Q_P T = R_Z(\theta_i)$</td>
+          <td>$\hat{Z}_P$ 与 $\hat{Z}_Q$ 重合；$\hat{X}_P$ 标有<strong>两道斜杠 <code>//</code></strong>，已与终点 $\hat{X}_i$ 平行</td>
+        </tr>
+        <tr>
+          <td><strong>第 4 棒</strong></td>
+          <td>$\{P\} \to \{i\}$</td>
+          <td>沿 $\hat{Z}_P$ 平移偏距 $d_i$（顺着右轴往上爬到终点 $O_i$）</td>
+          <td>${}^P_i T = D_Z(d_i)$</td>
+          <td>原点沿右轴移动 $d_i$ 到达 $O_i$，三根轴与 $\{i\}$ 严丝合缝重合</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <h2>合起来，就是单段标准 DH 变换</h2>
-  <div class="card"><p>从 <span data-tex="\{i\}"></span> 中一个点的坐标，改写成 <span data-tex="\{i-1\}"></span> 中的坐标，使用：</p><span class="math-block" data-tex="{}^{i-1}p={}^{i-1}T_i\,{}^ip"></span><p>因此四步按链相乘：</p><span class="math-block" data-tex="{}^{i-1}T_i=R_z(\theta_i)T_z(d_i)T_x(a_i)R_x(\alpha_i)"></span></div>
-  <div class="card"><strong>两个“顺序”别混：</strong>左图回答“怎样从上一帧<strong>建出</strong>下一帧”，所以按 <span data-tex="\theta_i\rightarrow d_i\rightarrow a_i\rightarrow\alpha_i"></span> 看。式子 <span data-tex="{}^{i-1}p={}^{i-1}T_i{}^ip"></span> 回答“怎样把一个已经写在 <span data-tex="\{i\}"></span> 中的坐标<strong>改写</strong>到 <span data-tex="\{i-1\}"></span>”，所以作为列向量计算时右边因子先作用。前者是建系视角，后者是坐标改写视角；同一个变换没有矛盾。</div>
-  <p>把这四块真正相乘，得到：</p>
-  <span class="math-block" data-tex="{}^{i-1}T_i=\begin{bmatrix}\cos\theta_i&-\sin\theta_i\cos\alpha_i&\sin\theta_i\sin\alpha_i&a_i\cos\theta_i\\\sin\theta_i&\cos\theta_i\cos\alpha_i&-\cos\theta_i\sin\alpha_i&a_i\sin\theta_i\\0&\sin\alpha_i&\cos\alpha_i&d_i\\0&0&0&1\end{bmatrix}"></span>
+  <h3>从式 (3.1) 到式 (3.5) 的三行推导</h3>
+  <p>
+    要把一个定义在终点坐标系 $\{i\}$ 中的点 ${}^i P$，改写成起点坐标系 $\{i-1\}$ 中的坐标 ${}^{i-1} P$，只需沿着刚才的 4 棒接力从右往左套用变换链（原书<strong>式 3.1～3.3</strong>）：
+  </p>
+  <div class="derive">
+    $${}^{i-1} P = {}^{i-1}_{\color{#f43f5e}R} T \, {}^{\color{#f43f5e}R}_{\color{#38bdf8}Q} T \, {}^{\color{#38bdf8}Q}_{\color{#f59e0b}P} T \, {}^{\color{#f59e0b}P}_i T \, {}^i P = {}^{i-1}_i T \, {}^i P \tag{3.1–3.2}$$
+    $$\Longrightarrow \quad {}^{i-1}_i T = {}^{i-1}_R T \, {}^R_Q T \, {}^Q_P T \, {}^P_i T = R_X(\alpha_{i-1})\,D_X(a_{i-1})\,R_Z(\theta_i)\,D_Z(d_i) \tag{3.3–3.4}$$
+  </div>
+  <p>
+    <strong>式 (3.5) 里的 $\operatorname{Screw}$（螺旋变换）是什么意思？</strong><br>
+    仔细看式 (3.4) 的前两项 $R_X(\alpha_{i-1})D_X(a_{i-1})$：它们都是绕/沿<strong>同一根 $\hat{X}$ 轴</strong>又转又走，就像拧螺丝（螺旋运动 Screw）一样；后两项 $R_Z(\theta_i)D_Z(d_i)$ 都是绕/沿<strong>同一根 $\hat{Z}$ 轴</strong>又转又走。因此 Craig 把它们简记为两个螺旋算子相乘（原书<strong>式 3.5</strong>）：
+  </p>
+  <div class="derive">
+    $${}^{i-1}_i T = \underbrace{\operatorname{Screw}_X(a_{i-1},\,\alpha_{i-1})}_{\text{沿/绕 }X\text{ 轴走 }a_{i-1}\text{、扭 }\alpha_{i-1}} \cdot \underbrace{\operatorname{Screw}_Z(d_i,\,\theta_i)}_{\text{沿/绕 }Z\text{ 轴走 }d_i\text{、转 }\theta_i} \tag{3.5}$$
+  </div>
 
-  <h2>不要把大矩阵当成一坨：按列读回空间</h2>
-  <div class="card key"><strong>前三列仍是你已经理解的旋转矩阵列：</strong>它们依次是最终 <span data-tex="x_i,y_i,z_i"></span> 三根单位轴，在上一帧 <span data-tex="\{i-1\}"></span> 中的坐标。第四列是最终原点 <span data-tex="O_i"></span> 在上一帧中的坐标。</div>
-  <div class="table-wrap"><table class="dh-table"><thead><tr><th>矩阵部分</th><th>从四步里怎么来</th><th>几何含义</th></tr></thead><tbody>
-    <tr><td>第一列</td><td><span data-tex="[\cos\theta_i,\sin\theta_i,0]^T"></span></td><td>只经过第 1 步后确定的 <span data-tex="x_i"></span> 方向。</td></tr>
-    <tr><td>第四列</td><td><span data-tex="d_i\hat z_{i-1}+a_i\hat x_i=[a_i\cos\theta_i,a_i\sin\theta_i,d_i]^T"></span></td><td>先沿旧 z 走 <span data-tex="d_i"></span>，再沿已经转好的 <span data-tex="x_i"></span> 走 <span data-tex="a_i"></span>，所以是最终原点的位置。</td></tr>
-    <tr><td>最后一行</td><td><span data-tex="[0,0,0,1]"></span></td><td>仍是齐次坐标的“点开关”；它让旋转和平移能被装进同一个矩阵。</td></tr>
-  </tbody></table></div>
-  <div class="card"><strong>这一页的完成标志：</strong>你不需要背出展开式；只要能说出“它是四步变换的乘积，前三列是新三轴，第四列是新原点”，就已经能用 DH 表开始做正运动学了。下一步会给一个很小的 DH 表，把多段 <span data-tex="{}^{i-1}T_i"></span> 连起来。</div>
+  <!-- 第三节：式 3.6 矩阵展开与按列读法 -->
+  <h2>三、式 (3.6) 大矩阵是怎么乘出来的？怎样按列读回空间？</h2>
+  <p>
+    你完全不需要死记硬背式 (3.6)。把式 (3.5) 的左半块（$X$ 轴螺旋）和右半块（$Z$ 轴螺旋）先各自写出来，再做一次矩阵乘法，结果一目了然：
+  </p>
+
+  <div class="grid-2">
+    <div class="card">
+      <strong>左半块：$\operatorname{Screw}_X(a_{i-1},\alpha_{i-1}) = R_X(\alpha_{i-1})D_X(a_{i-1})$</strong>
+      <p class="small">只决定连杆 $i-1$ 的静态铁疙瘩几何（绕 $X$ 转 $\alpha_{i-1}$，沿 $X$ 走 $a_{i-1}$）：</p>
+      $$\begin{bmatrix} 1 & 0 & 0 & a_{i-1} \\ 0 & \cos\alpha_{i-1} & -\sin\alpha_{i-1} & 0 \\ 0 & \sin\alpha_{i-1} & \cos\alpha_{i-1} & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix}$$
+    </div>
+    <div class="card">
+      <strong>右半块：$\operatorname{Screw}_Z(d_i,\theta_i) = R_Z(\theta_i)D_Z(d_i)$</strong>
+      <p class="small">只决定关节 $i$ 轴线上的运动（绕 $Z$ 转 $\theta_i$，沿 $Z$ 走 $d_i$）：</p>
+      $$\begin{bmatrix} \cos\theta_i & -\sin\theta_i & 0 & 0 \\ \sin\theta_i & \cos\theta_i & 0 & 0 \\ 0 & 0 & 1 & d_i \\ 0 & 0 & 0 & 1 \end{bmatrix}$$
+    </div>
+  </div>
+
+  <p>将上面左右两块 $4\times 4$ 矩阵相乘（记 $c\theta_i = \cos\theta_i,\ s\theta_i = \sin\theta_i$），立即得到 <strong>Craig 原书 P53 式 (3.6)</strong>：</p>
+  <div class="derive">
+    $${}^{i-1}_i T = \begin{bmatrix}
+      c\theta_i & -s\theta_i & 0 & a_{i-1} \\
+      s\theta_i c\alpha_{i-1} & c\theta_i c\alpha_{i-1} & -s\alpha_{i-1} & -s\alpha_{i-1} d_i \\
+      s\theta_i s\alpha_{i-1} & c\theta_i s\alpha_{i-1} & c\alpha_{i-1} & c\alpha_{i-1} d_i \\
+      0 & 0 & 0 & 1
+    \end{bmatrix} \tag{3.6}$$
+  </div>
+
+  <div class="card key">
+    <strong>💡 工程实战读法：别背公式，直接“按列拆骨头”！</strong>
+    <p style="margin: 6px 0;">
+      任何齐次变换矩阵 ${}^{i-1}_i T$ 的<strong>前 3 列就是新坐标系 $\{i\}$ 的三根单位轴在 $\{i-1\}$ 中的方向，第 4 列就是新原点 $O_i$ 在 $\{i-1\}$ 中的坐标</strong>。在后面第 5 章（雅可比矩阵）和第 6 章（动力学）以及 ROS 2 源码里，我们最常直接抠出它的<strong>第 3 列</strong>和<strong>第 4 列</strong>：
+    </p>
+    <ul style="margin: 6px 0 0 20px;">
+      <li><strong>第 3 列 $[0,\ -\sin\alpha_{i-1},\ \cos\alpha_{i-1}]^T$（新关节轴 $\hat{Z}_i$ 方向）</strong>：你会发现它里面<strong>根本没有 $\theta_i$</strong>！因为新关节轴 $\hat{Z}_i$ 的朝向早在第 1 步绕 $\hat{X}_{i-1}$ 扭转 $\alpha_{i-1}$ 时就已经定死了，关节自己转 $\theta_i$ 不会改变转轴本身的方向。</li>
+      <li><strong>第 4 列 $[a_{i-1},\ -d_i\sin\alpha_{i-1},\ d_i\cos\alpha_{i-1}]^T$（新原点 $O_i$ 位置）</strong>：里面<strong>也根本没有 $\theta_i$</strong>！因为原点只是先沿 $\hat{X}_{i-1}$ 走了 $a_{i-1}$，再沿扭过 $\alpha_{i-1}$ 角的 $\hat{Z}_i$ 轴走了 $d_i$。</li>
+      <li><strong>第 1、2 列（新 $\hat{X}_i, \hat{Y}_i$ 方向）</strong>：只有这两列包含 $\cos\theta_i, \sin\theta_i$，反映电机转动 $\theta_i$ 时连杆姿态的实时旋转！</li>
+    </ul>
+  </div>
+
+  <div class="tip">
+    <strong>🔗 一秒对接 ROS 2 URDF：式 (3.4) 在 ROS 2 里长什么样？</strong><br>
+    在 ROS 2 中，<code>robot_state_publisher</code> 解析 URDF 的每个 <code>&lt;joint&gt;</code> 时，只是把式 (3.4) 里的静态部分 $R_X(\alpha_{i-1})D_X(a_{i-1})D_Z(d_i)$ 换成了直接读取标签 <code>&lt;origin xyz="x y z" rpy="r p y"/&gt;</code>，而关节变量旋转 $R_Z(\theta_i)$ 则完全对应 <code>&lt;axis xyz="0 0 1"/&gt;</code> 乘上 <code>/joint_states</code> 发来的电机角度 $\theta_i$。两者的变换链连乘架构 100% 相同！
+  </div>
+
+  <!-- 第四节：原书例 3.6 -->
+  <h2>四、对照原书 P53【例 3.6】：为什么真实机械臂代进去后矩阵极其简单？</h2>
+  <p>
+    看到式 (3.6) 一堆三角函数乘积不用慌！在实际机械臂中，绝大部分 $\alpha_{i-1}$ 不是 $0^\circ$ 就是 $\pm 90^\circ$（$\sin/\cos$ 直接变成 $0$ 或 $\pm 1$）。看原书第 53 页下方的 <strong>【例 3.6】（式 3.7）</strong>：
+  </p>
+  <p>
+    该机器人是一个 3 自由度 RPR 操作臂（图 3-9 / 图 3-11），其连杆参数表在 §3.4 中已列出，我们一行行代入式 (3.6) 核对：
+  </p>
+
+  <div class="table-wrap">
+    <table class="dh-table">
+      <thead>
+        <tr>
+          <th>连杆 $i$</th>
+          <th>$\alpha_{i-1}$</th>
+          <th>$a_{i-1}$</th>
+          <th>$d_i$</th>
+          <th>$\theta_i$</th>
+          <th>代入 $\cos\alpha_{i-1},\ \sin\alpha_{i-1}$ 化简</th>
+          <th>代入式 (3.6) 得到的单节变换矩阵（原书式 3.7）</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>$i=1$</strong></td>
+          <td>$0^\circ$</td>
+          <td>$0$</td>
+          <td>$0$</td>
+          <td>$\theta_1$ (变量)</td>
+          <td>$c\alpha_0 = 1$<br>$s\alpha_0 = 0$</td>
+          <td>
+            $${}^0_1 T = \begin{bmatrix} c\theta_1 & -s\theta_1 & 0 & 0 \\ s\theta_1 & c\theta_1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix}$$
+          </td>
+        </tr>
+        <tr>
+          <td><strong>$i=2$</strong><br><span class="small">(移动关节)</span></td>
+          <td>$90^\circ$</td>
+          <td>$0$</td>
+          <td>$d_2$ (变量)</td>
+          <td>$0^\circ$</td>
+          <td>$c\alpha_1 = 0,\ s\alpha_1 = 1$<br>$c\theta_2 = 1,\ s\theta_2 = 0$</td>
+          <td>
+            $${}^1_2 T = \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 0 & -1 & -d_2 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 \end{bmatrix}$$
+          </td>
+        </tr>
+        <tr>
+          <td><strong>$i=3$</strong></td>
+          <td>$0^\circ$</td>
+          <td>$0$</td>
+          <td>$l_2$ (常数)</td>
+          <td>$\theta_3$ (变量)</td>
+          <td>$c\alpha_2 = 1$<br>$s\alpha_2 = 0$</td>
+          <td>
+            $${}^2_3 T = \begin{bmatrix} c\theta_3 & -s\theta_3 & 0 & 0 \\ s\theta_3 & c\theta_3 & 0 & 0 \\ 0 & 0 & 1 & l_2 \\ 0 & 0 & 0 & 1 \end{bmatrix}$$
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="small">
+    你看！一旦把具体的 $0^\circ$ 和 $90^\circ$ 代进去，式 (3.6) 瞬间坍缩成了上面三个极其清爽的小矩阵（原书<strong>式 3.7</strong>）。下一节（§3.6）要做的全部事情，就是把这三个小矩阵乘起来：${}^0_3 T = {}^0_1 T \, {}^1_2 T \, {}^2_3 T$！
+  </p>
+
+  <!-- 第五节：核心目的自检 -->
+  <h2>🎯 读完先自检：抓住 §3.5 的核心骨架</h2>
+
+  <details class="check-question">
+    <summary>1. Craig 图 3-15 中的三个中间坐标系 {R}、{Q}、{P} 分别完成了什么动作？</summary>
+    <p>
+      从 $\{i-1\}$ 出发：① 绕 $\hat{X}_{i-1}$ 扭转 $\alpha_{i-1}$ 得到 $\{R\}$（使 $Z$ 轴对准下一根关节轴 $i$ 的方向）；② 沿 $\hat{X}_R$ 平移 $a_{i-1}$ 得到 $\{Q\}$（使原点走到关节轴 $i$ 上）；③ 绕 $\hat{Z}_Q$ 旋转 $\theta_i$ 得到 $\{P\}$（使 $X$ 轴对准下一条公垂线 $\hat{X}_i$ 的方向）；④ 最后沿 $\hat{Z}_P$ 平移 $d_i$ 到达 $\{i\}$。
+    </p>
+  </details>
+
+  <details class="check-question">
+    <summary>2. 为什么式 (3.6) 的第 3 列（新 Z 轴方向）和第 4 列（新原点坐标）里完全没有关节角 θᵢ？</summary>
+    <p>
+      因为在 Craig 改进型 DH 中，坐标系 $\{i\}$ 的原点 $O_i$ 就在关节轴 $i$ 上，$\hat{Z}_i$ 就沿着关节轴 $i$。在执行第 3 步绕关节轴 $i$ 自身旋转 $\theta_i$ 之前，关节轴 $i$ 的方向（由 $\alpha_{i-1}$ 决定）和原点位置（由 $a_{i-1}$ 与沿轴偏距 $d_i$ 决定）就已经完全确定了；绕自身轴线自转 $\theta_i$ 只会改变 $\hat{X}_i, \hat{Y}_i$ 的朝向（第 1、2 列），不会改变转轴方向和轴上原点的位置。
+    </p>
+  </details>
+
+  <details class="check-question">
+    <summary>3. 书上的式 (3.4) 跟你在 ROS 2 里写的 URDF &lt;joint&gt; 是怎么一一对应的？</summary>
+    <p>
+      式 (3.4) ${}^{i-1}_i T = R_X(\alpha_{i-1})D_X(a_{i-1})R_Z(\theta_i)D_Z(d_i)$ 本质上是“父子连杆静态骨架偏置 $\times$ 关节电机旋转”。在 URDF 中，静态骨架偏置直接由 <code>&lt;origin xyz="..." rpy="..."/&gt;</code> 的 6 个参数给出，关节旋转则由 <code>&lt;axis xyz="0 0 1"/&gt;</code> 结合关节角 $\theta_i$ 给出。
+    </p>
+  </details>
+
+  <details class="check-question">
+    <summary>4. 我们需不需要死记硬背式 (3.6) 的 16 个矩阵元素？</summary>
+    <p>
+      完全不需要死背！只需要记住连乘顺序 $R_X(\alpha_{i-1})D_X(a_{i-1})R_Z(\theta_i)D_Z(d_i)$（先沿/绕 $X$ 走完连杆 $i-1$ 的几何参数，再沿/绕 $Z$ 走完关节 $i$ 的轴向参数），手算时把 $0^\circ$ 或 $\pm 90^\circ$ 直接代入基础矩阵相乘，比背公式更准更快；写代码时则直接封装成一个 5 行代码的函数。
+    </p>
+  </details>
+
+  <div style="margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+    <a href="08b-craig-frame-assignment.html">← 上一节：Craig §3.4 逐步建立连杆坐标系</a>
+    <a href="10-dh-table-to-forward-kinematics.html" style="font-weight: 700;">下一节（§3.6）：多连杆矩阵连乘与正运动学 →</a>
+  </div>
 </main>
+
 <script>
-addEventListener('load',()=>{let n=0;const go=()=>window.katex?document.querySelectorAll('[data-tex]').forEach(x=>katex.render(x.dataset.tex,x,{displayMode:x.classList.contains('math-block'),throwOnError:false})):(n++<40&&setTimeout(go,100));go()});
+  document.addEventListener('DOMContentLoaded', () => {
+    let n = 0;
+    const boot = () => {
+      if (!window.katex) { if (n++ < 40) setTimeout(boot, 80); return; }
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ],
+          throwOnError: false
+        });
+      }
+      document.querySelectorAll('[data-tex]').forEach(el => {
+        katex.render(el.dataset.tex, el, { displayMode: el.classList.contains('math-block'), throwOnError: false });
+      });
+    };
+    boot();
+  });
 </script>
+
 <script type="module">
 import * as THREE from 'three';
-import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/controls/OrbitControls.js';
-const host=document.getElementById('dh10-view'),scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(42,1,.1,100),renderer=new THREE.WebGLRenderer({antialias:true}),orbit=new OrbitControls(camera,renderer.domElement),group=new THREE.Group();
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0x20242b);host.appendChild(renderer.domElement);camera.position.set(3.8,2.8,4.5);orbit.target.set(.4,.2,.35);orbit.enableDamping=true;scene.add(new THREE.HemisphereLight(0xffffff,0x1d2634,2.2),new THREE.GridHelper(6,7,0x56606f,0x39414d),group);
-function label(text,color,scale=1){const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');canvas.width=360;canvas.height=96;ctx.font='600 34px system-ui';ctx.lineWidth=5;ctx.strokeStyle='rgba(0,0,0,.88)';ctx.strokeText(text,12,58);ctx.fillStyle=color;ctx.fillText(text,12,58);const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(canvas),transparent:true,depthTest:false}));sprite.scale.set(1.04*scale,.28*scale,1);return sprite}
-function frameAxis(origin,dir,color,text,length=.95){const axis=new THREE.Group(),unit=dir.clone().normalize(),arrow=new THREE.ArrowHelper(unit,origin,.66*length,color,.1,.06),tag=label(text,new THREE.Color(color).getStyle(),.62);tag.position.copy(origin).addScaledVector(unit,length);axis.add(arrow,tag);return axis}
-function jointAxis(origin,dir,color,text){const axis=new THREE.Group(),unit=dir.clone().normalize(),from=origin.clone().addScaledVector(unit,-1.08),to=origin.clone().addScaledVector(unit,1.08),delta=to.clone().sub(from),body=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,delta.length(),12),new THREE.MeshStandardMaterial({color})),arrow=new THREE.ArrowHelper(unit,origin.clone().addScaledVector(unit,.73),.3,color,.08,.05),tag=label(text,new THREE.Color(color).getStyle(),.62);body.position.copy(from).addScaledVector(delta,.5);body.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());tag.position.copy(to).addScaledVector(unit,.14);axis.add(body,arrow,tag);return axis}
-function referenceAxis(origin,dir,color,text){const unit=dir.clone().normalize(),from=origin.clone().addScaledVector(unit,-1.08),to=origin.clone().addScaledVector(unit,1.08),geometry=new THREE.BufferGeometry().setFromPoints([from,to]),line=new THREE.Line(geometry,new THREE.LineDashedMaterial({color,dashSize:.12,gapSize:.08,depthTest:false})),tag=label(text,new THREE.Color(color).getStyle(),.58);line.computeLineDistances();tag.position.copy(to).addScaledVector(unit,.14);group.add(line,tag)}
-function point(pos,text){const item=new THREE.Group(),ball=new THREE.Mesh(new THREE.SphereGeometry(.075,16,12),new THREE.MeshStandardMaterial({color:0xf8fafc,emissive:0x334155})),tag=label(text,'#f8fafc',.58);ball.position.copy(pos);tag.position.copy(pos).add(new THREE.Vector3(.08,.1,.12));item.add(ball,tag);return item}
-function segment(a,b,color,text){const delta=b.clone().sub(a),mid=a.clone().add(b).multiplyScalar(.5),body=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,delta.length(),12),new THREE.MeshStandardMaterial({color})),tag=label(text,new THREE.Color(color).getStyle(),.6);body.position.copy(mid);body.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());tag.position.copy(mid).add(new THREE.Vector3(.08,.12,.14));group.add(body,tag)}
-function arc(origin,axis,start,angle,text){const unit=axis.clone().normalize(),from=start.clone().projectOnPlane(unit).normalize(),points=[],radius=.62;for(let j=0;j<=32;j++)points.push(origin.clone().addScaledVector(from.clone().applyAxisAngle(unit,angle*j/32),radius));const curve=new THREE.CatmullRomCurve3(points),tube=new THREE.Mesh(new THREE.TubeGeometry(curve,32,.018,8,false),new THREE.MeshBasicMaterial({color:0xf8fafc,depthTest:false})),tag=label(text,'#f8fafc',.6),mid=from.clone().applyAxisAngle(unit,angle/2);tag.position.copy(origin).addScaledVector(mid,.9).addScaledVector(unit,.15);group.add(tube,tag)}
-const buttons=[...document.querySelectorAll('[data-step]')],text=document.getElementById('step-text'),formula=document.getElementById('step-formula');let step=1;const theta=35*Math.PI/180,d=.7,a=1.6,alpha=60*Math.PI/180;
-function draw(next){step=next;buttons.forEach(button=>button.classList.toggle('active',Number(button.dataset.step)===step));while(group.children.length)group.remove(group.children[0]);const base=new THREE.Vector3(0,0,.15),zPrev=new THREE.Vector3(0,0,1),xPrev=new THREE.Vector3(1,0,0),yPrev=new THREE.Vector3(0,1,0),turn=new THREE.Quaternion().setFromAxisAngle(zPrev,theta),xI=xPrev.clone().applyQuaternion(turn),yAfterTheta=yPrev.clone().applyQuaternion(turn),atD=base.clone().addScaledVector(zPrev,d),origin=atD.clone().addScaledVector(xI,a),yI=yAfterTheta.clone().applyAxisAngle(xI,alpha),zI=zPrev.clone().applyAxisAngle(xI,alpha);
-  group.add(frameAxis(base,xPrev,0x60a5fa,'xᵢ₋₁'),frameAxis(base,yPrev,0xa78bfa,'yᵢ₋₁'),jointAxis(base,zPrev,0xaab3c2,'zᵢ₋₁'),point(base,'Oᵢ₋₁'));
-  if(step<3){group.add(frameAxis(base,xI,0xf59e0b,'xᵢ 方向'));arc(base,zPrev,xPrev,theta,'θᵢ')}
-  if(step>=2){segment(base,atD,0x22c55e,'dᵢ');group.add(point(atD,'沿 z 后'))}
-  if(step>=3){segment(atD,origin,0xf59e0b,'aᵢ');group.add(point(origin,'Oᵢ'),frameAxis(origin,xI,0xf59e0b,'xᵢ'),jointAxis(origin,zPrev,0x38bdf8,'z（第 3 步）'));if(step===3)referenceAxis(origin,zI,0x22c55e,'zᵢ（目标）')}
-  if(step>=4){group.add(frameAxis(origin,yI,0xd946ef,'yᵢ'),jointAxis(origin,zI,0x22c55e,'zᵢ'));arc(origin,xI,zPrev,alpha,'αᵢ')}
-  const words=['第 1 步先绕旧关节轴 zᵢ₋₁ 转 θᵢ。这个旋转确定了最终 xᵢ 的方向，但原点仍在 Oᵢ₋₁。','第 2 步沿同一根旧 z 轴走 dᵢ。此时只改变原点位置，方向不再改变。','第 3 步沿已经确定方向的 xᵢ 走 aᵢ。青色实线是当前中间坐标系的 z 轴，它仍与 zᵢ₋₁ 平行；绿色虚线是最终目标 zᵢ，仅用来验证橙线 aᵢ 是两根物理关节轴的公共法线。','第 4 步绕 xᵢ 转 αᵢ。青色中间 z 轴绕 xᵢ 扭到绿色最终 zᵢ；xᵢ 不变，yᵢ 随之补齐。'];const formulas=['{}^{i-1}T^{(1)}=R_z(\\theta_i)','{}^{i-1}T^{(2)}=R_z(\\theta_i)T_z(d_i)','{}^{i-1}T^{(3)}=R_z(\\theta_i)T_z(d_i)T_x(a_i)','{}^{i-1}T_i=R_z(\\theta_i)T_z(d_i)T_x(a_i)R_x(\\alpha_i)'];text.textContent=words[step-1];if(window.katex)katex.render(formulas[step-1],formula,{displayMode:true,throwOnError:false});
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/controls/OrbitControls.js';
+
+const host = document.getElementById('dh-view');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+const orbit = new OrbitControls(camera, renderer.domElement);
+const group = new THREE.Group();
+
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(0x131d2b);
+host.appendChild(renderer.domElement);
+
+camera.up.set(0, 0, 1);
+camera.position.set(3.6, -4.4, 3.3);
+orbit.target.set(1.0, -0.2, 0.45);
+orbit.enableDamping = true;
+
+scene.add(
+  new THREE.HemisphereLight(0xffffff, 0x1d2634, 2.2),
+  new THREE.DirectionalLight(0xffffff, 1.1),
+  group
+);
+const grid = new THREE.GridHelper(7, 7, 0x334a5e, 0x223242);
+grid.rotation.x = Math.PI / 2;
+grid.position.set(1.0, 0, -0.9);
+scene.add(grid);
+
+function makeLabel(text, color = '#f8fafc', scale = 1) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = 420;
+  canvas.height = 104;
+  ctx.font = '600 34px system-ui, "Microsoft YaHei", sans-serif';
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = 'rgba(11, 17, 32, 0.92)';
+  ctx.strokeText(text, 14, 64);
+  ctx.fillStyle = color;
+  ctx.fillText(text, 14, 64);
+  const tex = new THREE.CanvasTexture(canvas);
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false }));
+  sprite.scale.set(1.22 * scale, 0.30 * scale, 1);
+  return sprite;
 }
-buttons.forEach(button=>button.addEventListener('click',()=>draw(Number(button.dataset.step))));new ResizeObserver(()=>{const width=host.clientWidth,height=host.clientHeight;camera.aspect=width/height;camera.updateProjectionMatrix();renderer.setSize(width,height,false)}).observe(host);function loop(){orbit.update();renderer.render(scene,camera);requestAnimationFrame(loop)}addEventListener('load',()=>{let count=0;const ready=()=>window.katex?draw(1):(count++<40&&setTimeout(ready,100));ready()});loop();
+
+function addFrameAxes(origin, xDir, yDir, zDir, labels, colors, len = 0.88, opacity = 1) {
+  const dirs = [xDir, yDir, zDir];
+  dirs.forEach((d, idx) => {
+    if (!labels[idx]) return;
+    const u = d.clone().normalize();
+    const arrow = new THREE.ArrowHelper(u, origin, len, colors[idx], 0.14, 0.07);
+    if (opacity < 1) {
+      arrow.line.material.transparent = true;
+      arrow.line.material.opacity = opacity;
+      arrow.cone.material.transparent = true;
+      arrow.cone.material.opacity = opacity;
+    }
+    group.add(arrow);
+    const tag = makeLabel(labels[idx], new THREE.Color(colors[idx]).getStyle(), 0.65);
+    tag.position.copy(origin).addScaledVector(u, len + 0.18);
+    group.add(tag);
+  });
+}
+
+function addAxisLine(origin, dir, color, text, halfLen = 1.45, dashed = false) {
+  const u = dir.clone().normalize();
+  const p1 = origin.clone().addScaledVector(u, -halfLen * 0.65);
+  const p2 = origin.clone().addScaledVector(u, halfLen);
+  if (dashed) {
+    const geo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+    const line = new THREE.Line(geo, new THREE.LineDashedMaterial({ color, dashSize: 0.12, gapSize: 0.08 }));
+    line.computeLineDistances();
+    group.add(line);
+  } else {
+    const delta = p2.clone().sub(p1);
+    const mesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.02, 0.02, delta.length(), 12),
+      new THREE.MeshStandardMaterial({ color })
+    );
+    mesh.position.copy(p1).addScaledVector(delta, 0.5);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), delta.clone().normalize());
+    group.add(mesh);
+  }
+  if (text) {
+    const tag = makeLabel(text, new THREE.Color(color).getStyle(), 0.66);
+    tag.position.copy(p2).addScaledVector(u, 0.16);
+    group.add(tag);
+  }
+}
+
+function addSegment(p1, p2, color, text) {
+  const delta = p2.clone().sub(p1);
+  if (delta.length() < 1e-4) return;
+  const mid = p1.clone().add(p2).multiplyScalar(0.5);
+  const mesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.038, 0.038, delta.length(), 14),
+    new THREE.MeshStandardMaterial({ color })
+  );
+  mesh.position.copy(mid);
+  mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), delta.clone().normalize());
+  group.add(mesh);
+  if (text) {
+    const tag = makeLabel(text, new THREE.Color(color).getStyle(), 0.66);
+    tag.position.copy(mid).add(new THREE.Vector3(0, -0.22, 0.18));
+    group.add(tag);
+  }
+}
+
+function addPoint(pos, text, color = 0xf8fafc) {
+  const ball = new THREE.Mesh(
+    new THREE.SphereGeometry(0.072, 16, 12),
+    new THREE.MeshStandardMaterial({ color })
+  );
+  ball.position.copy(pos);
+  group.add(ball);
+  if (text) {
+    const tag = makeLabel(text, new THREE.Color(color).getStyle(), 0.62);
+    tag.position.copy(pos).add(new THREE.Vector3(-0.12, -0.24, -0.14));
+    group.add(tag);
+  }
+}
+
+function addArc(origin, axis, startVec, angle, text, color = 0xf8fafc, radius = 0.58) {
+  const u = axis.clone().normalize();
+  const s = startVec.clone().projectOnPlane(u).normalize();
+  const pts = [];
+  for (let k = 0; k <= 32; k++) {
+    pts.push(origin.clone().addScaledVector(s.clone().applyAxisAngle(u, (angle * k) / 32), radius));
+  }
+  const curve = new THREE.CatmullRomCurve3(pts);
+  const tube = new THREE.Mesh(
+    new THREE.TubeGeometry(curve, 32, 0.016, 8, false),
+    new THREE.MeshBasicMaterial({ color, depthTest: false })
+  );
+  group.add(tube);
+  const mid = s.clone().applyAxisAngle(u, angle * 0.5);
+  const tag = makeLabel(text, new THREE.Color(color).getStyle(), 0.64);
+  tag.position.copy(origin).addScaledVector(mid, radius + 0.22);
+  group.add(tag);
+}
+
+function addRobotShell(pLeft, zLeft, pRightBottom, zRight, pRightTop) {
+  const shellMat = new THREE.MeshStandardMaterial({
+    color: 0x64748b,
+    roughness: 0.45,
+    metalness: 0.25,
+    transparent: true,
+    opacity: 0.28,
+    depthWrite: false
+  });
+  const cyl1 = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.75, 24), shellMat);
+  cyl1.position.copy(pLeft).addScaledVector(zLeft, 0.25);
+  cyl1.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), zLeft);
+  group.add(cyl1);
+
+  const cyl2 = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.75, 24), shellMat);
+  cyl2.position.copy(pRightTop);
+  cyl2.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), zRight);
+  group.add(cyl2);
+
+  const curvePts = [
+    pLeft.clone().addScaledVector(zLeft, 0.25),
+    new THREE.Vector3(0.65, 0.35, 0.55),
+    new THREE.Vector3(1.35, -0.35, 0.45),
+    pRightBottom.clone().addScaledVector(zRight, 0.55)
+  ];
+  const linkGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(curvePts), 32, 0.11, 16, false);
+  group.add(new THREE.Mesh(linkGeo, shellMat));
+}
+
+let mode = 'mdh';
+let step = 1;
+const alpha = 40 * Math.PI / 180;
+const a = 2.0;
+const theta = 45 * Math.PI / 180;
+const d = 1.1;
+
+const stepBtns = [...document.querySelectorAll('#step-buttons [data-step]')];
+const panelTitle = document.getElementById('panel-title');
+const stepBadge = document.getElementById('step-badge');
+const stepText = document.getElementById('step-text');
+const stepFormula = document.getElementById('step-formula');
+const stepBookHint = document.getElementById('step-book-hint');
+const showShellInput = document.getElementById('show-shell');
+
+function renderScene() {
+  while (group.children.length) group.remove(group.children[0]);
+
+  const O_prev = new THREE.Vector3(0, 0, 0);
+  const x0 = new THREE.Vector3(1, 0, 0);
+  const y0 = new THREE.Vector3(0, 1, 0);
+  const z0 = new THREE.Vector3(0, 0, 1);
+
+  if (mode === 'mdh') {
+    // Craig §3.5 Modified DH: {i-1} -> {R} (Rx alpha) -> {Q} (Dx a) -> {P} (Rz theta) -> {i} (Dz d)
+    const zR = z0.clone().applyAxisAngle(x0, alpha);
+    const yR = y0.clone().applyAxisAngle(x0, alpha);
+    const O_Q = O_prev.clone().addScaledVector(x0, a);
+    const xP = x0.clone().applyAxisAngle(zR, theta);
+    const yP = yR.clone().applyAxisAngle(zR, theta);
+    const O_i = O_Q.clone().addScaledVector(zR, d);
+
+    if (showShellInput.checked) addRobotShell(O_prev, z0, O_Q, zR, O_i);
+
+    // Left axis i-1 and Right axis i reference
+    addAxisLine(O_prev, z0, 0x94a3b8, '轴 i-1 (Zᵢ₋₁)', 1.35, false);
+    addAxisLine(O_Q, zR, 0x10b981, '轴 i (Zᵢ ///)', 1.65, step < 2);
+
+    // Base frame {i-1}
+    addPoint(O_prev, 'Oᵢ₋₁', 0x94a3b8);
+    addFrameAxes(O_prev, x0, y0, z0, ['Xᵢ₋₁', '', ''], [0x94a3b8, 0x94a3b8, 0x94a3b8], 0.82, 0.65);
+
+    if (step === 1) {
+      addFrameAxes(O_prev, x0, yR, zR, ['X_R (与Xᵢ₋₁重合)', 'Y_R', 'Z_R (///)'], [0xf59e0b, 0xd946ef, 0x38bdf8], 0.95);
+      addArc(O_prev, x0, z0, alpha, 'αᵢ₋₁', 0xf59e0b, 0.62);
+    }
+    if (step >= 2) {
+      addSegment(O_prev, O_Q, 0xf59e0b, 'aᵢ₋₁');
+      addPoint(O_Q, 'O_Q / O_P', 0x38bdf8);
+    }
+    if (step === 2) {
+      addFrameAxes(O_Q, x0, yR, zR, ['X_Q', 'Y_Q', 'Z_Q'], [0xf59e0b, 0xd946ef, 0x38bdf8], 0.92);
+    }
+    if (step === 3) {
+      addFrameAxes(O_Q, x0, yR, zR, ['X_Q (转前)', '', ''], [0x94a3b8, 0x94a3b8, 0x94a3b8], 0.78, 0.55);
+      addFrameAxes(O_Q, xP, yP, zR, ['X_P (//)', 'Y_P', 'Z_P'], [0xf59e0b, 0xd946ef, 0x38bdf8], 0.95);
+      addArc(O_Q, zR, x0, theta, 'θᵢ', 0x10b981, 0.62);
+    }
+    if (step === 4) {
+      addFrameAxes(O_Q, xP, yP, zR, ['X_P (//)', '', ''], [0x38bdf8, 0x38bdf8, 0x38bdf8], 0.72, 0.45);
+      addSegment(O_Q, O_i, 0x10b981, 'dᵢ');
+      addPoint(O_i, 'Oᵢ (终点)', 0x10b981);
+      addFrameAxes(O_i, xP, yP, zR, ['Xᵢ (//)', 'Yᵢ', 'Zᵢ'], [0xf59e0b, 0xd946ef, 0x10b981], 0.98);
+    }
+
+    const mdhData = [
+      {
+        badge: '第 1 棒：{i-1} → {R}（对应图 3-15 左下角）',
+        text: '站在左轴原点 Oᵢ₋₁ 不动，绕公垂线 Xᵢ₋₁ 旋转扭角 αᵢ₋₁，得到中间系 {R}。此时 X_R 与 Xᵢ₋₁ 重合，而蓝色 Z_R（标有 ///）已经扭到与右侧关节轴 i 完全平行！',
+        tex: '{}^{i-1}_R T = R_X(\\alpha_{i-1})',
+        hint: '📖 对照书 P52 倒数第 2 行：“由于旋转 αᵢ₋₁，因此坐标系 {R} 与坐标系 {i-1} 不同。”'
+      },
+      {
+        badge: '第 2 棒：{R} → {Q}（沿公垂线滑到右轴底端）',
+        text: '保持 {R} 的姿态不转，顺着橙色公垂线 X_R 向右平移杆长 aᵢ₋₁，到达右侧关节轴底端，得到中间系 {Q}。此时 Z_Q 已经贴在右侧关节轴 i 上。',
+        tex: '{}^{i-1}_Q T = R_X(\\alpha_{i-1})\\,D_X(a_{i-1}) = \\operatorname{Screw}_X(a_{i-1},\\alpha_{i-1})',
+        hint: '📖 对照书 P52 最后一行：“由于位移 aᵢ₋₁，因此坐标系 {Q} 与坐标系 {R} 不同。”'
+      },
+      {
+        badge: '第 3 棒：{Q} → {P}（对应图 3-15 右下角）',
+        text: '站在右轴底端不动，绕右侧关节轴 Z_Q 旋转关节角 θᵢ，得到中间系 {P}。此时橙色 X_P（标有 //）已经转到与最终目标 Xᵢ 完全平行！',
+        tex: '{}^{i-1}_P T = R_X(\\alpha_{i-1})\\,D_X(a_{i-1})\\,R_Z(\\theta_i)',
+        hint: '📖 对照书 P53 第 1 行：“由于转角 θᵢ，因此坐标系 {P} 与坐标系 {Q} 不同。”'
+      },
+      {
+        badge: '第 4 棒：{P} → {i}（顺着右轴爬升 dᵢ 到终点）',
+        text: '顺着右侧关节轴 Z_P 向上平移偏距 dᵢ，到达最终原点 Oᵢ！三根轴与目标坐标系 {i} 严丝合缝重合，4 棒接力全部完成！',
+        tex: '{}^{i-1}_i T = R_X(\\alpha_{i-1})\\,D_X(a_{i-1})\\,R_Z(\\theta_i)\\,D_Z(d_i)',
+        hint: '📖 对照书 P53 第 1–2 行及式 (3.4)：“由于位移 dᵢ，因此坐标系 {i} 与坐标系 {P} 不同。”'
+      }
+    ];
+    const cur = mdhData[step - 1];
+    stepBadge.textContent = cur.badge;
+    stepText.textContent = cur.text;
+    stepBookHint.textContent = cur.hint;
+    if (window.katex) katex.render(cur.tex, stepFormula, { displayMode: true, throwOnError: false });
+  } else {
+    // Standard DH comparison: theta -> d -> a -> alpha
+    const x1 = x0.clone().applyAxisAngle(z0, theta);
+    const y1 = y0.clone().applyAxisAngle(z0, theta);
+    const O_d = O_prev.clone().addScaledVector(z0, d);
+    const O_i = O_d.clone().addScaledVector(x1, a);
+    const zI = z0.clone().applyAxisAngle(x1, alpha);
+    const yI = y1.clone().applyAxisAngle(x1, alpha);
+
+    if (showShellInput.checked) addRobotShell(O_prev, z0, O_i, zI, O_i);
+    addAxisLine(O_prev, z0, 0x94a3b8, '轴 i-1 (Zᵢ₋₁)', 1.5, false);
+    addAxisLine(O_i, zI, 0x10b981, '轴 i (Zᵢ)', 1.5, step < 4);
+    addPoint(O_prev, 'Oᵢ₋₁', 0x94a3b8);
+    addFrameAxes(O_prev, x0, y0, z0, ['Xᵢ₋₁', '', ''], [0x94a3b8, 0x94a3b8, 0x94a3b8], 0.8, 0.6);
+
+    if (step === 1) {
+      addFrameAxes(O_prev, x1, y1, z0, ['X (转θ后)', 'Y', 'Zᵢ₋₁'], [0xf59e0b, 0xd946ef, 0x38bdf8], 0.92);
+      addArc(O_prev, z0, x0, theta, 'θᵢ', 0x10b981, 0.62);
+    }
+    if (step >= 2) {
+      addSegment(O_prev, O_d, 0x10b981, 'dᵢ');
+      addPoint(O_d, '沿 Zᵢ₋₁ 后', 0x38bdf8);
+    }
+    if (step === 2) {
+      addFrameAxes(O_d, x1, y1, z0, ['X', 'Y', 'Z'], [0xf59e0b, 0xd946ef, 0x38bdf8], 0.92);
+    }
+    if (step >= 3) {
+      addSegment(O_d, O_i, 0xf59e0b, 'aᵢ');
+      addPoint(O_i, 'Oᵢ', 0x10b981);
+    }
+    if (step === 3) {
+      addFrameAxes(O_i, x1, y1, z0, ['Xᵢ', 'Y (扭前)', 'Z (扭前)'], [0xf59e0b, 0xd946ef, 0x38bdf8], 0.92);
+    }
+    if (step === 4) {
+      addFrameAxes(O_i, x1, yI, zI, ['Xᵢ', 'Yᵢ', 'Zᵢ'], [0xf59e0b, 0xd946ef, 0x10b981], 0.98);
+      addArc(O_i, x1, z0, alpha, 'αᵢ', 0xf59e0b, 0.62);
+    }
+
+    const sdhData = [
+      {
+        badge: '标准 DH 第 1 步：绕旧轴 Zᵢ₋₁ 转 θᵢ',
+        text: '注意与 Craig 的区别：标准 DH 先在旧轴 Zᵢ₋₁ 上旋转 θᵢ，然后沿 Zᵢ₋₁ 走 dᵢ，再沿新 Xᵢ 走 aᵢ、扭 αᵢ。',
+        tex: '{}^{i-1}T^{(1)} = R_Z(\\theta_i)',
+        hint: '⚠️ 这是非 Craig 教材（如 Spong）常用的标准 DH 顺序，仅供对比，看 Craig 书请切回左侧按钮。'
+      },
+      {
+        badge: '标准 DH 第 2 步：沿旧轴 Zᵢ₋₁ 走 dᵢ',
+        text: '沿旧关节轴 Zᵢ₋₁ 平移偏距 dᵢ。',
+        tex: '{}^{i-1}T^{(2)} = R_Z(\\theta_i)\\,D_Z(d_i)',
+        hint: '⚠️ 标准 DH 中 dᵢ 和 θᵢ 作用在上一根轴 Zᵢ₋₁ 上。'
+      },
+      {
+        badge: '标准 DH 第 3 步：沿公垂线 Xᵢ 走 aᵢ',
+        text: '沿新确定的公垂线方向 Xᵢ 平移连杆长度 aᵢ 到达新原点 Oᵢ。',
+        tex: '{}^{i-1}T^{(3)} = R_Z(\\theta_i)\\,D_Z(d_i)\\,D_X(a_i)',
+        hint: '⚠️ 标准 DH 把坐标系 {i} 放在连杆 i 的末端（轴 i+1 上）。'
+      },
+      {
+        badge: '标准 DH 第 4 步：绕公垂线 Xᵢ 扭 αᵢ',
+        text: '绕 Xᵢ 旋转扭角 αᵢ，使 Z 轴对准新关节轴 Zᵢ。',
+        tex: '{}^{i-1}_i T_{\\text{SDH}} = R_Z(\\theta_i)\\,D_Z(d_i)\\,D_X(a_i)\\,R_X(\\alpha_i)',
+        hint: '⚠️ 对比可见：Craig 是 Screw_X · Screw_Z，而标准 DH 是 Screw_Z · Screw_X。'
+      }
+    ];
+    const cur = sdhData[step - 1];
+    stepBadge.textContent = cur.badge;
+    stepText.textContent = cur.text;
+    stepBookHint.textContent = cur.hint;
+    if (window.katex) katex.render(cur.tex, stepFormula, { displayMode: true, throwOnError: false });
+  }
+}
+
+function updateButtons() {
+  const labels = mode === 'mdh'
+    ? ['1. 绕 X 扭 α → {R}', '2. 沿 X 走 a → {Q}', '3. 绕 Z 转 θ → {P}', '4. 沿 Z 爬 d → {i}']
+    : ['1. 绕 Z 转 θ', '2. 沿 Z 走 d', '3. 沿 X 走 a', '4. 绕 X 扭 α'];
+  stepBtns.forEach((b, i) => {
+    b.textContent = labels[i];
+    b.classList.toggle('active', Number(b.dataset.step) === step);
+  });
+  panelTitle.textContent = mode === 'mdh'
+    ? 'Craig 图 3-15：从 {i-1} 到 {i} 的 4 棒接力'
+    : '经典标准 DH 对照：从 {i-1} 到 {i} 的 4 步动作';
+}
+
+stepBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    step = Number(btn.dataset.step);
+    updateButtons();
+    renderScene();
+  });
+});
+
+document.getElementById('mode-mdh').addEventListener('click', () => {
+  mode = 'mdh';
+  document.getElementById('mode-mdh').classList.add('active');
+  document.getElementById('mode-sdh').classList.remove('active');
+  updateButtons();
+  renderScene();
+});
+
+document.getElementById('mode-sdh').addEventListener('click', () => {
+  mode = 'sdh';
+  document.getElementById('mode-sdh').classList.add('active');
+  document.getElementById('mode-mdh').classList.remove('active');
+  updateButtons();
+  renderScene();
+});
+
+showShellInput.addEventListener('change', renderScene);
+
+new ResizeObserver(() => {
+  const w = host.clientWidth, h = host.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h, false);
+}).observe(host);
+
+function animate() {
+  orbit.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+
+window.addEventListener('load', () => {
+  let c = 0;
+  const wait = () => window.katex ? (updateButtons(), renderScene()) : (c++ < 40 && setTimeout(wait, 80));
+  wait();
+});
+animate();
 </script>
 </body>
 </html>

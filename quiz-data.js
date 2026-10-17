@@ -18,9 +18,9 @@ const CRAIG_MODULES = {
   'ch03_fwd_kinematics': {
     id: 'ch03_fwd_kinematics',
     title: 'Ch 03 操作臂运动学与 DH 建模 (Manipulator Kinematics)',
-    craigChapter: '第 3 章 (P56–P79)',
+    craigChapter: '第 3 章 (P45–P64)',
     notes: ['04-planar-two-link-forward-kinematics.html', '08-dh-coordinate-assignment.html', '09-dh-single-link-transform.html', '10-dh-table-to-forward-kinematics.html'],
-    description: '标准 DH 分配法则、3 自由度空间臂运动学(Craig 3.3/3.4)、公垂线与连杆参数正负规范',
+    description: 'Craig 修正 DH 建系、式(3.6) DH 表转齐次矩阵、真实工业臂 PUMA 560 (Craig §3.8) 与 ROS 2 Franka Panda 建模实战',
     icon: '🤖',
     color: '#10b981'
   },
@@ -349,6 +349,62 @@ const CRAIG_QUESTION_BANK = [
     answer: '(2, 1)',
     explanation: '📖【Craig 原书出处】：第 3 章 §3.2 平面两连杆正解计算 (P57-P58)\n\n🔬【零跳步演算】：\n1. \\(x = a_1 \\cos(q_1) + a_2 \\cos(q_1 + q_2) = 2.0 \\cos(0^\\circ) + 1.0 \\cos(90^\\circ) = 2.0 \\times 1 + 1.0 \\times 0 = 2.0\\text{ m}\\)\n2. \\(y = a_1 \\sin(q_1) + a_2 \\sin(q_1 + q_2) = 2.0 \\sin(0^\\circ) + 1.0 \\sin(90^\\circ) = 0 + 1.0 \\times 1 = 1.0\\text{ m}\\)\n3. 绝对姿态角：\\(\\phi = q_1 + q_2 = 0^\\circ + 90^\\circ = 90^\\circ\\)。',
     refUrl: '04-planar-two-link-forward-kinematics.html'
+  },
+  {
+    id: 'ch03_craig_11',
+    module: 'ch03_fwd_kinematics',
+    type: 'single',
+    difficulty: 3,
+    score: 10,
+    title: '【真实工业臂·Craig 原书 §3.8 PUMA 560】在六自由度工业机械臂 PUMA 560 的连杆参数表（原书 P56 图 3-21）中，第 2 行（腰部竖直轴 \\(\\{1\\}\\) 到肩部水平轴 \\(\\{2\\}\\)）的参数为：\\(\\alpha_1 = -90^\\circ,\\; a_1 = 0,\\; d_2 = 0,\\; \\theta_2 = \\theta_2\\)。将其代入 §3.5 通用公式 (3.6) 后，得到的单节齐次变换矩阵 \\({}^1_2 T\\) 是：',
+    options: [
+      '\\(\\begin{bmatrix} c\\theta_2 & -s\\theta_2 & 0 & 0 \\\\ 0 & 0 & 1 & 0 \\\\ -s\\theta_2 & -c\\theta_2 & 0 & 0 \\\\ 0 & 0 & 0 & 1 \\end{bmatrix}\\)',
+      '\\(\\begin{bmatrix} c\\theta_2 & -s\\theta_2 & 0 & 0 \\\\ s\\theta_2 & c\\theta_2 & 0 & 0 \\\\ 0 & 0 & 1 & 0 \\\\ 0 & 0 & 0 & 1 \\end{bmatrix}\\)',
+      '\\(\\begin{bmatrix} c\\theta_2 & -s\\theta_2 & 0 & 0 \\\\ 0 & 0 & -1 & 0 \\\\ s\\theta_2 & c\\theta_2 & 0 & 0 \\\\ 0 & 0 & 0 & 1 \\end{bmatrix}\\)',
+      '\\(\\begin{bmatrix} 1 & 0 & 0 & 0 \\\\ 0 & c\\theta_2 & -s\\theta_2 & 0 \\\\ 0 & s\\theta_2 & c\\theta_2 & 0 \\\\ 0 & 0 & 0 & 1 \\end{bmatrix}\\)'
+    ],
+    answer: 0,
+    explanation: '📖【Craig 原书出处】：第 3 章 §3.8.1 PUMA 560 连杆参数表 (P56 图 3-21) 与式 (3.9) (P56)\n\n🔬【零跳步代入解析】：\n将 \\(\\alpha_1 = -90^\\circ, a_1 = 0, d_2 = 0\\) 代入 §3.5 式 (3.6)，注意 \\(\\cos(-90^\\circ) = 0,\\; \\sin(-90^\\circ) = -1\\)：\n1. 第 1 行：\\([c\\theta_2,\\; -s\\theta_2,\\; 0,\\; a_1] = [c\\theta_2,\\; -s\\theta_2,\\; 0,\\; 0]\\)\n2. 第 2 行：\\([s\\theta_2\\cos(-90^\\circ),\\; c\\theta_2\\cos(-90^\\circ),\\; -\\sin(-90^\\circ),\\; -\\sin(-90^\\circ)d_2] = [0,\\; 0,\\; 1,\\; 0]\\)\n3. 第 3 行：\\([s\\theta_2\\sin(-90^\\circ),\\; c\\theta_2\\sin(-90^\\circ),\\; \\cos(-90^\\circ),\\; \\cos(-90^\\circ)d_2] = [-s\\theta_2,\\; -c\\theta_2,\\; 0,\\; 0]\\)\n与原书 P56 底部的 \\({}^1_2 T\\) 完全一致！',
+    refUrl: '09-dh-single-link-transform.html'
+  },
+  {
+    id: 'ch03_craig_12',
+    module: 'ch03_fwd_kinematics',
+    type: 'single',
+    difficulty: 3,
+    score: 10,
+    title: '【真实协作臂·ROS 2 Franka Panda】Franka Emika Panda 七轴机械臂官方采用 Craig Modified DH 建模。其第 4 关节（肘部，连杆长 \\(a_3 = 0.0825\\text{ m}\\)，扭角 \\(\\alpha_3 = +90^\\circ\\)，偏距 \\(d_4 = 0\\)）代入式 (3.6) 后，变换矩阵 \\({}^3_4 T\\) 的第 3 列（即新关节轴 \\(\\hat{Z}_4\\) 在 \\(\\{3\\}\\) 中的方向）与第 4 列位置 \\({}^3 P_{4ORG}\\) 分别为：',
+    options: [
+      '第 3 列为 \\([0, -1, 0]^T\\)，第 4 列位置为 \\([0.0825, 0, 0]^T\\)',
+      '第 3 列为 \\([0, 0, 1]^T\\)，第 4 列位置为 \\([0, 0.0825, 0]^T\\)',
+      '第 3 列为 \\([0, 1, 0]^T\\)，第 4 列位置为 \\([0, 0, 0.0825]^T\\)',
+      '第 3 列与第 4 列均随关节角 \\(\\theta_4\\) 实时变化'
+    ],
+    answer: 0,
+    explanation: '📖【Craig 原书出处】：第 3 章 §3.5 式 (3.6) (P52) 及 Franka Emika 官方 DH 参数表\n\n🔬【核心解析】：\n在 Craig Modified DH 式 (3.6) 中，第 3 列恒为 \\([0,\\; -\\sin\\alpha_{i-1},\\; \\cos\\alpha_{i-1}]^T\\)，第 4 列位置恒为 \\([a_{i-1},\\; -d_i\\sin\\alpha_{i-1},\\; d_i\\cos\\alpha_{i-1}]^T\\)（两者均完全不含 \\(\\theta_i\\)！）。\n代入 \\(\\alpha_3 = +90^\\circ\\)（\\(\\sin 90^\\circ = 1, \\cos 90^\\circ = 0\\)）、\\(a_3 = 0.0825\\)、\\(d_4 = 0\\)：\n- 第 3 列：\\([0, -1, 0]^T\\)（表示新关节轴 \\(\\hat{Z}_4\\) 朝向 \\(-\\hat{Y}_3\\)）；\n- 第 4 列位置：\\([0.0825, 0, 0]^T\\)（表示新原点沿 \\(\\hat{X}_3\\) 偏移 0.0825 m）。',
+    refUrl: '09-dh-single-link-transform.html'
+  },
+  {
+    id: 'ch03_craig_13',
+    module: 'ch03_fwd_kinematics',
+    type: 'blank',
+    difficulty: 3,
+    score: 5,
+    title: '【Craig 原书 §3.8 PUMA 560】在 PUMA 560 连杆参数表（P56 图 3-21）中，第 3 行（大臂到小臂）的参数为 \\(\\alpha_2 = 0^\\circ,\\; a_2 = a_2,\\; d_3 = d_3,\\; \\theta_3 = \\theta_3\\)。代入式 (3.6) 得到矩阵 \\({}^2_3 T\\)（P57 式 3.9），其右上角第 4 列的位置向量 \\({}^2 P_{3ORG} = [x, y, z]^T\\) 等于 __________（按 [x, y, z] 格式填写，用 a2, d3 表示）。',
+    answer: '[a2, 0, d3]',
+    explanation: '📖【Craig 原书出处】：第 3 章 §3.8.1 PUMA 560 式 (3.9) 中 \\({}^2_3 T\\) (P57)\n\n🔬【核心解析】：\n将 \\(\\alpha_2 = 0^\\circ\\)（\\(\\cos 0^\\circ = 1, \\sin 0^\\circ = 0\\)）代入式 (3.6) 第 4 列公式 \\([a_{i-1},\\; -d_i\\sin\\alpha_{i-1},\\; d_i\\cos\\alpha_{i-1}]^T\\)，直接得到 \\([a_2,\\; 0,\\; d_3]^T\\)！物理意义：从大臂坐标系 \\(\\{2\\}\\) 到小臂坐标系 \\(\\{3\\}\\)，先沿大臂 \\(\\hat{X}_2\\) 走大臂长 \\(a_2\\)，再沿平行的小臂转轴 \\(\\hat{Z}_3\\) 走肩部偏距 \\(d_3\\)。',
+    refUrl: '09-dh-single-link-transform.html'
+  },
+  {
+    id: 'ch03_craig_14',
+    module: 'ch03_fwd_kinematics',
+    type: 'calc',
+    difficulty: 3,
+    score: 20,
+    title: '【真实工业臂手算题·Craig 原书 §3.8 PUMA 560】已知 PUMA 560 第 4 行（小臂肘部 \\(\\{3\\}\\) 到腕部第 1 轴 \\(\\{4\\}\\)，见原书 P56 图 3-21）的 Modified DH 参数为：\n\\(\\alpha_3 = -90^\\circ,\\; a_3 = 0.02\\text{ m},\\; d_4 = 0.43\\text{ m}\\)。\n当关节角 \\(\\theta_4 = 0^\\circ\\) 时，请代入 §3.5 公式 (3.6) 写出 \\({}^3_4 T\\)，并求出腕部中心原点在 \\(\\{3\\}\\) 系下的三维位置坐标 \\({}^3 P_{4ORG} = [x, y, z]^T\\)。',
+    answer: '[0.02, 0.43, 0]',
+    explanation: '📖【Craig 原书出处】：第 3 章 §3.8.1 PUMA 560 图 3-21 (P56) 与式 (3.9) 中 \\({}^3_4 T\\) (P57)\n\n🔬【零跳步演算】：\n1. 先算三角函数值：\\(\\alpha_3 = -90^\\circ \\implies \\cos\\alpha_3 = 0,\\; \\sin\\alpha_3 = -1\\)；\\(\\theta_4 = 0^\\circ \\implies \\cos\\theta_4 = 1,\\; \\sin\\theta_4 = 0\\)。\n2. 代入 §3.5 式 (3.6) 通用矩阵模板（或原书 P57 式 3.9 的 \\({}^3_4 T\\)）：\n\\({}^3_4 T = \\begin{bmatrix} c\\theta_4 & -s\\theta_4 & 0 & a_3 \\\\ 0 & 0 & 1 & d_4 \\\\ -s\\theta_4 & -c\\theta_4 & 0 & 0 \\\\ 0 & 0 & 0 & 1 \\end{bmatrix} = \\begin{bmatrix} 1 & 0 & 0 & 0.02 \\\\ 0 & 0 & 1 & 0.43 \\\\ 0 & -1 & 0 & 0 \\\\ 0 & 0 & 0 & 1 \\end{bmatrix}\\)\n3. 直接读取右上角第 4 列前三项：\n- \\(x = a_3 = 0.02\\text{ m}\\)\n- \\(y = -\\sin(-90^\\circ) d_4 = (+1) \\times 0.43 = 0.43\\text{ m}\\)\n- \\(z = \\cos(-90^\\circ) d_4 = 0 \\times 0.43 = 0\\text{ m}\\)\n因此 \\({}^3 P_{4ORG} = [0.02, 0.43, 0]^T\\)！',
+    refUrl: '09-dh-single-link-transform.html'
   },
 
   // =========================================================================

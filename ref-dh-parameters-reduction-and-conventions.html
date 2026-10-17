@@ -280,7 +280,7 @@
   &lt;parent link="link_1"/&gt;
   &lt;child link="link_2"/&gt;
   &lt;!-- 3 个平移 (x, y, z) + 3 个旋转姿态角 (Roll, Pitch, Yaw) --&gt;
-  &lt;origin xyz="0.0 0.15 0.45" rpy="0.0 1.5707963 0.0"/&gt;
+  &lt;origin xyz="0.425 0.0 0.0" rpy="1.5707963 0.0 0.0"/&gt;
   &lt;axis xyz="0 0 1"/&gt;
 &lt;/joint&gt;
   </div>
@@ -289,6 +289,59 @@
     因为在现代算力充沛的时代，多存两个浮点数、多做两次乘法对于 CPU 来说只需微秒级时间；
     而 6 自由度表示（笛卡尔平移矢量 + 姿态四元数/欧拉角）在空间中具有全局连续性，<strong>完全不存在任何由于“人为挑选公垂线”而带来的奇异性跳变</strong>！无论轴是否平行，误差都是平滑的，几何标定极其稳定。
   </p>
+
+  <div class="card key" style="margin: 20px 0;">
+    <strong style="color: var(--primary); font-size: 1.05rem;">🔥 灵魂拷问：既然 ROS 2 不用 DH 表，学 Craig 书里这一套是不是白学了？怎么跟 ROS 2 接上？</strong>
+    <p style="margin: 8px 0;">
+      <strong>结论：绝没有白学！</strong>书里有 20% 是旧时代的“历史拐杖”（手工找公垂线凑 4 参数），而另外 <strong>80% 是 ROS 2 正在后台直接运行的“底层数学骨架”</strong>。把下面两个公式摆在一起，窗户纸一捅就破：
+    </p>
+    <div class="derive" style="margin: 10px 0;">
+      $$\text{Craig §3.5 (MDH)}:\quad {}^{i-1}_i T(\theta_i) = \underbrace{R_x(\alpha_{i-1})\,T_x(a_{i-1})\,T_z(d_i)}_{\text{用 3 个 DH 常数拼出静态连杆偏置}} \cdot \underbrace{R_z(\theta_i)}_{\text{电机绕 }Z\text{ 轴转 }\theta_i}$$
+      $$\text{ROS 2 URDF}:\quad {}^{i-1}_i T(\theta_i) = \underbrace{T(x,y,z)\,R_{\text{rpy}}(r,p,y)}_{\text{直接用 CAD 导出的 xyz+rpy 拼出静态连杆偏置}} \cdot \underbrace{R_z(\theta_i)}_{\text{电机绕 }Z\text{ 轴转 }\theta_i}$$
+    </div>
+    <p style="margin: 8px 0;">
+      <strong>看清本质了吗？</strong>
+    </p>
+    <ul style="margin: 6px 0 12px 20px;">
+      <li><strong>URDF 唯一扔掉的</strong>：只是等号右边<strong>前半截</strong>那个“非要找公垂线凑成 $\alpha, a, d$ 三个数来描述静态铁疙瘩”的繁琐规矩（现在直接从 SolidWorks 量出 <code>xyz</code> 和 <code>rpy</code> 填进去即可）。</li>
+      <li><strong>URDF 100% 原封不动保留的</strong>：
+        ① 每个关节绑一个局部坐标系 $\{i\}$，关节绕局部 $\hat{z}_i$ 轴转 $\theta_i$；
+        ② 单节变换 = <strong>“父子静态安装偏置 $\times$ 关节变量旋转 $R_z(\theta_i)$”</strong>；
+        ③ 全臂正运动学 = <strong>沿运动链一路右乘</strong> ${}^0_N T = {}^0_1 T(\theta_1)\,{}_2^1 T(\theta_2)\cdots{}^{N-1}_N T(\theta_N)$ —— 这正是 ROS 2 的 <code>robot_state_publisher</code> 和 <code>tf2</code> 每毫秒在后台干的唯一一件事！</li>
+    </ul>
+
+    <table class="vs-table" style="margin-top: 12px;">
+      <thead>
+        <tr>
+          <th style="width: 22%;">Craig 教材章节</th>
+          <th style="width: 38%;">书里应该抓的“真骨头”（别死抠展开式）</th>
+          <th style="width: 40%;">在 ROS 2 运控研发里直接对应的真活</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Ch 03 正运动学</strong></td>
+          <td>局部坐标系链 $\{0\}\to\{N\}$、单节矩阵“静态偏置 $\times$ 关节旋转”、阅读厂家官方 DH 手册（如 UR 用 SDH、Franka 用 Craig MDH）</td>
+          <td>核对厂家手册与 URDF <code>&lt;joint&gt;</code> 轴向是否一致、<code>tf2</code> 坐标树排错、真机零位与杆长误差标定补偿</td>
+        </tr>
+        <tr>
+          <td><strong>Ch 04 逆运动学</strong></td>
+          <td>Pieper 腕部解耦（后三轴交于一点）、几何余弦法/代数法求 8 组多解（肩左/右、肘上/下、腕翻）</td>
+          <td>MoveIt 默认数值 IK 慢且易跳变；工业实战编写 <strong>MoveIt 解析 IK 插件</strong>与<strong>多解连续性最优筛选</strong>全靠第 4 章</td>
+        </tr>
+        <tr>
+          <td><strong>Ch 05 雅可比矩阵</strong></td>
+          <td>几何雅可比列公式：$J_{v_i} = \hat{z}_i \times (p_e - p_i),\ J_{\omega_i} = \hat{z}_i$ 与奇异位形分析</td>
+          <td>ROS 2 <code>MoveIt Servo</code> 实时笛卡尔速度控制、KDL / Pinocchio 雅可比计算、奇异点阻尼最小二乘（DLS）降速</td>
+        </tr>
+        <tr>
+          <td><strong>Ch 06 动力学</strong></td>
+          <td>Newton-Euler 外推速度/加速度、内推力/力矩，状态空间方程 $M(q)\ddot q + C\dot q + g = \tau$</td>
+          <td><code>ros2_control</code> 重力补偿、阻抗力控、计算力矩控制；KDL <code>ChainIdSolver_RNE</code> 与 Pinocchio <code>rnea</code> 源码就是第 6 章公式的原版翻译</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <h3>2. 高阶机器人学的新王：旋量理论指数积公式 (PoE)</h3>
   <p>
