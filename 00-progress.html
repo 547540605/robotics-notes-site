@@ -8,7 +8,7 @@
   <!-- KaTeX 依赖 -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous" onload="renderMathInElement(document.body, {delimiters: [{left: '\\[', right: '\\]', display: true}, {left: '\\(', right: '\\)', display: false}]});"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}, {left: '\\[', right: '\\]', display: true}, {left: '\\(', right: '\\)', display: false}]});"></script>
 
   <style>
     :root {
@@ -157,6 +157,48 @@
       border-color: var(--primary);
       background: rgba(56, 189, 248, 0.05);
     }
+    .dehydrate-guide {
+      margin: 10px 0 14px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid #334155;
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      padding: 4px 14px;
+      font-size: 0.86rem;
+    }
+    .dehydrate-guide summary {
+      cursor: pointer;
+      padding: 8px 0;
+      font-weight: 700;
+      color: #38bdf8;
+      list-style-position: inside;
+      user-select: none;
+    }
+    .dehydrate-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      padding: 8px 0 10px;
+      border-top: 1px dashed #334155;
+    }
+    .dg-col {
+      background: var(--card-sub);
+      border: 1px solid #263349;
+      border-radius: 6px;
+      padding: 9px 12px;
+      line-height: 1.55;
+    }
+    .dg-col strong.dg-title {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.84rem;
+    }
+    .dg-col ul {
+      margin: 4px 0 0;
+      padding-left: 16px;
+      color: #cbd5e1;
+    }
+    .dg-col li { margin-bottom: 3px; }
   </style>
 </head>
 <body>
@@ -278,12 +320,20 @@
     <div class="chapter-head">
       <div>
         <span class="badge badge-amber">现有导览；教材导入待补</span>
-        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 01 绪论与机械臂学全貌</strong>
-        <span style="color:var(--muted); font-size:0.85rem; margin-left:8px;">(PDF P12–P23)</span>
+        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 01 绪论与机械臂学全貌 (原书 P1–P12 / PDF P12–P23)</strong>
       </div>
       <div style="display:flex; gap:6px;"><a href="quiz-center.html#practice" class="badge badge-purple" style="font-size:0.8rem;">📖 自由刷题</a><a href="quiz-center.html#exams" class="badge badge-blue" style="font-size:0.8rem;">🏆 模块考核</a></div>
     </div>
     <p style="color:var(--muted); font-size:0.88rem; margin:0 0 8px 0;">当前只有全书导览；教材 §1.1–1.3 的任务、力学与控制全景、符号约定尚需独立核对。</p>
+    <details class="dehydrate-guide">
+      <summary>⚡ 本章看书脱水指南（重点 / 略读 / 跳过）&amp; 🤖 ROS 2 工程落点</summary>
+      <div class="dehydrate-grid">
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 重点必看</strong><ul><li><strong>§1.3 符号约定 (P10)</strong>：左上标参考系、左下标目标系的四角记号法。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f59e0b;">🟡 只看关键部分</strong><ul><li><strong>§1.2 力学与控制全景 (P3–9)</strong>：扫一眼正逆运动学、雅可比、动力学、力控分別在解决什么问题。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§1.1 背景 (P1–3)</strong>：80 年代美日工业机器人装机量等老统计数据。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li>全书符号直接对应 ROS 2 标准消息：位姿 <code>TransformStamped</code>、关节状态 <code>JointState</code>、末端六维力 <code>WrenchStamped</code>。</li></ul></div>
+      </div>
+    </details>
     <div class="note-list">
       <a href="00-progress.html" class="note-item">
         <span><strong>00</strong> 学习进度与全景地图</span>
@@ -297,12 +347,20 @@
     <div class="chapter-head">
       <div>
         <span class="badge badge-amber">已有课程；整章待核对</span>
-        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 02 空间描述与变换 (Spatial Descriptions &amp; Transforms)</strong>
-        <span style="color:var(--muted); font-size:0.85rem; margin-left:8px;">(PDF P24–P54)</span>
+        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 02 空间描述与变换 (原书 P13–P43 / PDF P24–P54)</strong>
       </div>
       <div style="display:flex; gap:6px;"><a href="quiz-center.html#practice" class="badge badge-purple" style="font-size:0.8rem;">📖 自由刷题</a><a href="quiz-center.html#exams" class="badge badge-blue" style="font-size:0.8rem;">🏆 模块考核</a></div>
     </div>
     <p style="color:var(--muted); font-size:0.88rem; margin:0 0 8px 0;">系统确立四角记号法、三维单轴旋转矩阵、齐次变换矩阵 \(4\times 4\)、变换链式乘法与正交矩阵性质。</p>
+    <details class="dehydrate-guide">
+      <summary>⚡ 本章看书脱水指南（重点 / 略读 / 跳过）&amp; 🤖 ROS 2 工程落点</summary>
+      <div class="dehydrate-grid">
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 重点必看</strong><ul><li><strong>§2.2–2.4 (P13–23)</strong>：位置矢量、旋转矩阵 \(3\times 3\)（列向量是新轴在旧系投影）、齐次变换 \(4\times 4\)。</li><li><strong>§2.6 (P23–25)</strong>：链式相乘消下标、齐次矩阵求逆公式（\(R^T\) 与 \(-R^T P\)）。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f59e0b;">🟡 只看关键部分</strong><ul><li><strong>§2.7 变换方程 (P25–27)</strong>：看懂多条路径围成闭环怎么求未知变换。</li><li><strong>§2.8 其他姿态描述 (P27–35)</strong>：只抓定轴 RPY 角、动轴欧拉角概念及单位四元数定义，别背展开式。</li><li><strong>§2.9 自由矢量变换 (P35)</strong>：记住速度和力只乘旋转矩阵 \(R\)、不受原点平移影响。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§2.8 冗长反三角推导</strong>及书末附录 B 的 24 种欧拉角排列公式表（工程全部调库）。</li><li><strong>§2.10 计算问题 (P36)</strong>：统计矩阵乘法耗时的早期算力讨论。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong><code>tf2</code> 坐标树</strong>：齐次矩阵 \({}^A_B T\) 就是 <code>TransformStamped</code>（<code>frame_id: A, child_frame_id: B</code>）。</li><li><strong>URDF <code>&lt;origin&gt;</code></strong>：直接采用 §2.8.1 的定轴 <code>rpy="r p y" xyz="x y z"</code>。</li><li><strong>四元数</strong>：ROS 2 话题统一用四元数 <code>(x,y,z,w)</code> 传姿态以规避万向节死锁。</li></ul></div>
+      </div>
+    </details>
     <div class="note-list">
       <a href="01-coordinate-frames.html" class="note-item">
         <span><strong>01</strong> 坐标系中的点</span>
@@ -353,12 +411,20 @@
     <div class="chapter-head">
       <div>
         <span class="badge badge-amber">已有课程；整章待核对</span>
-        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 03 操作臂运动学与 DH 建模 (Manipulator Kinematics)</strong>
-        <span style="color:var(--muted); font-size:0.85rem; margin-left:8px;">(PDF P55–P81)</span>
+        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 03 操作臂运动学与 DH 建模 (原书 P44–P70 / PDF P55–P81)</strong>
       </div>
       <div style="display:flex; gap:6px;"><a href="quiz-center.html#practice" class="badge badge-purple" style="font-size:0.8rem;">📖 自由刷题</a><a href="quiz-center.html#exams" class="badge badge-blue" style="font-size:0.8rem;">🏆 模块考核</a></div>
     </div>
-    <p style="color:var(--muted); font-size:0.88rem; margin:0 0 8px 0;">二维两连杆正解、三维机械臂局部坐标系、Craig 标准 DH 坐标系分配 4 大法则与连杆变换推导。</p>
+    <p style="color:var(--muted); font-size:0.88rem; margin:0 0 8px 0;">二维两连杆正解、三维机械臂局部坐标系、Craig 修正 DH 坐标系分配法则与连杆变换推导。</p>
+    <details class="dehydrate-guide" open>
+      <summary>⚡ 本章看书脱水指南（重点 / 略读 / 跳过）&amp; 🤖 ROS 2 工程落点</summary>
+      <div class="dehydrate-grid">
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 重点必看</strong><ul><li><strong>§3.2–3.4 (P44–51)</strong>：四个连杆参数 \((a_{i-1},\alpha_{i-1},d_i,\theta_i)\) 的几何含义与建系法则。</li><li><strong>§3.5 (P52–54)</strong>：四步单轴动作连乘导出单节通用矩阵式 (3.6) 与全臂连乘式 (3.8)。</li><li><strong>§3.8–3.9 (P61–63)</strong>：五个标准坐标系 <code>{S},{B},{W},{T},{G}</code> 与工具定位链式 (3.18)。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f59e0b;">🟡 只看关键部分</strong><ul><li><strong>§3.6 三个空间 (P54)</strong>：看一眼图 3-16（驱动器空间 \(\to\) 关节空间 \(\to\) 笛卡尔空间）。</li><li><strong>§3.7 PUMA 560 (P55–56)</strong>：只看一眼图 3-21 的 DH 表怎么代进式 (3.6) 写出式 (3.9) 的单节矩阵即可。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§3.7 手算 6 矩阵连乘展开 (P57–58 式 3.10–3.14)</strong>：几十行三角函数纯属体力活，现代代码一行矩阵乘法搞定。</li><li><strong>§3.7 Motoman L-3 实例 (P58–61)</strong>：老式四连杆推杆折算，作者在 P54 都注明初读跳过。</li><li><strong>§3.10 计算问题 (P63–64)</strong>：24 位定点数与查表法老古董。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong>URDF 替代 DH 表</strong>：厂家直接提供 <code>.urdf</code>，每个 <code>&lt;joint&gt;</code> 用 6 参数 <code>&lt;origin&gt;</code> 乘 <code>Rz(q)</code>，与式 (3.6) 完全同构。</li><li><strong>§3.8 五个标准系即 <code>tf2</code></strong>：<code>{S}</code>=<code>world</code>，<code>{B}</code>=<code>base_link</code>，<code>{W}</code>=<code>tool0</code>，<code>{T}</code>=<code>tcp</code>，<code>{G}</code>=<code>target_pose</code>。</li></ul></div>
+      </div>
+    </details>
     <div class="note-list">
       <a href="04-planar-two-link-forward-kinematics.html" class="note-item">
         <span><strong>04</strong> 二维两连杆正运动学</span>
@@ -409,12 +475,20 @@
     <div class="chapter-head">
       <div>
         <span class="badge badge-amber">几何入门可学；整章待展开</span>
-        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 04 操作臂逆运动学 (Inverse Manipulator Kinematics)</strong>
-        <span style="color:var(--muted); font-size:0.85rem; margin-left:8px;">(PDF P82–P105)</span>
+        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 04 操作臂逆运动学 (原书 P71–P94 / PDF P82–P105)</strong>
       </div>
       <div style="display:flex; gap:6px;"><a href="quiz-center.html#practice" class="badge badge-purple" style="font-size:0.8rem;">📖 自由刷题</a><a href="quiz-center.html#exams" class="badge badge-blue" style="font-size:0.8rem;">🏆 模块考核</a></div>
     </div>
     <p style="color:var(--muted); font-size:0.88rem; margin:0 0 8px 0;">现有平面两连杆与空间 3R 位置逆解；教材的完整代数法、姿态逆解与解的选择仍待系统展开。</p>
+    <details class="dehydrate-guide" open>
+      <summary>⚡ 本章看书脱水指南（重点 / 略读 / 跳过）&amp; 🤖 ROS 2 工程落点</summary>
+      <div class="dehydrate-grid">
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 重点必看</strong><ul><li><strong>§4.1–4.2 (P71–74)</strong>：可达工作空间、灵巧工作空间、为什么同一目标会有多组逆解（肘上/肘下/翻腕）。</li><li><strong>§4.4 (P75–78)</strong>：平面与简单三连杆的<strong>几何解法</strong>（余弦定理 + <code>atan2</code> 双参数反正切）。</li><li><strong>§4.6 Pieper 解法思想 (P79–80)</strong>：搞懂“为什么手腕三轴相交于一点，就能先算前 3 轴定位置、再算后 3 轴定姿态”。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f59e0b;">🟡 只看关键部分</strong><ul><li><strong>§4.3 (P74)</strong>：少于 6 轴的机械臂无法到达任意姿态的子空间概念。</li><li><strong>§4.8–4.9 (P87–88)</strong>：用第 3 章的 5 个标准系反解 \({}^B_W T\)，以及<strong>按“离当前关节角最近”选解</strong>的原则。</li><li><strong>§4.10 (P88–89)</strong>：重复定位精度（Repeatability）vs 绝对定位精度（Accuracy）。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§4.5 代数消元化高次多项式 (P78–79)</strong>：繁琐的万能置换消元，不用手推。</li><li><strong>§4.7 PUMA 560 与 Motoman L-3 完整手算逆解 (P81–87)</strong>：整整 6 页凑三角恒等式，千万别去一行行啃！</li><li><strong>§4.11 计算问题 (P89)</strong>：老式算力讨论。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong>MoveIt 2 逆解器插件</strong>：现代协作臂（如 UR5e、Franka）很多不再是严格球腕，ROS 2 中直接配置数值迭代逆解器（<strong><code>KDL</code></strong>、<strong><code>Trac-IK</code></strong>、<strong><code>PickNik BioIK</code></strong>）或自动生成 C++ 解析代码的 <strong><code>IKFast</code></strong>，绝不会让你手推 6 轴三角方程！</li></ul></div>
+      </div>
+    </details>
     <div class="note-list">
       <a href="12-planar-two-link-inverse-kinematics.html" class="note-item">
         <span><strong>12</strong> 二维两连杆逆运动学</span>
@@ -436,12 +510,20 @@
     <div class="chapter-head">
       <div>
         <span class="badge badge-amber">速度已有课程；静力待补</span>
-        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 05 雅可比：速度与静力学 (Jacobians &amp; Statics)</strong>
-        <span style="color:var(--muted); font-size:0.85rem; margin-left:8px;">(PDF P106–P127)</span>
+        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 05 雅可比：速度与静力学 (原书 P95–P116 / PDF P106–P127)</strong>
       </div>
       <div style="display:flex; gap:6px;"><a href="quiz-center.html#practice" class="badge badge-purple" style="font-size:0.8rem;">📖 自由刷题</a><a href="quiz-center.html#exams" class="badge badge-blue" style="font-size:0.8rem;">🏆 模块考核</a></div>
     </div>
     <p style="color:var(--muted); font-size:0.88rem; margin:0 0 8px 0;">微分运动、Jacobian、奇异位形与速度递推已有课程；教材 §5.9–5.11 的静力与力域尚无独立主线。</p>
+    <details class="dehydrate-guide">
+      <summary>⚡ 本章看书脱水指南（重点 / 略读 / 跳过）&amp; 🤖 ROS 2 工程落点</summary>
+      <div class="dehydrate-grid">
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 重点必看</strong><ul><li><strong>§5.3 (P97–98)</strong>：刚体上两点速度关系（线速度 + 角速度叉乘位置矢）。</li><li><strong>§5.7 雅可比矩阵 (P105–106)</strong>：关节速度映射为末端速度 \(\nu = J(q)\dot{q}\)（求偏导法与几何叉乘法）。</li><li><strong>§5.8 奇异性 (P106–108)</strong>：\(\det(J)=0\) 时丢失自由度、关节速度暴增的物理本质。</li><li><strong>§5.9–5.10 静力对偶 (P108–111)</strong>：极其重要！虚功原理导出关节力矩与末端外力关系 \(\tau = J^T(q)\mathcal{F}\)。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f59e0b;">🟡 只看关键部分</strong><ul><li><strong>§5.5–5.6 连杆速度递推 (P101–105)</strong>：看懂角速度与线速度怎样从第 \(i\) 节传给第 \(i+1\) 节（为第 6 章动力学铺路）。</li><li><strong>§5.11 笛卡尔变换 (P111)</strong>：知道把雅可比从工具系换到基座系只需乘一个旋转块对角阵。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§5.6 多连杆手算展开长公式</strong>：超过 2 连杆的雅可比在工程上全部由代码按列叉乘生成，无需手算展开。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong><code>MoveIt Servo</code> 实时控制</strong>：手柄遥操作或视觉伺服发末端速度指令 \(v\)，底层正是靠 \(\dot{q} = J^\dagger v\) 实时算关节速度并做奇异点降速保护。</li><li><strong>力控与碰撞检测</strong>：利用 \(\tau = J^T F\) 把期望末端接触力直接转成电机电流/力矩指令。</li></ul></div>
+      </div>
+    </details>
     <div class="note-list">
       <a href="14-planar-two-link-jacobian.html" class="note-item">
         <span><strong>14</strong> 两连杆雅可比矩阵推导</span>
@@ -495,12 +577,20 @@
     <div class="chapter-head">
       <div>
         <span class="badge badge-amber">已有课程；阅读阶梯待复核</span>
-        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 06 操作臂动力学 (Manipulator Dynamics)</strong>
-        <span style="color:var(--muted); font-size:0.85rem; margin-left:8px;">(PDF P128–P154)</span>
+        <strong style="color:#fff; font-size:1.15rem; margin-left:8px;">Ch 06 操作臂动力学 (原书 P117–P143 / PDF P128–P154)</strong>
       </div>
       <div style="display:flex; gap:6px;"><a href="quiz-center.html#practice" class="badge badge-purple" style="font-size:0.8rem;">📖 自由刷题</a><a href="quiz-center.html#exams" class="badge badge-blue" style="font-size:0.8rem;">🏆 模块考核</a></div>
     </div>
     <p style="color:var(--muted); font-size:0.88rem; margin:0 0 8px 0;">力矩与力臂物理直觉、转动惯量微积分 (端点/质心/实心圆盘)、平行轴定理严格证明、平动转动双子星字典与单关节四大力矩模型。</p>
+    <details class="dehydrate-guide">
+      <summary>⚡ 本章看书脱水指南（重点 / 略读 / 跳过）&amp; 🤖 ROS 2 工程落点</summary>
+      <div class="dehydrate-grid">
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 重点必看</strong><ul><li><strong>§6.3 质量分布 (P118–121)</strong>：质心与 \(3\times 3\) 惯性张量、平行轴定理。</li><li><strong>§6.4 牛顿与欧拉方程 (P121–122)</strong>：单刚体平动 \(F=ma_c\) 与转动 \(N=I\dot{\omega}+\omega\times I\omega\)。</li><li><strong>§6.8 动力学标准结构式 (P128–129)</strong>：彻底看懂 \(M(\Theta)\ddot{\Theta} + V(\Theta,\dot{\Theta}) + G(\Theta) = \tau\) 每一项的物理含义。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f59e0b;">🟡 只看关键部分</strong><ul><li><strong>§6.5 牛顿-欧拉双向递推 (P122–125)</strong>：抓“从底座向外递推速度/加速度，从末端向内递推力/力矩”的两趟算法思想（RNEA）。</li><li><strong>§6.9 拉格朗日法 (P129–131)</strong>：知道动能减势能求导也能推出同一个方程即可。</li><li><strong>§6.11–6.12 (P134–135)</strong>：减速比平方放大电机转子惯量 \(n^2 I_m\) 与黏性/库仑摩擦。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§6.6–6.7 手算展开多连杆封闭动力学长公式 (P125–128)</strong>：满页的 \(\sin/\cos\) 耦合项千万别手算。</li><li><strong>§6.13 计算问题 (P135–136)</strong>：80 年代省乘法次数的讨论。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong>URDF <code>&lt;inertial&gt;</code> 标签</strong>：§6.3 的质量与惯性张量直接对应 URDF 里的 <code>&lt;mass&gt;</code> 和 <code>&lt;inertia ixx ixy ixz iyy iyz izz/&gt;</code>（由 SolidWorks/MeshLab 自动导出）。</li><li><strong><code>Pinocchio</code> / <code>KDL</code> 动力学库</strong>：§6.5 的 RNEA 算法在 ROS 2 中直接调一行 <code>pinocchio::rnea(model, data, q, v, a)</code> 即可微秒级算出重力补偿与前馈力矩！</li></ul></div>
+      </div>
+    </details>
     <div class="note-list">
       <a href="ref-dynamics-foundations-force-torque-inertia.html" class="note-item" style="border-color:var(--warn);">
         <span><strong>附录 3</strong> 动力学前置补课：力矩与转动惯量</span>
@@ -569,23 +659,68 @@
 
   <!-- Craig Ch 07–11: existing lessons are entry points, not complete chapters. -->
   <div class="chapter-card">
-    <div class="chapter-head"><strong>教材第 7 章 · 轨迹生成</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
+    <div class="chapter-head"><strong>Ch 07 轨迹生成 (原书 P144–P164 / PDF P155–P175)</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
+    <details class="dehydrate-guide">
+      <summary>⚡ 本章看书脱水指南（重点 / 略读 / 跳过）&amp; 🤖 ROS 2 工程落点</summary>
+      <div class="dehydrate-grid">
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 重点必看</strong><ul><li><strong>§7.2–7.3 关节空间规划 (P144–155)</strong>：三次多项式、五次多项式、带抛物线过渡的梯形速度曲线（LSPB）。</li><li><strong>§7.4–7.5 笛卡尔空间规划 (P155–158)</strong>：直线插补与三种笛卡尔几何故障（中间点不可达、奇异点附近关节速度暴增、多解分支跳变）。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f59e0b;">🟡 只看关键部分</strong><ul><li><strong>§7.6 路径实时生成 (P158–159)</strong>：控制周期内怎么按时间片采样发指令。</li><li><strong>§7.8–7.9 (P160–161)</strong>：动力学约束时间最优与无碰撞路径规划概念。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§7.7 古老机器人编程语言 (P160)</strong>：80 年代 AL / VAL 专用语言伪代码。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong>MoveIt 2 规划管道</strong>：先由 OMPL 搜出无碰撞路径点，再由 <strong>TOTG（时间最优轨迹生成）</strong>或五次样条打上时间戳，封装为 <code>JointTrajectory</code> 发给 <code>joint_trajectory_controller</code>。</li><li><strong>Pilz 工业规划器</strong>：专门提供工业标准的 <code>PTP</code>（关节空间）、<code>LIN</code>（笛卡尔直线）、<code>CIRC</code>（圆弧）插补。</li></ul></div>
+      </div>
+    </details>
     <div class="note-list"><a href="33-trajectory-time-laws.html" class="note-item"><span class="note-id">33</span><span class="note-title">关节轨迹时间律：三次、五次与 LSPB</span></a></div>
   </div>
   <div class="chapter-card">
-    <div class="chapter-head"><strong>教材第 8 章 · 操作臂的机械设计</strong><span class="badge badge-amber">尚无独立主线课程</span></div>
-    <p style="color:var(--muted);font-size:0.88rem;margin:0;">任务需求、构型、工作空间、驱动、刚度与传感器将按教材展开；现有伺服接口笔记不能代替本章。</p>
+    <div class="chapter-head"><strong>Ch 08 操作臂的机构设计 (原书 P165–P191 / PDF P176–P202)</strong><span class="badge badge-amber">尚无独立主线课程</span></div>
+    <p style="color:var(--muted);font-size:0.88rem;margin:0 0 8px 0;">任务需求、构型、工作空间、驱动、刚度与传感器将按教材展开；现有伺服接口笔记不能代替本章。</p>
+    <details class="dehydrate-guide">
+      <summary>⚡ 本章看书脱水指南（重点 / 略读 / 跳过）&amp; 🤖 ROS 2 工程落点</summary>
+      <div class="dehydrate-grid">
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 重点必看</strong><ul><li><strong>§8.3 运动学构型 (P167–172)</strong>：笛卡尔型、SCARA 型、关节型（6R）与球腕结构特点。</li><li><strong>§8.6–8.7 驱动与刚度 (P175–180)</strong>：谐波/齿轮减速器、皮带/连杆传动优缺点与串联刚度计算。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f59e0b;">🟡 只看关键部分</strong><ul><li><strong>§8.5 冗余与闭链结构 (P174–175)</strong>：为什么 7 轴臂能避障、并联闭链刚度为什么高。</li><li><strong>§8.8–8.10 传感器 (P180–185)</strong>：增量式/绝对值光学编码器与六维应变片力矩传感器原理。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li>老式旋转变压器/电位器电路与 80 年代液压驱动定量细节。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong><code>ros2_control</code> 硬件接口 (<code>hardware_interface</code>)</strong>：编码器对应 <code>state_interface (position/velocity)</code>，电机驱动器对应 <code>command_interface (effort/velocity/position)</code>，六维力传感器对应 <code>force_torque_sensor_broadcaster</code>。</li></ul></div>
+      </div>
+    </details>
   </div>
   <div class="chapter-card">
-    <div class="chapter-head"><strong>教材第 9 章 · 线性控制</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
+    <div class="chapter-head"><strong>Ch 09 操作臂的线性控制 (原书 P192–P211 / PDF P203–P222)</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
+    <details class="dehydrate-guide">
+      <summary>⚡ 本章看书脱水指南（重点 / 略读 / 跳过）&amp; 🤖 ROS 2 工程落点</summary>
+      <div class="dehydrate-grid">
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 重点必看</strong><ul><li><strong>§9.3–9.4 二阶系统与 PD 控制 (P193–199)</strong>：自然频率 \(\omega_n\)、阻尼比 \(\zeta\)、为什么机械臂位置控制必须追求<strong>临界阻尼（\(\zeta=1\)，绝不超调撞击）</strong>。</li><li><strong>§9.6–9.7 轨迹跟踪与抗扰 (P200–202)</strong>：加速度前馈 + PD 反馈，以及用积分项 I 消除重力稳态误差。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f59e0b;">🟡 只看关键部分</strong><ul><li><strong>§9.5 控制律分解 (P199–200)</strong>：把控制器拆成“单位质量模型部分 + 伺服误差部分”。</li><li><strong>§9.9–9.10 增益上限 (P203–207)</strong>：理解为什么 \(K_p, K_v\) 不能无限调大（受限于结构谐振频率 \(\omega_{\text{res}}\) 与采样周期）。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§9.9 老式有刷直流电机电枢电感推导细节</strong>（现代伺服驱动器底层已做好 FOC 电流环）。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong><code>joint_trajectory_controller</code> 参数调优</strong>：YAML 配置文件里的 <code>gains: {p, i, d, i_clamp, ff_velocity_scale}</code> 就是本章公式的直接工程实现。</li></ul></div>
+      </div>
+    </details>
     <div class="note-list"><a href="34-pid-position-control.html" class="note-item"><span class="note-id">34</span><span class="note-title">单关节 PD / PID 位置闭环</span></a></div>
   </div>
   <div class="chapter-card">
-    <div class="chapter-head"><strong>教材第 10 章 · 非线性控制</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
+    <div class="chapter-head"><strong>Ch 10 操作臂的非线性控制 (原书 P212–P236 / PDF P223–P247)</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
+    <details class="dehydrate-guide">
+      <summary>⚡ 本章看书脱水指南（重点 / 略读 / 跳过）&amp; 🤖 ROS 2 工程落点</summary>
+      <div class="dehydrate-grid">
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 重点必看</strong><ul><li><strong>§10.4 计算力矩控制 CTC (P215–216)</strong>：用第 6 章动力学模型 \(\tau = \hat{M}(\ddot{\Theta}_d + K_v\dot{E} + K_p E) + \hat{V} + \hat{G}\) 把耦合非线性机械臂解耦成独立二阶线性系统。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f59e0b;">🟡 只看关键部分</strong><ul><li><strong>§10.5–10.6 工业实用妥协 (P216–221)</strong>：高减速比下为什么只做“单关节 PD + 重力前馈补偿 \(\hat{G}(\Theta)\)”就够用了。</li><li><strong>§10.8 笛卡尔空间控制 (P223–227)</strong>：直接在末端空间算位置误差再映射回关节力矩的框图。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§10.7 李雅普诺夫稳定性严格数学证明 (P221–223)</strong>。</li><li><strong>§10.9 自适应控制长篇推导 (P227–232)</strong>：初学完全不必看。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong>自定义力矩控制器 / 重力补偿模式（零力拖动示教）</strong>：在 <code>ros2_control</code> 的 <code>update()</code> 循环里调 <code>Pinocchio</code> 算出 \(\hat{G}(q)\) 发给电机力矩接口，机械臂就能用手轻松掰动并悬停！</li></ul></div>
+      </div>
+    </details>
     <div class="note-list"><a href="35-computed-torque-control.html" class="note-item"><span class="note-id">35</span><span class="note-title">计算力矩控制：模型前馈与 PD 反馈</span></a></div>
   </div>
   <div class="chapter-card">
-    <div class="chapter-head"><strong>教材第 11 章 · 力控制</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
+    <div class="chapter-head"><strong>Ch 11 操作臂的力控制 (原书 P237–P252 / PDF P248–P263)</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
+    <details class="dehydrate-guide">
+      <summary>⚡ 本章看书脱水指南（重点 / 略读 / 跳过）&amp; 🤖 ROS 2 工程落点</summary>
+      <div class="dehydrate-grid">
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 重点必看</strong><ul><li><strong>§11.2–11.3 自然约束与人工约束 (P237–241)</strong>：在任务坐标系 <code>{C}</code> 下，碰到硬表面的方向只能控力（自然位置约束），能自由滑动的方向只能控位置（自然力约束）。</li><li><strong>§11.4–11.6 力/位混合控制 (P241–246)</strong>：用对角选择矩阵 \(S\) 把位置闭环和力闭环正交拼合。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f59e0b;">🟡 只看关键部分</strong><ul><li><strong>§11.5 弹簧环境力控稳定性 (P242–244)</strong>：理解为什么接触环境剛度 \(k_e\) 越大（如金属碰金属），力控制增益反而必须越小。</li><li><strong>§11.7 工程方法 (P247–248)</strong>：被动柔顺（RCC 柔顺手腕）与主动阻抗/导纳控制。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li>无明显过时节，本章篇幅很短（仅 12 页正文），重点抓物理直觉。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong><code>ros2_control</code> 的 <code>admittance_controller</code>（导纳控制器）</strong>：工业界最主流方案——因为大多数协作臂不开放底层电流环，直接读六维力传感器数据，把接触力折算成末端位置偏移量叠加上去，实现柔顺插拔孔与恒力打磨。</li></ul></div>
+      </div>
+    </details>
     <div class="note-list"><a href="36-force-impedance-admittance-control.html" class="note-item"><span class="note-id">36</span><span class="note-title">接触、阻抗与导纳的基本直觉</span></a></div>
   </div>
   <div class="chapter-card">

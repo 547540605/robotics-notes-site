@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>笔记 04：二维两连杆逆运动学</title>
+  <title>笔记 12：二维两连杆逆运动学</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
   <style>
@@ -46,8 +46,46 @@
 </head>
 <body>
 <main>
-  <p class="muted"><a href="00-progress.html">学习进度</a> · <a href="04-planar-two-link-forward-kinematics.html">笔记 04：二维两连杆正运动学</a> · <a href="10-dh-table-to-forward-kinematics.html">笔记 04：DH 正运动学</a></p>
-  <h1>笔记 04：二维两连杆的逆运动学</h1>
+  <p class="muted"><a href="00-progress.html">学习进度</a> · <a href="04-planar-two-link-forward-kinematics.html">笔记 04：二维两连杆正运动学</a> · <a href="10-dh-table-to-forward-kinematics.html">笔记 10：DH 正运动学</a></p>
+  <h1>笔记 12：二维两连杆的逆运动学（Craig 第 4 章开篇）</h1>
+
+  <div class="card" style="border-left: 4px solid #38bdf8; background: rgba(15, 23, 42, 0.75);">
+    <strong style="color:#38bdf8; font-size:1.03rem;">⚡ Craig 第 4 章（操作臂逆运动学，原书 P71–94）看书脱水指南 &amp; 🤖 ROS 2 关联</strong>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-top:10px; font-size:0.9rem;">
+      <div style="background:var(--card-sub); padding:10px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#10b981;">🟢 重点必看（核心基石）</strong>
+        <ul style="margin:6px 0 0; padding-left:18px;">
+          <li><strong>§4.1–4.2 (P71–74)</strong>：解的存在性（可达/灵巧工作空间）与多解性（肘上/肘下/翻腕）。</li>
+          <li><strong>§4.4 (P75–78)</strong>：<strong>几何解法</strong>（余弦定理 + <code>atan2</code>，即本页核心）。</li>
+          <li><strong>§4.6 Pieper 准则 (P79–80)</strong>：为什么“后三轴相交于一点（球腕）”就能把位置和姿态拆开算。</li>
+        </ul>
+      </div>
+      <div style="background:var(--card-sub); padding:10px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#f59e0b;">🟡 只看关键结论（3分钟略读）</strong>
+        <ul style="margin:6px 0 0; padding-left:18px;">
+          <li><strong>§4.3 (P74)</strong>：少于 6 轴时的子空间概念。</li>
+          <li><strong>§4.8–4.9 (P87–88)</strong>：用第 3 章的 5 个标准系反推手腕位姿，并按<strong>“离当前角度最近”原则选解</strong>。</li>
+          <li><strong>§4.10 (P88–89)</strong>：重复定位精度 vs 绝对定位精度。</li>
+        </ul>
+      </div>
+      <div style="background:var(--card-sub); padding:10px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#f43f5e;">🔴 直接跳过不看（80年代老黄历）</strong>
+        <ul style="margin:6px 0 0; padding-left:18px;">
+          <li><strong>§4.5 (P78–79)</strong>：化为高次多项式的繁琐代数消元。</li>
+          <li><strong>§4.7 (P81–87)</strong>：PUMA 560 与 Motoman L-3 整整 6 页凑三角恒等式的手算逆解，<strong>千万别去硬啃</strong>！</li>
+          <li><strong>§4.11 (P89)</strong>：早期算力计算问题。</li>
+        </ul>
+      </div>
+      <div style="background:var(--card-sub); padding:10px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#38bdf8;">🤖 ROS 2 (MoveIt 2) 真实工程怎么干</strong>
+        <ul style="margin:6px 0 0; padding-left:18px;">
+          <li>现代在售机械臂很多不再是严格球腕，工程中<strong>绝不用手推 6 轴三角方程</strong>！</li>
+          <li>在 MoveIt 2 的 <code>kinematics.yaml</code> 中直接配置数值迭代逆解器（<strong><code>KDL</code></strong>、<strong><code>Trac-IK</code></strong>、<strong><code>PickNik BioIK</code></strong>）或自动生成 C++ 代码的 <strong><code>IKFast</code></strong>。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
   <div class="card key"><strong>正运动学：</strong>给 <span data-tex="q_1,q_2"></span>，求末端 <span data-tex="(x,y)"></span>。<br><strong>逆运动学：</strong>给希望到达的点 <span data-tex="P=(x,y)"></span>，反过来求哪两组关节角 <span data-tex="(q_1,q_2)"></span> 能让末端到那里。</div>
   <div class="card"><strong>本页只解决平面两转动关节。</strong>这不是为了回避三维，而是先把“目标点 → 关节角”这件事讲透。三维机械臂的逆解会更复杂，但同样先要问：目标是否可达、可能有几组解、每一组的关节角分别是多少。</div>
 

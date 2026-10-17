@@ -6,6 +6,27 @@
 <h1>笔记 35：计算力矩控制——先预估“需要多少力矩”，再用反馈收尾</h1>
 <p class="muted">两连杆高速协同运动时，关节 1 的力矩会受关节 2 姿态、速度、加速度和重力影响。只靠 PID 可以纠错，但它必须等偏差出现后才行动。计算力矩控制（Computed Torque Control, CTC）把已知的动力学模型作为前馈：在误差还没有产生时，先给出大致正确的努力量。</p>
 
+<details open style="border-color:rgba(167,139,250,0.45);background:rgba(167,139,250,0.06);margin:14px 0;">
+  <summary style="color:#a78bfa;">⚡ 第 10 章看书脱水指南（P212–236） &amp; 🤖 ROS 2 真实工程落点</summary>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0;font-size:0.9rem;">
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(52,211,153,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 重点必看（核心骨架）</b>
+      <b>§10.2–§10.5</b> 非线性模型前馈 + PD 反馈解耦（计算力矩法 CTC：<code>τ = M̂(q̈_d + K_v ė + K_p e) + V̂ + Ĝ</code>）。
+    </div>
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#fbbf24;display:block;margin-bottom:4px;">🟡 只看关键结论</b>
+      <b>§10.6–§10.7</b> 笛卡尔空间非线性解耦控制与参数失配时的鲁棒性物理直觉。
+    </div>
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,113,133,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#fb7185;display:block;margin-bottom:4px;">🔴 直接跳过不看</b>
+      <b>§10.8–§10.9</b> 冗长的李雅普诺夫（Lyapunov）稳定性纯数学证明细节与自适应控制律繁琐推导。
+    </div>
+  </div>
+  <div style="background:rgba(56,189,248,0.08);border-left:3px solid #38bdf8;border-radius:6px;padding:8px 12px;font-size:0.88rem;color:#cbd5e1;">
+    <strong style="color:#38bdf8;">🤖 ROS 2 真实工程关联：</strong>在开放力矩接口（<code>hardware_interface::HW_IF_EFFORT</code>，如 Franka Panda <code>franka_ros2</code>、KUKA LBR iiwa 或宇树关节电机）上编写自定义 <code>ros2_control</code> 1 kHz 实时控制器时，直接调用 <code>Pinocchio</code> 的 <code>rnea()</code> 实时计算重力补偿与前馈力矩 <code>τ̂_ff</code>，叠加关节 PD 反馈输出。
+  </div>
+</details>
+
 <section class="card guide"><h2 style="margin-top:0;border:0;padding:0">四张笔记在这里第一次闭环</h2><span class="formula">33: (q_d,q̇_d,q̈_d) + 32: M,h,g + 34: 误差 PD  →  τ_cmd  →  两连杆实际状态 (q,q̇)</span><p>这不是四套独立公式：33 提供“希望怎么动”，32 说明“这种运动需要承担哪些惯性、耦合和重力”，34 提供“模型不准时如何拉回”。</p></section>
 
 <h2>1. 从两连杆动力学式开始，而不是背一条新控制律</h2>

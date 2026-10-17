@@ -10,6 +10,28 @@
 <p class="crumb"><a href="00-progress.html">动力学与控制进度</a> · <a href="34-pid-position-control.html">34：PID</a> · <a href="35-computed-torque-control.html">35：CTC</a> · 36：力控制、阻抗与导纳</p>
 <h1>笔记 36：接触后，目标不再只是“到这个位置”</h1>
 <p class="muted">自由空间里，末端偏 1 mm 往往只是几何误差；插接、打磨、装配或沿表面移动时，同样的 1 mm 可能意味着很大的接触力。接触控制要回答的不是单纯“末端在哪”，而是“受力后允许怎样让位、以什么方向让位、力是否仍在允许边界内”。</p>
+
+<details open style="border-color:rgba(167,139,250,0.45);background:rgba(167,139,250,0.06);margin:14px 0;">
+  <summary style="color:#a78bfa;">⚡ 第 11 章看书脱水指南（P237–252） &amp; 🤖 ROS 2 真实工程落点</summary>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0;font-size:0.9rem;">
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(52,211,153,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 重点必看（核心骨架）</b>
+      <b>§11.1–§11.4</b> 接触约束坐标系 \(\{C\}\)、自然约束与人工约束正交性、单自由度质点弹簧柔顺/刚度直觉。
+    </div>
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#fbbf24;display:block;margin-bottom:4px;">🟡 只看关键结论</b>
+      <b>§11.5</b> 力/位置混合控制框图（选择矩阵 \(S\) 划分力控子空间与位控子空间）；<b>★ 强烈建议搭配本站第 36 课与 <a href="force-control-and-compliant-assembly/index.html">NISTIR 7901 柔顺装配专题</a></b> 补齐原书未深讲的现代阻抗（Impedance）与导纳（Admittance）控制。
+    </div>
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,113,133,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#fb7185;display:block;margin-bottom:4px;">🔴 直接跳过不看</b>
+      <b>§11.6–§11.7</b> 基于完整逆动力学解耦的理论混合控制推导及早年遗留实现。
+    </div>
+  </div>
+  <div style="background:rgba(56,189,248,0.08);border-left:3px solid #38bdf8;border-radius:6px;padding:8px 12px;font-size:0.88rem;color:#cbd5e1;">
+    <strong style="color:#38bdf8;">🤖 ROS 2 真实工程关联：</strong>工业机械臂（通常仅开放位置/速度接口）在 ROS 2 中最主流的柔顺方案是 <code>ros2_controllers</code> 官方提供的 <code>admittance_controller</code>（读取腕部六维力传感器 <code>geometry_msgs/WrenchStamped</code>，经 \(M_a\ddot{x}+D_a\dot{x}+K_a\Delta x = F_{\mathrm{ext}}\) 转化为末端位姿修正量交给内部位置环）；协作臂力矩接口则常运行笛卡尔阻抗控制器（<code>cartesian_impedance_controller</code>）。
+  </div>
+</details>
+
 <section class="card guide"><h2 style="margin-top:0;border:0;padding:0">延伸专题：机器人力控制与柔顺装配</h2><p>本课先建立阻抗、导纳和接触的基本直觉。NISTIR 7901 的 A–F 方法、逐段中文译文、原报告链接、两张控制框图及独立 PI 仿真放在<a href="force-control-and-compliant-assembly/index.html">独立专题</a>，不并入本课正文。</p></section>
 
 <section class="card guide"><h2 style="margin-top:0;border:0;padding:0">先用一维推墙，固定三个概念</h2><p>取末端正向为向右。目标点在墙右侧，墙会对末端施加向左的反作用力 \(F_{\mathrm{ext}}<0\)。纯位置控制会继续追逐目标点；柔顺控制则允许末端根据测得的外力后退。</p><span class="formula">自由空间：位置误差主要是几何问题   →   接触空间：位置误差与接触力必须一起被约束</span></section>

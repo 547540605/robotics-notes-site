@@ -42,8 +42,41 @@
 </head>
 <body>
 <main>
-  <p class="small"><a href="00-progress.html">学习进度</a> · <a href="04-planar-two-link-forward-kinematics.html">笔记 04：正运动学</a> · <a href="12-planar-two-link-inverse-kinematics.html">笔记 04：逆运动学</a> · <a href="13-planar-forward-inverse-quiz.html">正逆自测</a></p>
-  <h1>15. 二维两连杆雅可比矩阵</h1>
+  <p class="small"><a href="00-progress.html">学习进度</a> · <a href="04-planar-two-link-forward-kinematics.html">笔记 04：正运动学</a> · <a href="12-planar-two-link-inverse-kinematics.html">笔记 12：逆运动学</a> · <a href="13-planar-forward-inverse-quiz.html">正逆自测</a></p>
+  <h1>14. 二维两连杆雅可比矩阵（Craig 第 5 章开篇）</h1>
+  <div class="card" style="border-left: 4px solid #38bdf8; background: rgba(15, 23, 42, 0.78);">
+    <strong style="color:#38bdf8; font-size:1.02rem;">⚡ Craig 第 5 章（雅可比：速度和静力，原书 P95–116）看书脱水指南 &amp; 🤖 ROS 2 关联</strong>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-top:10px; font-size:0.88rem;">
+      <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#10b981;">🟢 重点必看</strong>
+        <ul style="margin:5px 0 0; padding-left:16px;">
+          <li><strong>§5.3 (P97–98)</strong>：刚体两点速度关系（线速度 + 角速度叉乘位置矢）。</li>
+          <li><strong>§5.7–5.8 (P105–108)</strong>：雅可比定义 <code>ν = J(q)q̇</code> 与<strong>奇异性</strong>（<code>det(J)=0</code> 丢失自由度、关节速度暴增）。</li>
+          <li><strong>§5.9–5.10 (P108–111)</strong>：<strong>静力对偶定理</strong> <code>τ = Jᵀ(q)F</code>。</li>
+        </ul>
+      </div>
+      <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#f59e0b;">🟡 3分钟略读</strong>
+        <ul style="margin:5px 0 0; padding-left:16px;">
+          <li><strong>§5.5–5.6 (P101–105)</strong>：连杆角速度与线速度逐节向外递推通式（为第 6 章铺路）。</li>
+          <li><strong>§5.11 (P111)</strong>：雅可比在不同参考系下的旋转变换。</li>
+        </ul>
+      </div>
+      <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#f43f5e;">🔴 直接跳过</strong>
+        <ul style="margin:5px 0 0; padding-left:16px;">
+          <li><strong>§5.6 多连杆手算展开长公式</strong>：超过两连杆的雅可比在工程上全部由代码按列叉乘实时计算，绝不手算展开。</li>
+        </ul>
+      </div>
+      <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong>
+        <ul style="margin:5px 0 0; padding-left:16px;">
+          <li><strong><code>MoveIt Servo</code></strong>：手柄/视觉伺服发笛卡尔速度 <code>v</code>，底层靠 <code>q̇ = J† v</code> 实时算关节速度并做奇异点降速保护。</li>
+          <li><strong>无传感力控</strong>：用 <code>τ = Jᵀ F</code> 把末端接触力直接换算为关节力矩。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
   <p class="lead">前面的问题是“角度变成位置”或“目标位置变成角度”。这一篇换成一个更细的问法：在<strong>当前姿态</strong>附近，两个关节各自微微转一点，末端会朝哪个方向移动多少？雅可比矩阵就是把这件事写成一条局部线性关系。</p>
   <div class="lesson">
     <aside class="lab" aria-label="关节微小变化与末端移动交互图">

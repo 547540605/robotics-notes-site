@@ -252,9 +252,45 @@
     <p>对应《机器人学导论》第 2 章 2.2 的开头。目标不是背公式，而是理解：同一个位置如何用不同坐标系描述。</p>
     <p class="small" style="color:var(--muted); margin-bottom:16px;">
       <a href="00-progress.html" style="color:var(--accent); text-decoration:none;">学习看板</a> · 
-      <a href="02-homogeneous-transform.html" style="color:var(--accent); text-decoration:none;">笔记 01：齐次变换矩阵</a> · 
+      <a href="02-homogeneous-transform.html" style="color:var(--accent); text-decoration:none;">笔记 02：齐次变换矩阵</a> · 
       <a href="ref-matrix-multiplication-and-frame-transform.html" style="color:#38bdf8; font-weight:bold; text-decoration:none;">📖 基础专栏：矩阵乘向量列视角与坐标变换本质（附录 0）↗</a>
     </p>
+
+    <div class="rule" style="border-left: 4px solid #38bdf8; background: rgba(15, 23, 42, 0.78); margin: 14px 0 20px;">
+      <strong style="color:#38bdf8; font-size:1.02rem;">⚡ Craig 第 2 章（空间描述和变换，原书 P13–43）看书脱水指南 &amp; 🤖 ROS 2 关联</strong>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-top:10px; font-size:0.88rem;">
+        <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+          <strong style="color:#10b981;">🟢 重点必看</strong>
+          <ul style="margin:5px 0 0; padding-left:16px;">
+            <li><strong>§2.2–2.4 (P13–23)</strong>：位置、旋转矩阵 \(3\times 3\)（三列即新轴在旧系投影）、齐次变换 \(4\times 4\)。</li>
+            <li><strong>§2.6 (P23–25)</strong>：链式相乘消下标、齐次矩阵求逆公式（\(R^T\) 与 \(-R^T P\)）。</li>
+          </ul>
+        </div>
+        <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+          <strong style="color:#f59e0b;">🟡 3分钟略读</strong>
+          <ul style="margin:5px 0 0; padding-left:16px;">
+            <li><strong>§2.7 (P25–27)</strong>：闭环变换链求未知矩阵。</li>
+            <li><strong>§2.8 (P27–35)</strong>：只抓定轴 RPY 角、动轴欧拉角与四元数概念。</li>
+            <li><strong>§2.9 (P35)</strong>：自由矢量（速度/力）只受旋转影响。</li>
+          </ul>
+        </div>
+        <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+          <strong style="color:#f43f5e;">🔴 直接跳过</strong>
+          <ul style="margin:5px 0 0; padding-left:16px;">
+            <li><strong>§2.8 反三角展开细节</strong>与附录 B 的 24 种欧拉角排列公式表（工程全调库）。</li>
+            <li><strong>§2.10 计算问题 (P36)</strong>：早期算力乘法次数统计。</li>
+          </ul>
+        </div>
+        <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+          <strong style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong>
+          <ul style="margin:5px 0 0; padding-left:16px;">
+            <li><strong><code>tf2</code></strong>：\({}^A_B T\) 对应 <code>TransformStamped</code>。</li>
+            <li><strong>URDF</strong>：<code>&lt;origin rpy="..." xyz="..."/&gt;</code> 直接采用 §2.8.1 定轴 RPY。</li>
+            <li><strong>四元数</strong>：<code>Pose</code> 话题统一用 <code>(x,y,z,w)</code> 规避万向节死锁。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
     <!-- 🧭 本篇导读与学习路线图 -->
     <div class="card" style="background: linear-gradient(135deg, rgba(8, 16, 34, 0.95), rgba(15, 23, 42, 0.95)); border: 1.5px solid #38bdf8; border-radius: 12px; padding: 22px 24px; margin: 20px 0 28px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);">

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>笔记 04：单关节动力学——力矩从哪里来？惯性、重力、摩擦与前馈补偿</title>
+  <title>笔记 26：单关节动力学——力矩从哪里来？惯性、重力、摩擦与前馈补偿</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
@@ -186,10 +186,46 @@
     <a href="27-recursive-newton-euler-dynamics.html">下一篇：28. 多连杆空间加速度递推 →</a>
   </p>
 
-  <h1>笔记 04：单关节动力学——力矩从哪里来？惯性、重力、摩擦与前馈补偿</h1>
+  <h1>笔记 26：单关节动力学——力矩从哪里来？惯性、重力、摩擦与前馈补偿</h1>
   <p class="lead">
     从运动学正式迈入动力学！彻底理解机械臂电机输出的力矩到底在抵抗什么：单摆旋转动力学方程的四大部分拆解、实时受力仿真、以及工业运控中“重力与摩擦前馈补偿”的核心价值。
   </p>
+
+  <div class="card" style="border-left: 4px solid #38bdf8; background: rgba(15, 23, 42, 0.78);">
+    <strong style="color:#38bdf8; font-size:1.02rem;">⚡ Craig 第 6 章（操作臂动力学，原书 P117–143）看书脱水指南 &amp; 🤖 ROS 2 关联</strong>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:10px; margin-top:10px; font-size:0.88rem;">
+      <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#10b981;">🟢 重点必看</strong>
+        <ul style="margin:5px 0 0; padding-left:16px;">
+          <li><strong>§6.3 (P118–121)</strong>：质心、\(3\times 3\) 惯性张量与平行轴定理。</li>
+          <li><strong>§6.4 (P121–122)</strong>：牛顿方程 \(F=ma_c\) 与欧拉方程 \(N=I\dot{\omega}+\omega\times I\omega\)。</li>
+          <li><strong>§6.8 (P128–129)</strong>：动力学标准结构式 \(M(\Theta)\ddot{\Theta} + V(\Theta,\dot{\Theta}) + G(\Theta) = \tau\)。</li>
+        </ul>
+      </div>
+      <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#f59e0b;">🟡 3分钟略读</strong>
+        <ul style="margin:5px 0 0; padding-left:16px;">
+          <li><strong>§6.5 (P122–125)</strong>：牛顿-欧拉向外算加速度、向内算力的双向递推思想（RNEA）。</li>
+          <li><strong>§6.9 (P129–131)</strong>：拉格朗日能量法概念。</li>
+          <li><strong>§6.11–6.12 (P134–135)</strong>：减速比平方放大转子惯量 \(n^2 I_m\) 与摩擦模型。</li>
+        </ul>
+      </div>
+      <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#f43f5e;">🔴 直接跳过</strong>
+        <ul style="margin:5px 0 0; padding-left:16px;">
+          <li><strong>§6.6–6.7 (P125–128)</strong>：手算展开多连杆封闭动力学方程的满页三角函数项。</li>
+          <li><strong>§6.13 计算问题 (P135–136)</strong>：80 年代省乘法次数的讨论。</li>
+        </ul>
+      </div>
+      <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
+        <strong style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong>
+        <ul style="margin:5px 0 0; padding-left:16px;">
+          <li><strong>URDF <code>&lt;inertial&gt;</code></strong>：对应 §6.3 的 <code>&lt;mass&gt;</code> 与 6 个独立惯量分量 <code>ixx..izz</code>。</li>
+          <li><strong><code>Pinocchio</code> / <code>KDL</code></strong>：§6.5 的 RNEA 直接由一行 <code>pinocchio::rnea(model, data, q, v, a)</code> 算出重力补偿与前馈力矩！</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
   <div class="tip" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
     <div>
@@ -811,9 +847,9 @@
     renderMathInElement(document.body, {
       delimiters: [
         { left: '$$', right: '$$', display: true },
-        { left: '\$$', right: '\$$', display: true },
+        { left: '\\[', right: '\\]', display: true },
         { left: '$', right: '$', display: false },
-        { left: '\$', right: '\$', display: false }
+        { left: '\\(', right: '\\)', display: false }
       ],
       throwOnError: false
     });

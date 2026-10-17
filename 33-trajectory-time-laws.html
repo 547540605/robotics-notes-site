@@ -5,6 +5,27 @@
 <p class="crumb"><a href="00-progress.html">动力学与控制进度</a> · <a href="32-two-link-dynamics-structure.html">32：两连杆动力学</a> · 33：轨迹时间律</p>
 <h1>笔记 33：轨迹不是点位列表，而是 q(t)、q̇(t)、q̈(t)</h1><p class="muted">“从 A 走到 B”只规定了起终点；机械臂怎样起步、怎样加速、何时减速、到终点会不会冲击，取决于时间律。动力学和计算力矩控制真正需要的不是一列位置，而是连续的关节位置、速度和加速度。</p>
 
+<details open style="border-color:rgba(167,139,250,0.45);background:rgba(167,139,250,0.06);margin:14px 0;">
+  <summary style="color:#a78bfa;">⚡ 第 7 章看书脱水指南（P144–164） &amp; 🤖 ROS 2 真实工程落点</summary>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0;font-size:0.9rem;">
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(52,211,153,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 重点必看（核心骨架）</b>
+      <b>§7.1–§7.3</b> 关节空间三次/五次多项式插值与抛物线过渡线性路径（LSPB 梯形速度律）。
+    </div>
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#fbbf24;display:block;margin-bottom:4px;">🟡 只看关键结论</b>
+      <b>§7.4–§7.5</b> 笛卡尔空间轨迹规划与几何问题（奇异点穿过、关节速度超限、构型不可达）。
+    </div>
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,113,133,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#fb7185;display:block;margin-bottom:4px;">🔴 直接跳过不看</b>
+      <b>§7.6–§7.9</b> 冗余高阶样条手算联立方程组与 1980s 实时路径生成器硬件时钟架构。
+    </div>
+  </div>
+  <div style="background:rgba(56,189,248,0.08);border-left:3px solid #38bdf8;border-radius:6px;padding:8px 12px;font-size:0.88rem;color:#cbd5e1;">
+    <strong style="color:#38bdf8;">🤖 ROS 2 真实工程关联：</strong>MoveIt 2 先输出纯几何路径点（<code>robot_trajectory::RobotTrajectory</code>），再经时间参数化插件（TOTG / ISP / Ruckig）按速度/加速度限幅打上时间戳生成 <code>trajectory_msgs/JointTrajectory</code>（含 <code>positions / velocities / accelerations / time_from_start</code>），最终发给 <code>joint_trajectory_controller</code> 样条插值执行。
+  </div>
+</details>
+
 <section class="card guide"><h2 style="margin-top:0;border:0;padding:0">本篇只解决一维关节，但它是多关节轨迹的时间骨架</h2><div class="grid"><div><strong>输入：</strong>起点 <code>q₀</code>、终点 <code>qf</code>、总时长 <code>T</code>，以及速度/加速度/jerk 边界。</div><div><strong>输出：</strong>任意时刻都有定义的 <code>q(t),q̇(t),q̈(t)</code>；需要更平顺时还关注 <code>q⃛(t)</code>。</div></div><span class="formula">路径（去哪里） + 时间律（怎么走） = 可供控制器消费的轨迹</span></section>
 
 <h2>1. 三类时间律，各自解决什么问题</h2><table class="table"><thead><tr><th>时间律</th><th>端点条件</th><th>优点</th><th>不能保证什么</th></tr></thead><tbody><tr><td>三次多项式</td><td>通常约束 q、q̇</td><td>表达简单，位置和速度连续</td><td>端点加速度一般不为零，切换段时可能有加速度突变</td></tr><tr><td>五次多项式</td><td>可同时约束 q、q̇、q̈</td><td>端点速度/加速度都平滑归零，适合段间衔接</td><td>仍需检查峰值速度、加速度、jerk 是否超限</td></tr><tr><td>LSPB 梯形速度</td><td>加速—匀速—减速</td><td>直觉强，易按峰值速度组织工艺节拍</td><td>加速度在分段点跳变，jerk 理想化为尖峰</td></tr></tbody></table>

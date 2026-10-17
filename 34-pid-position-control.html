@@ -6,6 +6,27 @@
 <h1>笔记 34：参考轨迹给出“该去哪”，PID 负责“实际能不能跟上”</h1>
 <p class="muted">上一页产生期望的 <code>q_d(t), q̇_d(t), q̈_d(t)</code>；真实关节却有惯量、粘性阻尼、重力和负载扰动。位置控制器每个周期读取实测关节状态，按误差重新计算关节力矩或等价的底层命令。它不是一次性把一串角度“发出去”。</p>
 
+<details open style="border-color:rgba(167,139,250,0.45);background:rgba(167,139,250,0.06);margin:14px 0;">
+  <summary style="color:#a78bfa;">⚡ 第 9 章看书脱水指南（P192–211） &amp; 🤖 ROS 2 真实工程落点</summary>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0;font-size:0.9rem;">
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(52,211,153,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 重点必看（核心骨架）</b>
+      <b>§9.2–§9.5</b> 二阶线性系统、单关节 PD 控制阻尼比与自然频率、稳态误差与 PID 控制（积分抗饱和）。
+    </div>
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#fbbf24;display:block;margin-bottom:4px;">🟡 只看关键结论</b>
+      <b>§9.6–§9.7</b> 有效惯量随构型变化带来的增益失配、未建模柔性/结构谐振频率上限。
+    </div>
+    <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,113,133,0.35);border-radius:8px;padding:10px;">
+      <b style="color:#fb7185;display:block;margin-bottom:4px;">🔴 直接跳过不看</b>
+      <b>§9.8–§9.10</b> 经典控制模拟电路运放实现与老式工业控制器硬件结构。
+    </div>
+  </div>
+  <div style="background:rgba(56,189,248,0.08);border-left:3px solid #38bdf8;border-radius:6px;padding:8px 12px;font-size:0.88rem;color:#cbd5e1;">
+    <strong style="color:#38bdf8;">🤖 ROS 2 真实工程关联：</strong>对应 <code>ros2_control</code> 中 <code>control_toolbox::Pid</code> 与 <code>joint_trajectory_controller</code> 的 YAML 参数（<code>gains.&lt;joint&gt;.{p, i, d, i_clamp, ff_velocity_scale}</code>）；还要分清上位机位置指令环（<code>command_interface: position</code>）与底层伺服驱动器内部电流/速度/位置三环级联 PID 的边界。
+  </div>
+</details>
+
 <section class="card guide"><h2 style="margin-top:0;border:0;padding:0">先把闭环的信号流读成一句人话</h2><span class="formula">参考轨迹 (q_d,q̇_d) → 误差 e=q_d-q → PD/PID 控制律 → τ_cmd → 真实关节 → 测得 q,q̇ → 回到误差</span><p>这里的 <code>τ_cmd</code> 是为了说明控制规律的“关节力矩等价量”。不同设备可能把上位命令落在力矩、速度或位置接口；无论接口名字是什么，都应有实际反馈闭环，不能把 RViz 的状态发布误当成真实伺服。</p></section>
 
 <h2>1. 先区分对象、参考、误差与控制输出</h2>
