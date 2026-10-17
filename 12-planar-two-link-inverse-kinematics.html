@@ -49,23 +49,23 @@
   <p class="muted"><a href="00-progress.html">学习进度</a> · <a href="04-planar-two-link-forward-kinematics.html">笔记 04：二维两连杆正运动学</a> · <a href="10-dh-table-to-forward-kinematics.html">笔记 10：DH 正运动学</a></p>
   <h1>笔记 12：二维两连杆的逆运动学（Craig 第 4 章开篇）</h1>
 
-  <div class="card" style="border-left: 4px solid #38bdf8; background: rgba(15, 23, 42, 0.75);">
-    <strong style="color:#38bdf8; font-size:1.03rem;">⚡ Craig 第 4 章（操作臂逆运动学，原书 P71–94）看书脱水指南 &amp; 🤖 ROS 2 关联</strong>
+  <div class="card" style="border-left: 4px solid #38bdf8; background: rgba(15, 23, 42, 0.78);">
+    <strong style="color:#38bdf8; font-size:1.03rem;">⚡ Craig 第 4 章（操作臂逆运动学，原书 P71–94）看书脱水指南 2.0 &amp; 🤖 ROS 2 关联</strong>
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-top:10px; font-size:0.9rem;">
       <div style="background:var(--card-sub); padding:10px 12px; border-radius:6px; border:1px solid var(--line);">
-        <strong style="color:#10b981;">🟢 重点必看（核心基石）</strong>
+        <strong style="color:#10b981;">🟢 唯一需翻原书细看（仅 6 页）</strong>
         <ul style="margin:6px 0 0; padding-left:18px;">
           <li><strong>§4.1–4.2 (P71–74)</strong>：解的存在性（可达/灵巧工作空间）与多解性（肘上/肘下/翻腕）。</li>
-          <li><strong>§4.4 (P75–78)</strong>：<strong>几何解法</strong>（余弦定理 + <code>atan2</code>，即本页核心）。</li>
-          <li><strong>§4.6 Pieper 准则 (P79–80)</strong>：为什么“后三轴相交于一点（球腕）”就能把位置和姿态拆开算。</li>
+          <li><strong>§4.4 (P75–78)</strong>：<strong>几何解法</strong>（平面三角形余弦定理 + <code>atan2</code>，即本页交互核心）。</li>
         </ul>
       </div>
       <div style="background:var(--card-sub); padding:10px 12px; border-radius:6px; border:1px solid var(--line);">
-        <strong style="color:#f59e0b;">🟡 只看关键结论（3分钟略读）</strong>
+        <strong style="color:#f59e0b;">💊 免翻书·直接看下方胶囊（原书不用翻）</strong>
         <ul style="margin:6px 0 0; padding-left:18px;">
-          <li><strong>§4.3 (P74)</strong>：少于 6 轴时的子空间概念。</li>
-          <li><strong>§4.8–4.9 (P87–88)</strong>：用第 3 章的 5 个标准系反推手腕位姿，并按<strong>“离当前角度最近”原则选解</strong>。</li>
-          <li><strong>§4.10 (P88–89)</strong>：重复定位精度 vs 绝对定位精度。</li>
+          <li><strong>§4.3 (P74)</strong>：少于 6 轴时的可达子空间 → <em>见下方胶囊 ①</em></li>
+          <li><strong>§4.6 (P79–80)</strong>：Pieper 球腕位置-姿态解耦三步法 → <em>见下方胶囊 ②</em></li>
+          <li><strong>§4.8–4.9 (P87–88)</strong>：标准系反推手腕位姿 &amp; 加权最近邻选解 → <em>见下方胶囊 ③</em></li>
+          <li><strong>§4.10 (P88–89)</strong>：重复定位精度 vs 绝对定位精度 → <em>见下方胶囊 ④</em></li>
         </ul>
       </div>
       <div style="background:var(--card-sub); padding:10px 12px; border-radius:6px; border:1px solid var(--line);">
@@ -82,6 +82,27 @@
           <li>现代在售机械臂很多不再是严格球腕，工程中<strong>绝不用手推 6 轴三角方程</strong>！</li>
           <li>在 MoveIt 2 的 <code>kinematics.yaml</code> 中直接配置数值迭代逆解器（<strong><code>KDL</code></strong>、<strong><code>Trac-IK</code></strong>、<strong><code>PickNik BioIK</code></strong>）或自动生成 C++ 代码的 <strong><code>IKFast</code></strong>。</li>
         </ul>
+      </div>
+    </div>
+    <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--line);">
+      <strong style="color:#f59e0b; font-size:0.96rem;">💊 第 4 章免翻书干货提炼胶囊（看完即毕业，原书 §4.3、§4.6、§4.8–4.10 无需再翻）</strong>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px; margin-top:8px; font-size:0.88rem;">
+        <div style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
+          <strong style="color:#fbbf24;">① §4.3 少于 6 轴时的子空间（原书 P74）</strong>
+          <p style="margin:5px 0 0;">三维完整位姿有 6 个自由度 <span data-tex="(x,y,z,\text{roll},\text{pitch},\text{yaw})"></span>。若机械臂只有 <span data-tex="n&lt;6"></span> 个关节，它无法独立指定全部 6 个坐标，只能在 6D 空间的一个 <strong><span data-tex="n"></span> 维曲面（可达子空间）</strong>上运动。原书两页 4 轴算例只是说明：给定 <span data-tex="(x,y,z)"></span> 和绕 Z 转角后，其余两个姿态角就被连杆几何<strong>死死绑定</strong>，不能随便往 <span data-tex="{}^{0}_{4}T"></span> 里乱塞任意旋转矩阵。</p>
+        </div>
+        <div style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
+          <strong style="color:#fbbf24;">② §4.6 Pieper 准则与球腕三步解耦（原书 P79–80）</strong>
+          <p style="margin:5px 0 0;"><strong>Pieper 定理</strong>：6 轴机械臂只有当<strong>相邻三轴相交于同一点</strong>（如后三轴 <span data-tex="Z_4,Z_5,Z_6"></span> 交于腕心，即<strong>球腕</strong>）或三轴平行时才有封闭解析解。<strong>解耦三步法</strong>：1) 后三轴自转不改变腕心坐标，由末端逆推腕心 <span data-tex="P_{\mathrm{wrist}} = P_{\mathrm{tcp}} - d_6 \hat{z}_6"></span>；2) 由 <span data-tex="P_{\mathrm{wrist}}"></span> 用几何法求前 3 轴 <span data-tex="(\theta_1,\theta_2,\theta_3)"></span>；3) 算出 <span data-tex="{}^{3}_{6}R = ({}^{0}_{3}R)^T \, {}^{0}_{6}R"></span>，用欧拉角公式求后 3 轴 <span data-tex="(\theta_4,\theta_5,\theta_6)"></span>。</p>
+        </div>
+        <div style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
+          <strong style="color:#fbbf24;">③ §4.8–4.9 标准系反推 &amp; 最近邻选解（原书 P87–88）</strong>
+          <p style="margin:5px 0 0;"><strong>§4.8 反推手腕目标</strong>：由第 3 章标准系链 <span data-tex="{}^{S}_{B}T \, {}^{B}_{W}T \, {}^{W}_{T}T = {}^{S}_{G}T"></span> 移项，即得逆解器输入 <span data-tex="{}^{B}_{W}T = ({}^{S}_{B}T)^{-1} \, {}^{S}_{G}T \, ({}^{W}_{T}T)^{-1}"></span>。<br><strong>§4.9 多解选哪组</strong>：实时控制按<strong>加权关节距离最近</strong>选解 <span data-tex="\min_k \sum w_i (\theta_{i,k}-\theta_{i,\mathrm{curr}})^2"></span>（肩肘大关节权重 <span data-tex="w_{1..3}"></span> 设大，手腕小关节设小，防突跳甩大臂）。</p>
+        </div>
+        <div style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
+          <strong style="color:#fbbf24;">④ §4.10 重复定位精度 vs 绝对定位精度（原书 P88–89）</strong>
+          <p style="margin:5px 0 0;"><strong>重复定位精度（Repeatability，极高，±0.02 mm）</strong>：示教记录某组关节角反复回同一点的分散度（只看减速器回差与编码器）。<br><strong>绝对定位精度（Accuracy，较差，±0.5～2 mm）</strong>：按名义 DH 公式算逆解去一个新坐标 <span data-tex="(x,y,z)"></span> 的偏差（受连杆加工误差、零位偏差与重力变形影响，需运动学标定补偿）。</p>
+        </div>
       </div>
     </div>
   </div>

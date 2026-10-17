@@ -45,10 +45,10 @@
   <p class="small"><a href="00-progress.html">学习进度</a> · <a href="04-planar-two-link-forward-kinematics.html">笔记 04：正运动学</a> · <a href="12-planar-two-link-inverse-kinematics.html">笔记 12：逆运动学</a> · <a href="13-planar-forward-inverse-quiz.html">正逆自测</a></p>
   <h1>14. 二维两连杆雅可比矩阵（Craig 第 5 章开篇）</h1>
   <div class="card" style="border-left: 4px solid #38bdf8; background: rgba(15, 23, 42, 0.78);">
-    <strong style="color:#38bdf8; font-size:1.02rem;">⚡ Craig 第 5 章（雅可比：速度和静力，原书 P95–116）看书脱水指南 &amp; 🤖 ROS 2 关联</strong>
+    <strong style="color:#38bdf8; font-size:1.02rem;">⚡ Craig 第 5 章（雅可比：速度和静力，原书 P95–116）看书脱水指南 2.0 &amp; 🤖 ROS 2 关联</strong>
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-top:10px; font-size:0.88rem;">
       <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
-        <strong style="color:#10b981;">🟢 重点必看</strong>
+        <strong style="color:#10b981;">🟢 唯一需翻原书细看</strong>
         <ul style="margin:5px 0 0; padding-left:16px;">
           <li><strong>§5.3 (P97–98)</strong>：刚体两点速度关系（线速度 + 角速度叉乘位置矢）。</li>
           <li><strong>§5.7–5.8 (P105–108)</strong>：雅可比定义 <code>ν = J(q)q̇</code> 与<strong>奇异性</strong>（<code>det(J)=0</code> 丢失自由度、关节速度暴增）。</li>
@@ -56,14 +56,14 @@
         </ul>
       </div>
       <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
-        <strong style="color:#f59e0b;">🟡 3分钟略读</strong>
+        <strong style="color:#f59e0b;">💊 免翻书·干货提炼（原书不用翻）</strong>
         <ul style="margin:5px 0 0; padding-left:16px;">
-          <li><strong>§5.5–5.6 (P101–105)</strong>：连杆角速度与线速度逐节向外递推通式（为第 6 章铺路）。</li>
-          <li><strong>§5.11 (P111)</strong>：雅可比在不同参考系下的旋转变换。</li>
+          <li><strong>§5.5–5.6 速度递推与几何雅可比列公式 (P101–105)</strong>：无需手算逐节递推！转动关节第 <span data-tex="i"></span> 列直接由转轴 <span data-tex="\hat{z}_i"></span> 与位置差叉乘给出：<span data-tex="J_{v_i}=\hat{z}_i\times(P_e-P_i),\ J_{\omega_i}=\hat{z}_i"></span>；移动关节为 <span data-tex="J_{v_i}=\hat{z}_i,\ J_{\omega_i}=0"></span>。</li>
+          <li><strong>§5.11 雅可比跨系变换 (P111)</strong>：把 <span data-tex="\{B\}"></span> 系雅可比换到 <span data-tex="\{A\}"></span> 系表达，直接左乘块对角旋转矩阵：<span data-tex="{}^{A}J(\Theta)=\mathrm{diag}({}^{A}_{B}R,\,{}^{A}_{B}R)\,{}^{B}J(\Theta)"></span>。</li>
         </ul>
       </div>
       <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
-        <strong style="color:#f43f5e;">🔴 直接跳过</strong>
+        <strong style="color:#f43f5e;">🔴 直接跳过不看</strong>
         <ul style="margin:5px 0 0; padding-left:16px;">
           <li><strong>§5.6 多连杆手算展开长公式</strong>：超过两连杆的雅可比在工程上全部由代码按列叉乘实时计算，绝不手算展开。</li>
         </ul>

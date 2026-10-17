@@ -6,15 +6,16 @@
 <h1>笔记 33：轨迹不是点位列表，而是 q(t)、q̇(t)、q̈(t)</h1><p class="muted">“从 A 走到 B”只规定了起终点；机械臂怎样起步、怎样加速、何时减速、到终点会不会冲击，取决于时间律。动力学和计算力矩控制真正需要的不是一列位置，而是连续的关节位置、速度和加速度。</p>
 
 <details open style="border-color:rgba(167,139,250,0.45);background:rgba(167,139,250,0.06);margin:14px 0;">
-  <summary style="color:#a78bfa;">⚡ 第 7 章看书脱水指南（P144–164） &amp; 🤖 ROS 2 真实工程落点</summary>
+  <summary style="color:#a78bfa;">⚡ 第 7 章看书脱水指南 2.0（P144–164） &amp; 🤖 ROS 2 真实工程落点</summary>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0;font-size:0.9rem;">
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(52,211,153,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 重点必看（核心骨架）</b>
-      <b>§7.1–§7.3</b> 关节空间三次/五次多项式插值与抛物线过渡线性路径（LSPB 梯形速度律）。
+      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 唯一需翻原书细看</b>
+      <b>§7.1–§7.3 (P144–153)</b> 关节空间三次/五次多项式插值与抛物线过渡线性路径（LSPB 梯形速度律，即本页交互核心）。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#fbbf24;display:block;margin-bottom:4px;">🟡 只看关键结论</b>
-      <b>§7.4–§7.5</b> 笛卡尔空间轨迹规划与几何问题（奇异点穿过、关节速度超限、构型不可达）。
+      <b style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
+      <b>§7.4 笛卡尔规划 (P154)</b>：要求末端走空间直线时，位置做线性插值、姿态做球面插值（Slerp），每周期实时调逆运动学映射回关节角。<br>
+      <b>§7.5 三大几何陷阱 (P155–157)</b>：① <b>中间点不可达</b>（直线穿过工作空间空洞）；② <b>近奇异点关节速度暴增</b>（<code>q̇ = J⁻¹ v</code> 失控）；③ <b>起终点落入不同逆解分支</b>（中途被迫翻肘突跳）。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,113,133,0.35);border-radius:8px;padding:10px;">
       <b style="color:#fb7185;display:block;margin-bottom:4px;">🔴 直接跳过不看</b>

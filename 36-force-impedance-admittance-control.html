@@ -12,15 +12,16 @@
 <p class="muted">自由空间里，末端偏 1 mm 往往只是几何误差；插接、打磨、装配或沿表面移动时，同样的 1 mm 可能意味着很大的接触力。接触控制要回答的不是单纯“末端在哪”，而是“受力后允许怎样让位、以什么方向让位、力是否仍在允许边界内”。</p>
 
 <details open style="border-color:rgba(167,139,250,0.45);background:rgba(167,139,250,0.06);margin:14px 0;">
-  <summary style="color:#a78bfa;">⚡ 第 11 章看书脱水指南（P237–252） &amp; 🤖 ROS 2 真实工程落点</summary>
+  <summary style="color:#a78bfa;">⚡ 第 11 章看书脱水指南 2.0（P237–252） &amp; 🤖 ROS 2 真实工程落点</summary>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0;font-size:0.9rem;">
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(52,211,153,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 重点必看（核心骨架）</b>
-      <b>§11.1–§11.4</b> 接触约束坐标系 \(\{C\}\)、自然约束与人工约束正交性、单自由度质点弹簧柔顺/刚度直觉。
+      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 唯一需翻原书细看</b>
+      <b>§11.1–§11.4 (P237–245)</b> 接触约束坐标系 \(\{C\}\)、自然约束与人工约束正交性、单自由度质点弹簧柔顺/刚度直觉。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#fbbf24;display:block;margin-bottom:4px;">🟡 只看关键结论</b>
-      <b>§11.5</b> 力/位置混合控制框图（选择矩阵 \(S\) 划分力控子空间与位控子空间）；<b>★ 强烈建议搭配本站第 36 课与 <a href="force-control-and-compliant-assembly/index.html">NISTIR 7901 柔顺装配专题</a></b> 补齐原书未深讲的现代阻抗（Impedance）与导纳（Admittance）控制。
+      <b style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
+      <b>§11.5 力/位置混合控制 (P246–248)</b>：用对角选择矩阵 \(S=\mathrm{diag}(s_1,\dots,s_6)\)（\(s_i\in\{0,1\}\)）将任务空间正交拆分为两个互不干扰的通道——\(S\) 选出的自由方向走位置 PID，\(I-S\) 选出的受约束方向走力 PI，两边输出叠加驱动机械臂。<br>
+      <b>★ 现代补齐</b>：直接阅读本课与 <a href="force-control-and-compliant-assembly/index.html">NISTIR 7901 柔顺装配专题</a> 掌握现代主流的<b>阻抗（位差生力）</b>与<b>导纳（测力改位）</b>。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,113,133,0.35);border-radius:8px;padding:10px;">
       <b style="color:#fb7185;display:block;margin-bottom:4px;">🔴 直接跳过不看</b>

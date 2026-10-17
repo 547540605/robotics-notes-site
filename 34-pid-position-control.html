@@ -7,15 +7,16 @@
 <p class="muted">上一页产生期望的 <code>q_d(t), q̇_d(t), q̈_d(t)</code>；真实关节却有惯量、粘性阻尼、重力和负载扰动。位置控制器每个周期读取实测关节状态，按误差重新计算关节力矩或等价的底层命令。它不是一次性把一串角度“发出去”。</p>
 
 <details open style="border-color:rgba(167,139,250,0.45);background:rgba(167,139,250,0.06);margin:14px 0;">
-  <summary style="color:#a78bfa;">⚡ 第 9 章看书脱水指南（P192–211） &amp; 🤖 ROS 2 真实工程落点</summary>
+  <summary style="color:#a78bfa;">⚡ 第 9 章看书脱水指南 2.0（P192–211） &amp; 🤖 ROS 2 真实工程落点</summary>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0;font-size:0.9rem;">
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(52,211,153,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 重点必看（核心骨架）</b>
-      <b>§9.2–§9.5</b> 二阶线性系统、单关节 PD 控制阻尼比与自然频率、稳态误差与 PID 控制（积分抗饱和）。
+      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 唯一需翻原书细看</b>
+      <b>§9.2–§9.5 (P193–203)</b> 二阶线性系统、单关节 PD 控制阻尼比与自然频率、稳态误差与 PID 控制（积分抗饱和）。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#fbbf24;display:block;margin-bottom:4px;">🟡 只看关键结论</b>
-      <b>§9.6–§9.7</b> 有效惯量随构型变化带来的增益失配、未建模柔性/结构谐振频率上限。
+      <b style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
+      <b>§9.6 有效惯量随构型变化 (P204)</b>：手臂伸直与缩回时单关节有效惯量 <code>M_eff(q)</code> 可差数倍；固定 <code>K_p, K_v</code> 会导致伸展时欠阻尼震荡、收缩时迟缓（引出第 10 章模型解耦）。<br>
+      <b>§9.7 结构谐振决定增益上限 (P205–207)</b>：刚体假设下 <code>K_p</code> 似乎可无限调大，但减速器柔性与连杆弯曲存在固有谐振频率 <code>ω_res</code>；闭环带宽必须满足 <code>ω_n ≤ 0.5 ω_res</code>，否则必激发高频啸叫失稳！
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,113,133,0.35);border-radius:8px;padding:10px;">
       <b style="color:#fb7185;display:block;margin-bottom:4px;">🔴 直接跳过不看</b>

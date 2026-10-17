@@ -7,15 +7,16 @@
 <p class="muted">两连杆高速协同运动时，关节 1 的力矩会受关节 2 姿态、速度、加速度和重力影响。只靠 PID 可以纠错，但它必须等偏差出现后才行动。计算力矩控制（Computed Torque Control, CTC）把已知的动力学模型作为前馈：在误差还没有产生时，先给出大致正确的努力量。</p>
 
 <details open style="border-color:rgba(167,139,250,0.45);background:rgba(167,139,250,0.06);margin:14px 0;">
-  <summary style="color:#a78bfa;">⚡ 第 10 章看书脱水指南（P212–236） &amp; 🤖 ROS 2 真实工程落点</summary>
+  <summary style="color:#a78bfa;">⚡ 第 10 章看书脱水指南 2.0（P212–236） &amp; 🤖 ROS 2 真实工程落点</summary>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin:10px 0;font-size:0.9rem;">
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(52,211,153,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 重点必看（核心骨架）</b>
-      <b>§10.2–§10.5</b> 非线性模型前馈 + PD 反馈解耦（计算力矩法 CTC：<code>τ = M̂(q̈_d + K_v ė + K_p e) + V̂ + Ĝ</code>）。
+      <b style="color:#34d399;display:block;margin-bottom:4px;">🟢 唯一需翻原书细看</b>
+      <b>§10.2–§10.5 (P213–223)</b> 非线性模型前馈 + PD 反馈解耦（计算力矩法 CTC：<code>τ = M̂(q̈_d + K_v ė + K_p e) + V̂ + Ĝ</code>，把非线性强耦合系统化为单位质量二阶线性系统 <code>ë + K_v ė + K_p e = 0</code>）。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#fbbf24;display:block;margin-bottom:4px;">🟡 只看关键结论</b>
-      <b>§10.6–§10.7</b> 笛卡尔空间非线性解耦控制与参数失配时的鲁棒性物理直觉。
+      <b style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
+      <b>§10.6 笛卡尔空间解耦 (P224–226)</b>：先在末端任务空间算虚拟加速度 <code>ẍ_star = ẍ_d + K_v ė_x + K_p e_x</code>，再经雅可比几何关系 <code>q̈_star = J⁻¹(ẍ_star - J̇ q̇)</code> 映射回关节加速度代入动力学求力矩。<br>
+      <b>§10.7 模型失配鲁棒性 (P227)</b>：当 <code>M̂, V̂, Ĝ</code> 与真机存在偏差（如抓取未知负载）时，闭环方程右侧出现残余扰动项，需靠外环高增益 PD、积分项或鲁棒/自适应控制兜底。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,113,133,0.35);border-radius:8px;padding:10px;">
       <b style="color:#fb7185;display:block;margin-bottom:4px;">🔴 直接跳过不看</b>

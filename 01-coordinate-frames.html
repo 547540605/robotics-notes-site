@@ -257,25 +257,25 @@
     </p>
 
     <div class="rule" style="border-left: 4px solid #38bdf8; background: rgba(15, 23, 42, 0.78); margin: 14px 0 20px;">
-      <strong style="color:#38bdf8; font-size:1.02rem;">⚡ Craig 第 2 章（空间描述和变换，原书 P13–43）看书脱水指南 &amp; 🤖 ROS 2 关联</strong>
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-top:10px; font-size:0.88rem;">
+      <strong style="color:#38bdf8; font-size:1.02rem;">⚡ Craig 第 2 章（空间描述和变换，原书 P13–43）看书脱水指南 2.0 &amp; 🤖 ROS 2 关联</strong>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-top:10px; font-size:0.88rem;">
         <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
-          <strong style="color:#10b981;">🟢 重点必看</strong>
+          <strong style="color:#10b981;">🟢 唯一需翻原书细看</strong>
           <ul style="margin:5px 0 0; padding-left:16px;">
             <li><strong>§2.2–2.4 (P13–23)</strong>：位置、旋转矩阵 \(3\times 3\)（三列即新轴在旧系投影）、齐次变换 \(4\times 4\)。</li>
             <li><strong>§2.6 (P23–25)</strong>：链式相乘消下标、齐次矩阵求逆公式（\(R^T\) 与 \(-R^T P\)）。</li>
           </ul>
         </div>
         <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
-          <strong style="color:#f59e0b;">🟡 3分钟略读</strong>
+          <strong style="color:#f59e0b;">💊 免翻书·干货提炼（原书不用翻）</strong>
           <ul style="margin:5px 0 0; padding-left:16px;">
-            <li><strong>§2.7 (P25–27)</strong>：闭环变换链求未知矩阵。</li>
-            <li><strong>§2.8 (P27–35)</strong>：只抓定轴 RPY 角、动轴欧拉角与四元数概念。</li>
-            <li><strong>§2.9 (P35)</strong>：自由矢量（速度/力）只受旋转影响。</li>
+            <li><strong>§2.7 变换方程 (P25–27)</strong>：两条路径到同一系结果相等（\({}^U_A T \, {}^A_B T = {}^U_C T \, {}^C_B T\)），左乘逆矩阵即解未知变换：\({}^A_B T = ({}^U_A T)^{-1} \, {}^U_C T \, {}^C_B T\)。</li>
+            <li><strong>§2.8 姿态三表示 (P27–35)</strong>：<strong>定轴 RPY</strong> 绕固定轴左乘 \(R_z(\alpha)R_y(\beta)R_x(\gamma)\)；<strong>动轴欧拉角</strong>绕自身新轴右乘；<strong>四元数</strong> \((x,y,z,w)\) 彻底规避 \(\beta=\pm 90^\circ\) 万向节死锁。</li>
+            <li><strong>§2.9 自由矢量 (P35)</strong>：速度、力等自由矢量无位置原点，跨系变换<strong>只乘旋转矩阵</strong> \({}^A V = {}^A_B R \, {}^B V\)，绝不加平移项。</li>
           </ul>
         </div>
         <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
-          <strong style="color:#f43f5e;">🔴 直接跳过</strong>
+          <strong style="color:#f43f5e;">🔴 直接跳过不看</strong>
           <ul style="margin:5px 0 0; padding-left:16px;">
             <li><strong>§2.8 反三角展开细节</strong>与附录 B 的 24 种欧拉角排列公式表（工程全调库）。</li>
             <li><strong>§2.10 计算问题 (P36)</strong>：早期算力乘法次数统计。</li>
