@@ -87,9 +87,24 @@
     <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--line);">
       <strong style="color:#f59e0b; font-size:0.96rem;">💊 第 4 章免翻书干货提炼胶囊（看完即毕业，原书 §4.3、§4.6、§4.8–4.10 无需再翻）</strong>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px; margin-top:8px; font-size:0.88rem;">
-        <div style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
-          <strong style="color:#fbbf24;">① §4.3 少于 6 轴时的子空间（原书 P74）</strong>
-          <p style="margin:5px 0 0;">三维完整位姿有 6 个自由度 <span data-tex="(x,y,z,\text{roll},\text{pitch},\text{yaw})"></span>。若机械臂只有 <span data-tex="n&lt;6"></span> 个关节，它无法独立指定全部 6 个坐标，只能在 6D 空间的一个 <strong><span data-tex="n"></span> 维曲面（可达子空间）</strong>上运动。原书两页 4 轴算例只是说明：给定 <span data-tex="(x,y,z)"></span> 和绕 Z 转角后，其余两个姿态角就被连杆几何<strong>死死绑定</strong>，不能随便往 <span data-tex="{}^{0}_{4}T"></span> 里乱塞任意旋转矩阵。</p>
+        <div style="grid-column:1/-1; background:rgba(245, 158, 11, 0.07); padding:14px 16px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
+          <strong style="color:#fbbf24;">① §4.3 少于 6 轴时，“可达子空间”到底是什么？（原书 P74–75）</strong>
+          <p><strong>先分清任务：</strong>“末端到达某个点”只指定位置；“末端到达这个点，工具还必须朝指定方向”同时指定位置和姿态。空间中的完整位姿共有 6 个独立量：位置 <span data-tex="(x,y,z)"></span> 3 个、姿态 3 个（可用 roll、pitch、yaw 表示）。机械臂的 <span data-tex="n"></span> 个关节角是 <span data-tex="n"></span> 个输入；正运动学只能由它们产生某些位置与姿态的<strong>组合</strong>。当 <span data-tex="n&lt;6"></span> 时，一般不能把 6 个目标量都独立指定；“可达子空间”说的是<strong>可实现的位姿组合</strong>，不是说末端连某个位置都到不了。受关节限位或奇异位形影响，局部可独立变化的维数还可能小于 <span data-tex="n"></span>。</p>
+          <p><strong>先用本页的平面两连杆看图：</strong>令 <span data-tex="L_1=L_2=1\,\mathrm m"></span>，两种关节角都让末端到达 <span data-tex="P=(1,1)\,\mathrm m"></span>，但末端朝向 <span data-tex="\phi=q_1+q_2"></span> 不同。图中的两条折线共用起点和终点；最后一段的方向就是末端朝向。</p>
+          <figure style="margin:10px 0; overflow-x:auto;" aria-label="平面两连杆的两种关节角到达同一点，但末端朝向不同">
+            <svg viewBox="0 0 400 250" role="img" aria-label="A：水平向右再竖直向上，到达 P 时朝上；B：竖直向上再水平向右，到达同一个 P 时朝右" style="display:block; width:100%; max-width:520px; height:auto; margin:auto; background:#111c2d; border-radius:6px;">
+              <path d="M70 205V35M55 190H290" fill="none" stroke="#8ca3b7" stroke-width="2"/>
+              <text x="296" y="195" fill="#d7e6f3" font-size="16">x</text><text x="60" y="29" fill="#d7e6f3" font-size="16">y</text>
+              <path d="M70 190H180V80" fill="none" stroke="#59c8ef" stroke-width="7" stroke-linejoin="round"/>
+              <path d="M70 190V80H180" fill="none" stroke="#7de0a5" stroke-width="7" stroke-linejoin="round"/>
+              <circle cx="70" cy="190" r="6" fill="#fff"/><circle cx="180" cy="80" r="7" fill="#f4adfa"/>
+              <text x="40" y="225" fill="#e9f2ff" font-size="15">基座</text><text x="198" y="64" fill="#f4adfa" font-size="15">同一点 P=(1,1)</text>
+              <text x="193" y="151" fill="#59c8ef" font-size="15">A：末端朝上 ↑</text>
+              <text x="193" y="176" fill="#7de0a5" font-size="15">B：末端朝右 →</text>
+            </svg>
+          </figure>
+          <p><span style="color:#59c8ef;">A：<span data-tex="(q_1,q_2)=(0^\circ,90^\circ)"></span>，所以 <span data-tex="\phi=90^\circ"></span>。</span> <span style="color:#7de0a5;">B：<span data-tex="(q_1,q_2)=(90^\circ,-90^\circ)"></span>，所以 <span data-tex="\phi=0^\circ"></span>。</span> 同一位置只有这两种分支；若再要求 <span data-tex="\phi=45^\circ"></span>，这台两连杆就无解。<strong>能到 P，不等于能以任意朝向到 P。</strong></p>
+          <p style="margin-bottom:0;"><strong>对回原书：</strong>§4.3 的例 4.1 用平面三连杆说明 <span data-tex="(x,y,\phi)"></span> 这样的平面位姿；例 4.2 用二自由度极坐标臂说明位置可变、姿态却受几何约束。这里的两连杆图是本站补充的入门例子，<strong>不是原书的“四轴算例”</strong>。如果任务只要求位置，就先解位置；若还要求姿态，应检查该组合是否可达。不能把任意旋转矩阵塞进目标变换矩阵就当作机械臂能够实现；“优先保位置、放宽姿态”也只是任务允许时的一种取舍。</p>
         </div>
         <div style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
           <strong style="color:#fbbf24;">② §4.6 Pieper 准则与球腕三步解耦（原书 P79–80）</strong>
