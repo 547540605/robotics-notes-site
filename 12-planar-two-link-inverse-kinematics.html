@@ -88,7 +88,8 @@
       <strong style="color:#f59e0b; font-size:0.96rem;">💊 第 4 章免翻书干货提炼胶囊（看完即毕业，原书 §4.3、§4.6、§4.8–4.10 无需再翻）</strong>
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px; margin-top:8px; font-size:0.88rem;">
         <div style="grid-column:1/-1; background:rgba(245, 158, 11, 0.07); padding:14px 16px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
-          <strong style="color:#fbbf24;">① §4.3 少于 6 轴时，“可达子空间”到底是什么？（原书 P74–75）</strong>
+          <strong style="color:#fbbf24;">① §4.3 核心结论：少于 6 轴，不能把任意完整位姿当成可达目标（原书 P74–75）</strong>
+          <p style="margin:10px 0; padding:10px 12px; border-left:4px solid #fbbf24; background:#273044;"><strong>这一节只要记住：</strong>逆解之前，先问“这台机械臂能独立控制末端的哪些量？”少于 6 个独立关节时，不能同时任意指定三维位置和三维姿态；目标位姿不在它能实现的组合里，就<strong>没有精确逆解</strong>。这时要按任务需要放宽部分位置或姿态要求，或换一台具备所需自由度的机构。<strong>少于 6 轴不等于位置一定到不了</strong>，受限制的是“位置＋姿态”的组合。</p>
           <p><strong>先分清任务：</strong>“末端到达某个点”只指定位置；“末端到达这个点，工具还必须朝指定方向”同时指定位置和姿态。空间中的完整位姿共有 6 个独立量：位置 <span data-tex="(x,y,z)"></span> 3 个、姿态 3 个（可用 roll、pitch、yaw 表示）。机械臂的 <span data-tex="n"></span> 个关节角是 <span data-tex="n"></span> 个输入；正运动学只能由它们产生某些位置与姿态的<strong>组合</strong>。当 <span data-tex="n&lt;6"></span> 时，一般不能把 6 个目标量都独立指定；“可达子空间”说的是<strong>可实现的位姿组合</strong>，不是说末端连某个位置都到不了。受关节限位或奇异位形影响，局部可独立变化的维数还可能小于 <span data-tex="n"></span>。</p>
           <p><strong>先用本页的平面两连杆看图：</strong>令 <span data-tex="L_1=L_2=1\,\mathrm m"></span>，两种关节角都让末端到达 <span data-tex="P=(1,1)\,\mathrm m"></span>，但末端朝向 <span data-tex="\phi=q_1+q_2"></span> 不同。图中的两条折线共用起点和终点；最后一段的方向就是末端朝向。</p>
           <figure style="margin:10px 0; overflow-x:auto;" aria-label="平面两连杆的两种关节角到达同一点，但末端朝向不同">
