@@ -87,7 +87,7 @@
     <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--line);">
       <strong style="color:#f59e0b; font-size:0.96rem;">💊 第 4 章免翻书干货提炼胶囊（看完即毕业，原书 §4.3、§4.6、§4.8–4.10 无需再翻）</strong>
       <div style="display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px; font-size:0.88rem;">
-        <div style="grid-column:1/-1; background:rgba(245, 158, 11, 0.07); padding:14px 16px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
+        <div id="craig-4-3" style="grid-column:1/-1; background:rgba(245, 158, 11, 0.07); padding:14px 16px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
           <strong style="color:#fbbf24;">① §4.3 核心结论：少于 6 轴，不能把任意完整位姿当成可达目标（原书 P74–75）</strong>
           <p style="margin:10px 0; padding:10px 12px; border-left:4px solid #fbbf24; background:#273044;"><strong>这一节只要记住：</strong>逆解之前，先问“这台机械臂能独立控制末端的哪些量？”少于 6 个独立关节时，不能同时任意指定三维位置和三维姿态；目标位姿不在它能实现的组合里，就<strong>没有精确逆解</strong>。这时要按任务需要放宽部分位置或姿态要求，或换一台具备所需自由度的机构。<strong>少于 6 轴不等于位置一定到不了</strong>，受限制的是“位置＋姿态”的组合。</p>
           <p><strong>先分清任务：</strong>“末端到达某个点”只指定位置；“末端到达这个点，工具还必须朝指定方向”同时指定位置和姿态。空间中的完整位姿共有 6 个独立量：位置 <span data-tex="(x,y,z)"></span> 3 个、姿态 3 个（可用 roll、pitch、yaw 表示）。机械臂的 <span data-tex="n"></span> 个关节角是 <span data-tex="n"></span> 个输入；正运动学只能由它们产生某些位置与姿态的<strong>组合</strong>。当 <span data-tex="n&lt;6"></span> 时，一般不能把 6 个目标量都独立指定；“可达子空间”说的是<strong>可实现的位姿组合</strong>，不是说末端连某个位置都到不了。受关节限位或奇异位形影响，局部可独立变化的维数还可能小于 <span data-tex="n"></span>。</p>
@@ -107,17 +107,17 @@
           <p><span style="color:#59c8ef;">A：<span data-tex="(q_1,q_2)=(0^\circ,90^\circ)"></span>，所以 <span data-tex="\phi=90^\circ"></span>。</span> <span style="color:#7de0a5;">B：<span data-tex="(q_1,q_2)=(90^\circ,-90^\circ)"></span>，所以 <span data-tex="\phi=0^\circ"></span>。</span> 同一位置只有这两种分支；若再要求 <span data-tex="\phi=45^\circ"></span>，这台两连杆就无解。<strong>能到 P，不等于能以任意朝向到 P。</strong></p>
           <p style="margin-bottom:0;"><strong>对回原书：</strong>§4.3 的例 4.1 用平面三连杆说明 <span data-tex="(x,y,\phi)"></span> 这样的平面位姿；例 4.2 用二自由度极坐标臂说明位置可变、姿态却受几何约束。这里的两连杆图是本站补充的入门例子，<strong>不是原书的“四轴算例”</strong>。如果任务只要求位置，就先解位置；若还要求姿态，应检查该组合是否可达。不能把任意旋转矩阵塞进目标变换矩阵就当作机械臂能够实现；“优先保位置、放宽姿态”也只是任务允许时的一种取舍。</p>
         </div>
-        <div style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
+        <div id="craig-4-6" style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
           <strong style="color:#fbbf24;">② §4.6 Pieper 准则与球腕三步解耦（原书 P79–80）</strong>
           <p><strong>本节结论：</strong>只有确认机构具有球腕等可解耦结构，才按“先求腕心位置、再求姿态”拆开逆解；否则不能照搬这套步骤，应依据真实机构选择合适的解析或数值方法。三轴共点/平行是常见的封闭解析解<strong>充分条件</strong>，不是“其他机构一律没有解析解”的必要条件。</p>
           <p style="margin:5px 0 0;"><strong>Pieper 准则</strong>：相邻三轴共点（例如后三轴交于腕心形成球腕）或平行，为一类 6 轴机构提供解析逆解的充分结构条件；并非说其他机构一概没有解析解。<strong>球腕解耦三步</strong>：1) 后三轴转动不改变腕心位置，在末端偏置确为沿第六轴、长度为 <span data-tex="d_6"></span> 的模型中，由 <span data-tex="P_{\mathrm{wrist}} = P_{\mathrm{tcp}} - d_6 \hat{z}_6"></span> 求腕心；2) 由腕心求前 3 轴 <span data-tex="(\theta_1,\theta_2,\theta_3)"></span>；3) 由 <span data-tex="{}^{3}_{6}R = ({}^{0}_{3}R)^T \, {}^{0}_{6}R"></span> 解后三轴姿态，并检查多解与奇异位形。</p>
         </div>
-        <div style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
+        <div id="craig-4-8-4-9" style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
           <strong style="color:#fbbf24;">③ §4.8–4.9 标准系反推 &amp; 最近邻选解（原书 P87–88）</strong>
           <p><strong>本节结论：</strong>先把外部给的目标换成逆解器实际使用的“基座到腕部”目标，再从满足限位等约束的解中选连续的一支；坐标系、工具偏置或目标本身错了，选最近解也无济于事。</p>
           <p style="margin:5px 0 0;"><strong>§4.8 反推手腕目标</strong>：由第 3 章标准系链 <span data-tex="{}^{S}_{B}T \, {}^{B}_{W}T \, {}^{W}_{T}T = {}^{S}_{G}T"></span> 移项，得到逆解器输入 <span data-tex="{}^{B}_{W}T = ({}^{S}_{B}T)^{-1} \, {}^{S}_{G}T \, ({}^{W}_{T}T)^{-1}"></span>。<br><strong>§4.9 多解选哪组</strong>：先筛关节限位与碰撞等约束，再可用加权关节距离 <span data-tex="\min_k \sum w_i (\theta_{i,k}-\theta_{i,\mathrm{curr}})^2"></span> 挑连续分支；权重由机构、代价及任务决定，不存在“肩肘必须设大”的通用规则。</p>
         </div>
-        <div style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
+        <div id="craig-4-10" style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
           <strong style="color:#fbbf24;">④ §4.10 重复定位精度 vs 绝对定位精度（原书 P88–89）</strong>
           <p><strong>本节结论：</strong>反复回到同一示教点只证明重复性；要证明给一个新坐标也走得准，必须独立测量绝对误差，必要时做运动学标定。</p>
           <p style="margin:5px 0 0;"><strong>重复定位精度（Repeatability）</strong>：反复执行同一目标时，实际到达位置的分散程度；受传动、编码、负载和控制等因素影响。<br><strong>绝对定位精度（Accuracy）</strong>：实际到达位置与给定坐标之间的偏差；受几何参数、零位、柔性变形和标定等影响。两种精度的具体数值依设备及测量条件而变，不能用示例数值代替验收数据。</p>
@@ -126,6 +126,11 @@
     </div>
   </div>
 
+  <div id="craig-4-4" class="card" style="border-left:4px solid #10b981; scroll-margin-top:16px;">
+    <strong style="color:#10b981;">📖 正在读 Craig §4.4？从这里接上笔记</strong>
+    <p>原书这一节值得仔细读。读完几何解法后，沿本页的<a href="#steps">四步推导与交互</a>对照：① 可达三角形 → ② 余弦定理求肘角 → ③ <code>atan2</code> 求肩角 → ④ 正运动学回代。拖动目标点，观察两支解如何变化。</p>
+    <p style="margin-bottom:0;">本页是<strong>平面两连杆的位置逆解教学模型</strong>，不能代替原书所有 6 轴实例。会了这里，再去<a href="12a-spatial-3r-position-ik.html">笔记 12a</a>看同一几何法如何用于空间 3R 的肩肘剖面；12a 是后续迁移，不是 §4.4 原文的逐页替代。</p>
+  </div>
   <div class="card key"><strong>正运动学：</strong>给 <span data-tex="q_1,q_2"></span>，求末端 <span data-tex="(x,y)"></span>。<br><strong>逆运动学：</strong>给希望到达的点 <span data-tex="P=(x,y)"></span>，反过来求哪两组关节角 <span data-tex="(q_1,q_2)"></span> 能让末端到那里。</div>
   <div class="card"><strong>本页只解决平面两转动关节。</strong>这不是为了回避三维，而是先把“目标点 → 关节角”这件事讲透。三维机械臂的逆解会更复杂，但同样先要问：目标是否可达、可能有几组解、每一组的关节角分别是多少。</div>
 

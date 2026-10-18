@@ -97,10 +97,15 @@
           ['10', 'DH 表到正运动学', '10-dh-table-to-forward-kinematics.html'],
           ['11', 'DH 复习自测', '11-dh-review-quiz.html']
         ] },
-        { name: '教材第 4 章 · 逆运动学', items: [
-          ['12', '二维两连杆逆运动学', '12-planar-two-link-inverse-kinematics.html'],
-          ['12a', '空间 3R：从三维目标到两连杆逆解', '12a-spatial-3r-position-ik.html'],
-          ['13', '正逆运动学混合自测', '13-planar-forward-inverse-quiz.html']
+        { name: '教材第 4 章 · 逆运动学', status: '按原书小节找内容；§4.4 先读书，再进 12 对照', items: [
+          ['路线', '第 4 章：按小节找笔记', '00-progress.html#craig-ch4'],
+          ['§4.4', '几何逆解：余弦定理、atan2、两支解（笔记 12）', '12-planar-two-link-inverse-kinematics.html#craig-4-4'],
+          ['§4.3', '少于 6 轴的可达位姿（结论胶囊）', '12-planar-two-link-inverse-kinematics.html#craig-4-3'],
+          ['§4.6', '球腕与 Pieper 解耦（结论胶囊）', '12-planar-two-link-inverse-kinematics.html#craig-4-6'],
+          ['§4.8–9', '目标换系与多解选择（结论胶囊）', '12-planar-two-link-inverse-kinematics.html#craig-4-8-4-9'],
+          ['§4.10', '重复定位与绝对定位（结论胶囊）', '12-planar-two-link-inverse-kinematics.html#craig-4-10'],
+          ['延伸', '空间 3R：把平面几何逆解用于肩肘（12a）', '12a-spatial-3r-position-ik.html'],
+          ['可选', '正逆运动学混合自测（旧笔记 13）', '13-planar-forward-inverse-quiz.html']
         ] },
         { name: '教材第 5 章 · 雅可比、速度与静力', status: '现有课程聚焦速度；静力待补', items: [
           ['14', '二维两连杆雅可比矩阵', '14-planar-two-link-jacobian.html'],
@@ -195,7 +200,7 @@
       const openPage = document.getElementById('open-page');
       const menu = document.getElementById('menu');
 
-      function itemFor(file) { return entries.find(item => item.file === file.split('#')[0]) || entries[0]; }
+      function itemFor(file) { return entries.find(item => item.file === file) || entries.find(item => item.file.split('#')[0] === file.split('#')[0]) || entries[0]; }
       function requestedFile() { const match = location.hash.match(/^#note=(.+)$/); return match ? decodeURIComponent(match[1]) : '00-progress.html'; }
       function renderNav() {
         nav.innerHTML = chapters.map((chapter, index) => `<details data-chapter="${chapter.name}" ${index === 0 ? 'open' : ''}><summary>${chapter.name}</summary>${chapter.status ? `<div class="nav-status">${chapter.status}</div>` : ''}${chapter.items.map(([number, label, file]) => `<a class="nav-link" href="#note=${encodeURIComponent(file)}" data-file="${file}"><span class="number">${number}</span>${label}</a>`).join('')}</details>`).join('');
@@ -205,7 +210,7 @@
         const file = requestedFile();
         const item = itemFor(file);
         document.querySelectorAll('.nav-link').forEach(link => {
-          const isActive = link.dataset.file === file.split('#')[0];
+          const isActive = link.dataset.file === item.file;
           link.classList.toggle('active', isActive);
           if (isActive) {
             const parentDetails = link.closest('details');
