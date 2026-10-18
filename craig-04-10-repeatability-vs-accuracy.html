@@ -9,20 +9,21 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <style>
     :root {
-      --bg: #f6f4ee;
-      --panel: #fffdf9;
-      --ink: #1d232a;
-      --muted: #5a6570;
-      --accent: #b84a27;
-      --accent-soft: #f3ddd3;
-      --teal: #1d6b63;
-      --teal-soft: #dcefeb;
-      --blue: #225588;
-      --blue-soft: #dfe9f6;
-      --gold: #a06b14;
-      --gold-soft: #f7ecd6;
-      --border: #d8d1c5;
-      --shadow: 0 12px 30px rgba(29, 35, 42, 0.08);
+      --bg: #0b1120;
+      --panel: #1e293b;
+      --panel-sub: #172033;
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #fb923c;
+      --accent-soft: rgba(251, 146, 60, 0.14);
+      --teal: #34d399;
+      --teal-soft: rgba(52, 211, 153, 0.14);
+      --blue: #38bdf8;
+      --blue-soft: rgba(56, 189, 248, 0.14);
+      --gold: #fbbf24;
+      --gold-soft: rgba(251, 191, 36, 0.14);
+      --border: #334155;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
     }
 
     * { box-sizing: border-box; }
@@ -32,11 +33,13 @@
       font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at top left, rgba(29, 107, 99, 0.09), transparent 28%),
-        radial-gradient(circle at top right, rgba(160, 107, 20, 0.09), transparent 32%),
+        radial-gradient(circle at top left, rgba(52, 211, 153, 0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(251, 191, 36, 0.08), transparent 32%),
         var(--bg);
       line-height: 1.72;
     }
+
+    a { color: var(--blue); }
 
     .page {
       max-width: 1080px;
@@ -75,7 +78,7 @@
       font-weight: 600;
       border: 1px solid var(--border);
       color: var(--ink);
-      background: #fff;
+      background: var(--panel-sub);
       transition: all 0.15s ease;
     }
 
@@ -86,9 +89,9 @@
     }
 
     .nav-pill.primary {
-      background: var(--teal);
-      color: #fff;
-      border-color: var(--teal);
+      background: rgba(52, 211, 153, 0.18);
+      color: var(--teal);
+      border-color: rgba(52, 211, 153, 0.45);
     }
 
     .hero, .card {
@@ -149,7 +152,7 @@
       padding: 14px 16px;
       border-radius: 14px;
       border: 1px solid var(--border);
-      background: #fbf8f2;
+      background: var(--panel-sub);
     }
 
     .context-box strong {
@@ -168,19 +171,19 @@
       padding: 16px 18px;
       border-radius: 16px;
       border-left: 5px solid var(--accent);
-      background: #fdf6f2;
+      background: var(--accent-soft);
       color: var(--ink);
       margin: 14px 0;
     }
 
     .callout.teal {
       border-left-color: var(--teal);
-      background: #f2faf8;
+      background: var(--teal-soft);
     }
 
     .callout.blue {
       border-left-color: var(--blue);
-      background: #f3f7fc;
+      background: var(--blue-soft);
     }
 
     .grid-2 {
@@ -194,7 +197,7 @@
       padding: 16px 18px;
       border-radius: 16px;
       border: 1px solid var(--border);
-      background: #fbf8f2;
+      background: var(--panel-sub);
     }
 
     .box p:last-child { margin-bottom: 0; }
@@ -204,7 +207,7 @@
       padding: 18px;
       border-radius: 16px;
       border: 1px solid var(--border);
-      background: #fff;
+      background: #f8fafc;
       text-align: center;
     }
 
@@ -216,7 +219,7 @@
     .svg-caption {
       margin-top: 10px;
       font-size: 0.9rem;
-      color: var(--muted);
+      color: #475569;
     }
 
     .table-wrap {
@@ -232,14 +235,14 @@
 
     th, td {
       padding: 11px 13px;
-      border-bottom: 1px solid #e7dfd3;
+      border-bottom: 1px solid var(--border);
       text-align: left;
       vertical-align: top;
       font-size: 0.93rem;
     }
 
     th {
-      background: #f5efe6;
+      background: var(--panel-sub);
       color: var(--ink);
       font-weight: 700;
     }
@@ -247,7 +250,7 @@
     .formula-block {
       padding: 14px 18px;
       border-radius: 14px;
-      background: #fff;
+      background: var(--panel-sub);
       border: 1px solid var(--border);
       margin: 12px 0;
       overflow-x: auto;
@@ -256,7 +259,7 @@
     details.quiz-item {
       border: 1px solid var(--border);
       border-radius: 14px;
-      background: #fbf8f2;
+      background: var(--panel-sub);
       padding: 14px 16px;
       margin-bottom: 12px;
     }

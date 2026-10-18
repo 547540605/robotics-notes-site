@@ -9,20 +9,21 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
   <style>
     :root {
-      --bg: #f6f4ee;
-      --panel: #fffdf9;
-      --ink: #1d232a;
-      --muted: #5a6570;
-      --accent: #b84a27;
-      --accent-soft: #f3ddd3;
-      --teal: #1d6b63;
-      --teal-soft: #dcefeb;
-      --blue: #225588;
-      --blue-soft: #dfe9f6;
-      --gold: #a06b14;
-      --gold-soft: #f7ecd6;
-      --border: #d8d1c5;
-      --shadow: 0 12px 30px rgba(29, 35, 42, 0.08);
+      --bg: #0b1120;
+      --panel: #1e293b;
+      --panel-sub: #172033;
+      --ink: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #fb7185;
+      --accent-soft: rgba(244, 63, 94, 0.18);
+      --teal: #34d399;
+      --teal-soft: rgba(16, 185, 129, 0.18);
+      --blue: #38bdf8;
+      --blue-soft: rgba(56, 189, 248, 0.16);
+      --gold: #fbbf24;
+      --gold-soft: rgba(245, 158, 11, 0.16);
+      --border: #334155;
+      --shadow: 0 12px 30px rgba(2, 6, 23, 0.35);
     }
 
     * { box-sizing: border-box; }
@@ -31,12 +32,12 @@
       margin: 0;
       font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
       color: var(--ink);
-      background:
-        radial-gradient(circle at top left, rgba(184, 74, 39, 0.09), transparent 28%),
-        radial-gradient(circle at top right, rgba(29, 107, 99, 0.09), transparent 32%),
-        var(--bg);
+      background: var(--bg);
       line-height: 1.72;
     }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
     .page {
       max-width: 1080px;
@@ -75,36 +76,37 @@
       font-weight: 600;
       border: 1px solid var(--border);
       color: var(--ink);
-      background: #fff;
+      background: var(--panel-sub);
       transition: all 0.15s ease;
     }
 
     .nav-pill:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-soft);
+      border-color: var(--blue);
+      color: var(--blue);
+      background: var(--blue-soft);
+      text-decoration: none;
     }
 
     .nav-pill.primary {
-      background: var(--accent);
+      background: #0284c7;
       color: #fff;
-      border-color: var(--accent);
+      border-color: #38bdf8;
     }
 
     .hero, .card {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 20px;
+      border-radius: 14px;
       box-shadow: var(--shadow);
     }
 
     .hero {
-      padding: 26px;
+      padding: 24px;
       margin-bottom: 20px;
     }
 
     .card {
-      padding: 24px;
+      padding: 22px;
       margin-bottom: 20px;
     }
 
@@ -112,8 +114,8 @@
       display: inline-block;
       padding: 5px 12px;
       border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
+      background: var(--gold-soft);
+      color: var(--gold);
       font-size: 0.84rem;
       font-weight: 700;
       margin-bottom: 10px;
@@ -147,9 +149,9 @@
 
     .context-box {
       padding: 14px 16px;
-      border-radius: 14px;
+      border-radius: 12px;
       border: 1px solid var(--border);
-      background: #fbf8f2;
+      background: var(--panel-sub);
     }
 
     .context-box strong {
@@ -166,21 +168,21 @@
 
     .callout {
       padding: 16px 18px;
-      border-radius: 16px;
+      border-radius: 12px;
       border-left: 5px solid var(--accent);
-      background: #fdf6f2;
+      background: rgba(244, 63, 94, 0.1);
       color: var(--ink);
       margin: 14px 0;
     }
 
     .callout.teal {
       border-left-color: var(--teal);
-      background: #f2faf8;
+      background: rgba(16, 185, 129, 0.1);
     }
 
     .callout.blue {
       border-left-color: var(--blue);
-      background: #f3f7fc;
+      background: rgba(56, 189, 248, 0.1);
     }
 
     .grid-2 {
@@ -192,19 +194,19 @@
 
     .box {
       padding: 16px 18px;
-      border-radius: 16px;
+      border-radius: 12px;
       border: 1px solid var(--border);
-      background: #fbf8f2;
+      background: var(--panel-sub);
     }
 
     .box p:last-child { margin-bottom: 0; }
 
     .svg-wrap {
       margin: 16px 0;
-      padding: 18px;
-      border-radius: 16px;
+      padding: 16px;
+      border-radius: 12px;
       border: 1px solid var(--border);
-      background: #fff;
+      background: #0f172a;
       text-align: center;
     }
 
@@ -232,22 +234,22 @@
 
     th, td {
       padding: 11px 13px;
-      border-bottom: 1px solid #e7dfd3;
+      border-bottom: 1px solid var(--border);
       text-align: left;
       vertical-align: top;
       font-size: 0.93rem;
     }
 
     th {
-      background: #f5efe6;
+      background: var(--panel-sub);
       color: var(--ink);
       font-weight: 700;
     }
 
     .formula-block {
       padding: 14px 18px;
-      border-radius: 14px;
-      background: #fff;
+      border-radius: 12px;
+      background: #0f172a;
       border: 1px solid var(--border);
       margin: 12px 0;
       overflow-x: auto;
@@ -273,8 +275,8 @@
 
     details.quiz-item {
       border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #fbf8f2;
+      border-radius: 12px;
+      background: var(--panel-sub);
       padding: 14px 16px;
       margin-bottom: 12px;
     }
@@ -429,7 +431,7 @@
           <line x1="517" y1="220" x2="625" y2="232" stroke="#7f8c98" stroke-width="4" stroke-dasharray="5,4"/>
           <line x1="625" y1="232" x2="735" y2="165" stroke="#7f8c98" stroke-width="4" stroke-dasharray="5,4"/>
           <circle cx="625" cy="232" r="5" fill="#7f8c98"/>
-          <text x="618" y="252" font-size="11.5" fill="#5a6570">当前姿态 θ_curr（下肘）</text>
+          <text x="530" y="198" font-size="11.5" fill="#5a6570">当前姿态 θ_curr（下肘）</text>
 
           <!-- Branch B: Elbow-Down (Closer to θ_curr, but hits obstacle / limit) -->
           <line x1="517" y1="220" x2="650" y2="255" stroke="#b84a27" stroke-width="5" opacity="0.85"/>
