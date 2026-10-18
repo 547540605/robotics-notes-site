@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Craig §4.6：Pieper 条件与球腕位置—姿态解耦</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}, {left: '\\[', right: '\\]', display: true}, {left: '\\(', right: '\\)', display: false}]});"></script>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #1e293b;
+      --card-sub: #172033;
+      --fg: #f8fafc;
+      --muted: #94a3b8;
+      --line: #334155;
+      --primary: #38bdf8;
+      --accent: #0284c7;
+      --success: #10b981;
+      --warn: #f59e0b;
+      --danger: #f43f5e;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.72 system-ui, -apple-system, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 20px 72px;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1, h2, h3 { line-height: 1.3; margin-top: 0; }
+    h1 { font-size: clamp(1.6rem, 2.5vw, 2.15rem); margin: 0.4rem 0 0.8rem; }
+    h2 {
+      font-size: 1.28rem;
+      margin-top: 2.2rem;
+      padding-bottom: 0.38rem;
+      border-bottom: 1px solid var(--line);
+    }
+    p { margin: 0.65rem 0; }
+    .muted { color: var(--muted); font-size: 0.92rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin: 16px 0;
+    }
+    .takeaway {
+      border-left: 4px solid var(--warn);
+      background: rgba(245, 158, 11, 0.08);
+    }
+    .context-bar {
+      border-left: 4px solid var(--primary);
+      background: var(--card-sub);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+      font-size: 0.94rem;
+    }
+    .boundary-card {
+      border-left: 4px solid var(--danger);
+      background: rgba(244, 63, 94, 0.08);
+    }
+    .step-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .step-box {
+      background: var(--card-sub);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px 16px;
+    }
+    .formula-box {
+      background: #0f172a;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      overflow-x: auto;
+    }
+    details.quiz-item {
+      background: var(--card-sub);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin: 10px 0;
+    }
+    details.quiz-item summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #e2e8f0;
+      padding: 4px 0;
+    }
+    details.quiz-item .ans {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--line);
+      color: #cbd5e1;
+      font-size: 0.94rem;
+    }
+    .nav-footer {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+    .card, .step-box { min-width: 0; overflow-wrap: break-word; }
+    .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding: 4px 0; }
+    @media (max-width: 680px) {
+      main { padding: 20px 14px 60px; }
+      .step-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <p class="muted">
+    <a href="craig-04-reading-guide.html">← 第 4 章导读总入口</a> ·
+    <a href="12-planar-two-link-inverse-kinematics.html">上一节：§4.4 平面两连杆几何逆解（笔记 12）</a> ·
+    <a href="craig-04-08-target-frame-transform.html">下一节：§4.8 目标坐标系转换 →</a>
+  </p>
+
+  <h1>Craig §4.6：三轴相交的 Pieper 解法与球腕解耦（原书 P79–P81 / PDF P90–P92）</h1>
+
+  <div class="context-bar" aria-label="前因后果衔接">
+    <strong>前因后果：</strong>在 <a href="12-planar-two-link-inverse-kinematics.html">§4.4（笔记 12）</a>与 <a href="12a-spatial-3r-position-ik.html">笔记 12a</a> 中，我们学会了由三维位置求 3 个关节角。但工业六轴机械臂要同时满足<strong>三维位置 + 三维姿态</strong>共 6 个方程。原书 §4.5 介绍了把三角方程化为多项式的方法（本路线跳过繁琐消元）；<strong>§4.6</strong> 则回答：为什么绝大多数传统工业六轴臂要把最后三个关节做成“三轴交于一点”的球腕？读完本页后，跳到 <a href="craig-04-08-target-frame-transform.html">§4.8</a> 看外部工位目标如何换算为逆解器输入。
+  </div>
+
+  <section class="card takeaway" aria-label="本节核心结论">
+    <strong style="color:#fbbf24; font-size:1.05rem;">💊 本节结论（看完直接带走，原书 §4.6 无需再翻）</strong>
+    <p style="margin:8px 0 0;">
+      一般 6R 机械臂的位置与姿态强耦合，没有通用的简单公式；<strong>只有确认机构满足球腕条件（后三根关节轴 \(Z_4, Z_5, Z_6\) 相交于同一个腕心点 \(P_W\)）</strong>，后三轴转动才不会改变腕心的位置。此时可以把 6 维逆解拆成两步：<strong>① 先只用腕心位置 \(P_W\) 解前 3 个关节 \((\theta_1,\theta_2,\theta_3)\)；② 再由剩余旋转矩阵 \({}^3_6 R = ({}^0_3 R)^T \, {}^0_6 R\) 解后 3 个腕部关节 \((\theta_4,\theta_5,\theta_6)\)</strong>。这不是所有六轴机械臂的通用解法；不满足该结构条件时，应按真实机构采用对应的解析或数值方法。
+    </p>
+  </section>
+
+  <h2>1. 本节要解决什么问题：为什么一般 6 轴逆解不能直接套简单公式？</h2>
+  <p>
+    一台 6 自由度串联机械臂的末端位姿 \({}^0_6 T = {}^0_1 T(\theta_1){}^1_2 T(\theta_2)\cdots{}^5_6 T(\theta_6)\)，展开后包含 3 个位置方程和 3 个独立姿态方程。如果 6 个关节轴各自错开（连杆长度 \(a_i\) 与偏距 \(d_i\) 均不为零），那么末端位置 \((x,y,z)\) 会同时含有全部 6 个角度 \(\theta_1 \sim \theta_6\) 的正余弦乘积——不先算出姿态就定不下位置，不先算出位置也解不出姿态。
+  </p>
+  <p>
+    Pieper（1968）证明了一个关键结构结论（<strong>Pieper 准则</strong>）：对于 6 个转动关节的串联机械臂，只要<strong>存在相邻三根关节轴相交于同一点</strong>（或<strong>相邻三根关节轴互相平行</strong>，可视为交点在无穷远处），就一定能够消元化为不超过 4 次的多项式方程，从而求得<strong>封闭解析逆解（Closed-form solution）</strong>。商业化工业六轴臂最常采用的就是<strong>后三轴（轴 4、5、6）交于一点</strong>，称为<strong>球形手腕（Spherical Wrist）</strong>。
+  </p>
+
+  <h2>2. 一图看懂球腕结构：为什么后三轴怎么转，腕心都不动？</h2>
+  <div class="card">
+    <p style="margin-top:0;">
+      对照下图的 6R 球腕机械臂示意图（自制教学示意图，对应原书 §4.6 式 4.41 的坐标系设置）：
+    </p>
+    <figure style="margin:14px 0; overflow-x:auto;" aria-label="6R 球腕机械臂前三轴、后三轴、腕心 Pw 与工具末端 TCP 示意图">
+      <svg viewBox="0 0 820 340" role="img" aria-label="左侧黄色前三轴（关节 1、2、3）决定腕心 Pw 的空间位置；右侧绿色后三轴（关节 4、5、6）轴线全部穿过腕心 Pw，只改变末端姿态；粉色向量表示从腕心沿 Z6 轴偏移 d6 到达工具末端 TCP" style="display:block; width:100%; max-width:820px; height:auto; margin:auto; background:#0f172a; border:1px solid var(--line); border-radius:8px;">
+        <defs>
+          <marker id="arr-blue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 Z" fill="#38bdf8"/>
+          </marker>
+          <marker id="arr-green" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 Z" fill="#10b981"/>
+          </marker>
+          <marker id="arr-pink" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 Z" fill="#f472b6"/>
+          </marker>
+        </defs>
+
+        <!-- Base frame {0} -->
+        <rect x="65" y="268" width="90" height="24" rx="4" fill="#334155"/>
+        <line x1="110" y1="268" x2="110" y2="195" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#arr-blue)"/>
+        <text x="72" y="310" fill="#e2e8f0" font-size="14" font-weight="700">基坐标系 {0}</text>
+        <text x="118" y="205" fill="#38bdf8" font-size="13">Z₁ (轴 1)</text>
+
+        <!-- First 3 links (Positioning arm: yellow/amber) -->
+        <line x1="110" y1="268" x2="110" y2="225" stroke="#f59e0b" stroke-width="12" stroke-linecap="round"/>
+        <line x1="110" y1="225" x2="255" y2="108" stroke="#f59e0b" stroke-width="11" stroke-linecap="round"/>
+        <line x1="255" y1="108" x2="475" y2="138" stroke="#fbbf24" stroke-width="9" stroke-linecap="round"/>
+
+        <!-- Joints 1, 2, 3 -->
+        <circle cx="110" cy="225" r="9" fill="#0b1120" stroke="#f59e0b" stroke-width="3"/>
+        <text x="52" y="230" fill="#fbbf24" font-size="13" font-weight="700">关节 2 (θ₂)</text>
+        <circle cx="255" cy="108" r="9" fill="#0b1120" stroke="#fbbf24" stroke-width="3"/>
+        <text x="225" y="88" fill="#fbbf24" font-size="13" font-weight="700">关节 3 (θ₃)</text>
+        <text x="275" y="62" fill="#f59e0b" font-size="15" font-weight="700">【前三轴：定位主臂】只管把腕心 P_W 送到目标点</text>
+
+        <!-- Intersecting axes Z4, Z5, Z6 at Wrist Center Pw (475, 138) -->
+        <line x1="395" y1="127" x2="555" y2="149" stroke="#10b981" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+        <text x="392" y="118" fill="#34d399" font-size="13">Z₄ (轴 4)</text>
+
+        <line x1="445" y1="205" x2="505" y2="71" stroke="#10b981" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+        <text x="498" y="68" fill="#34d399" font-size="13">Z₅ (轴 5)</text>
+
+        <line x1="435" y1="106" x2="625" y2="256" stroke="#10b981" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+        <text x="630" y="262" fill="#34d399" font-size="13">Z₆ (轴 6 方向 ẑ₆)</text>
+
+        <!-- Wrist to TCP offset d6 -->
+        <line x1="475" y1="138" x2="592" y2="230" stroke="#f472b6" stroke-width="7" stroke-linecap="round"/>
+        <line x1="463" y1="154" x2="580" y2="246" stroke="#f472b6" stroke-width="2" marker-end="url(#arr-pink)"/>
+        <text x="488" y="218" fill="#f9a8d4" font-size="14" font-weight="700">末端偏置 d₆ · ẑ₆</text>
+
+        <!-- Wrist center circle Pw -->
+        <circle cx="475" cy="138" r="16" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="2" stroke-dasharray="3 2"/>
+        <circle cx="475" cy="138" r="6" fill="#10b981" stroke="#fff" stroke-width="2"/>
+        <text x="496" y="132" fill="#fff" font-size="15" font-weight="700">腕心 P_W（{4},{5},{6} 原点重合处）</text>
+
+        <!-- TCP point -->
+        <circle cx="592" cy="230" r="7" fill="#ec4899" stroke="#fff" stroke-width="2"/>
+        <text x="606" y="228" fill="#f9a8d4" font-size="15" font-weight="700">工具末端 P_tcp</text>
+
+        <!-- Right callout box -->
+        <rect x="535" y="22" width="268" height="74" rx="6" fill="#172033" stroke="#10b981" stroke-width="1.5"/>
+        <text x="547" y="45" fill="#34d399" font-size="14" font-weight="700">【后三轴：球腕调姿】</text>
+        <text x="547" y="66" fill="#cbd5e1" font-size="13">Z₄, Z₅, Z₆ 三轴交于腕心 P_W</text>
+        <text x="547" y="85" fill="#94a3b8" font-size="12">⇒ 转 θ₄, θ₅, θ₆ 绝不改变 P_W 的坐标！</text>
+      </svg>
+    </figure>
+    <p style="margin-bottom:0;">
+      <strong>看图抓关键几何事实：</strong>在 Craig 的改进 DH 建系（原书 P79 式 4.41）中，当最后三根关节轴相交于一点时，连杆坐标系 \(\{4\}\)、\(\{5\}\) 和 \(\{6\}\) 的原点全部建在这个交点（即<strong>腕心 \(P_W\)</strong>，原书写作 \({}^0 P_{4\text{ORG}}\)）上。因为绕穿过点 \(P_W\) 的任何轴旋转都不会移动 \(P_W\) 本身，所以<strong>腕心在基坐标系下的位置只取决于前三个关节角 \((\theta_1,\theta_2,\theta_3)\)，与 \((\theta_4,\theta_5,\theta_6)\) 完全无关！</strong>
+    </p>
+  </div>
+
+  <h2>3. 球腕位置—姿态解耦三步法（对照原书式 4.41–4.53）</h2>
+
+  <div class="step-grid">
+    <div class="step-box">
+      <strong style="color:#f472b6;">第 1 步：确定腕心位置 \(P_W\)</strong>
+      <p>
+        若逆解器输入已按原书式 (4.41) 将 \(\{6\}\) 原点直接设在三轴交点，则目标矩阵的位置列就是腕心 \({}^0 P_{4\text{ORG}} = [x,y,z,1]^T\)。
+      </p>
+      <p style="margin-bottom:0;">
+        若目标给的是沿第 6 轴方向有固定长度 \(d_6\) 偏置的法兰/TCP 位置 \(P_{\mathrm{tcp}}\) 和目标旋转矩阵 \({}^0_6 R\)，只需沿 \({}^0_6 R\) 的第 3 列（即第六轴单位向量 \(\hat{z}_6\)）往回退 \(d_6\)：
+      </p>
+      <div class="formula-box">
+        \[
+          P_W = P_{\mathrm{tcp}} - d_6 \, \hat{z}_6
+        \]
+      </div>
+    </div>
+
+    <div class="step-box">
+      <strong style="color:#fbbf24;">第 2 步：由 \(P_W\) 求前 3 轴 \((\theta_1,\theta_2,\theta_3)\)</strong>
+      <p>
+        在原书式 (4.41)–(4.43) 中，腕心位置仅含前三个关节变量：
+      </p>
+      <div class="formula-box">
+        \[
+          {}^0 P_{4\mathrm{ORG}} = {}^0_1 T(\theta_1)\,{}^{1}_{2}T(\theta_2)\,{}^{2}_{3}T(\theta_3)\,{}^{3}P_{4\mathrm{ORG}}
+        \]
+      </div>
+      <p style="margin-bottom:0;">
+        这变成了一个纯粹的 3 自由度位置逆解问题（原书式 4.44–4.52，或我们在 <a href="12a-spatial-3r-position-ik.html">12a 空间 3R</a> 学过的俯视方位 + 肩肘剖面几何法），通常得到 2 组或 4 组肩肘候选角。
+      </p>
+    </div>
+
+    <div class="step-box">
+      <strong style="color:#34d399;">第 3 步：剥离前三轴，解腕部 \((\theta_4,\theta_5,\theta_6)\)</strong>
+      <p>
+        一旦算出某组 \((\theta_1,\theta_2,\theta_3)\)，前三节连杆的旋转矩阵 \({}^0_3 R(\theta_1,\theta_2,\theta_3)\)（原书式 4.53 写作 \(\theta_4=0\) 时的 \({}^0_4 R|_{\theta_4=0}\)）就完全已知了。
+      </p>
+      <p style="margin-bottom:0;">
+        因为总旋转矩阵满足 \({}^0_6 R = {}^0_3 R \, {}^3_6 R\)，利用正交矩阵求逆等于转置（\((R)^{-1}=R^T\)），左乘移项即得：
+      </p>
+      <div class="formula-box">
+        \[
+          {}^3_6 R(\theta_4,\theta_5,\theta_6) = ({}^0_3 R)^T \, {}^0_6 R
+        \]
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:6px;">📝 一步算通的小例子：从末端目标退回腕心 &amp; 腕部双解</h3>
+    <p>
+      设某球腕六轴臂的腕心到法兰末端沿 \(\hat{z}_6\) 偏置为 \(d_6 = 0.10\,\mathrm{m}\)。外部给定的末端目标位置为 \(P_{\mathrm{tcp}} = [0.50,\, 0.20,\, 0.45]^T\,\mathrm{m}\)，期望末端姿态竖直向下抓取，其旋转矩阵为：
+    </p>
+    <div class="formula-box">
+      \[
+        {}^0_6 R =
+        \begin{bmatrix}
+          1 & 0 & 0 \\
+          0 & -1 & 0 \\
+          0 & 0 & -1
+        \end{bmatrix}
+        \quad\Longrightarrow\quad
+        \text{第 3 列 } \hat{z}_6 =
+        \begin{bmatrix}
+          0 \\ 0 \\ -1
+        \end{bmatrix}
+      \]
+    </div>
+    <ol style="margin:6px 0; padding-left:22px;">
+      <li>
+        <strong>先算腕心 \(P_W\)：</strong>因为末端朝向 \(-Z\)，腕心必然在末端正上方 \(0.10\,\mathrm{m}\) 处：
+        \[
+          P_W = P_{\mathrm{tcp}} - d_6 \hat{z}_6 =
+          \begin{bmatrix} 0.50 \\ 0.20 \\ 0.45 \end{bmatrix}
+          - 0.10 \begin{bmatrix} 0 \\ 0 \\ -1 \end{bmatrix}
+          = \begin{bmatrix} 0.50 \\ 0.20 \\ 0.55 \end{bmatrix}\,\mathrm{m}
+        \]
+      </li>
+      <li>
+        <strong>再由 \(P_W=(0.50, 0.20, 0.55)\,\mathrm{m}\) 解前 3 轴：</strong>这只用前 3 轴尺寸，与 \((\theta_4,\theta_5,\theta_6)\) 彻底脱钩。
+      </li>
+      <li>
+        <strong>最后解后 3 轴与“翻腕”双解：</strong>求出 \({}^3_6 R = ({}^0_3 R)^T {}^0_6 R\) 后，按 Z-Y-Z 欧拉角反解 \((\theta_4,\theta_5,\theta_6)\)。正如原书 §4.2 式 (4.1) 与 §4.6 P81 所指出的，当 \(\sin\theta_5 \neq 0\) 时，腕部总存在<strong>“不翻腕 / 翻腕（Wrist Flip）”</strong>两组等价姿态解：
+        \[
+          \theta'_4 = \theta_4 + 180^\circ,\qquad
+          \theta'_5 = -\theta_5,\qquad
+          \theta'_6 = \theta_6 + 180^\circ
+          \quad\text{（原书式 4.1）}
+        \]
+        因此若前 3 轴有 4 组位置解（肩左/肩右 × 肘上/肘下），乘以腕部的 2 组解，全臂共得到 \(4\times 2 = 8\) 组候选解析解。
+      </li>
+    </ol>
+  </div>
+
+  <h2>4. 适用边界与现代工程现实（切勿乱套！）</h2>
+  <section class="card boundary-card" aria-label="Pieper 解法的适用边界">
+    <strong style="color:#fb7185;">⚠️ 必须牢记的三个边界</strong>
+    <ul style="margin:8px 0 0; padding-left:20px;">
+      <li>
+        <strong>充分条件 \(\neq\) 必要条件：</strong>“相邻三轴相交或平行”只是保证存在封闭解析解的<strong>充分条件</strong>，不是说不满足它的机构就绝对没有解析解；但<strong>“先求腕心位置、再求姿态”这套三步拆解法，严格依赖后三轴交于一点</strong>。
+      </li>
+      <li>
+        <strong>非球腕机械臂不能生搬硬套：</strong>许多现代六轴协作臂（如 UR 系列的腕部存在非零连杆偏距）或中空手腕喷涂臂，后三轴并<strong>不交于同一点</strong>。对这类机械臂，转动 \(\theta_4,\theta_5\) 会同时改变腕部位置，不能直接用 \(P_W = P_{\mathrm{tcp}} - d_6\hat{z}_6\) 拆解，而应使用针对该构型的专用代数解析解（如 UR 的 8 解公式）或数值迭代逆解器（如 MoveIt 2 中的 <code>KDL</code>、<code>Trac-IK</code>、<code>BioIK</code>）。
+      </li>
+      <li>
+        <strong>腕部奇异（\(\theta_5 = 0^\circ\) 或 \(180^\circ\)）：</strong>当第 5 轴伸直时，第 4 轴 \(Z_4\) 与第 6 轴 \(Z_6\) 共线，只能确定 \(\theta_4 + \theta_6\)（或 \(\theta_4 - \theta_6\)）的和差，无法唯一拆开两个角——这正是第 2 章欧拉角万向节锁与第 5 章雅可比腕部奇异在逆运动学中的直接体现。
+      </li>
+    </ul>
+  </section>
+
+  <h2>5. 本节自测（点击展开答案）</h2>
+
+  <details class="quiz-item">
+    <summary>1. 为什么具有球形手腕的 6R 机械臂可以先独立求出前三个关节角 \((\theta_1,\theta_2,\theta_3)\)？</summary>
+    <div class="ans">
+      因为球腕的最后三根关节轴 \(Z_4, Z_5, Z_6\) 相交于同一个腕心点 \(P_W\)。绕穿过 \(P_W\) 的轴转动不会改变 \(P_W\) 在基坐标系中的空间位置，因此 \(P_W\) 的坐标只由前三个关节角 \((\theta_1,\theta_2,\theta_3)\) 决定。
+    </div>
+  </details>
+
+  <details class="quiz-item">
+    <summary>2. 已知期望末端旋转矩阵 \({}^0_6 R\)，且已经由腕心位置算出了一组前三轴角度 \((\theta_1,\theta_2,\theta_3)\) 及其旋转矩阵 \({}^0_3 R\)，怎样写出后三轴要满足的旋转矩阵 \({}^3_6 R\)？</summary>
+    <div class="ans">
+      由旋转矩阵连乘关系 \({}^0_6 R = {}^0_3 R \, {}^3_6 R\)，左乘 \(({}^0_3 R)^{-1}\)。由于旋转矩阵是正交矩阵，其逆等于转置，故直接得到 \({}^3_6 R = ({}^0_3 R)^T \, {}^0_6 R\)（对应原书式 4.53）。
+    </div>
+  </details>
+
+  <details class="quiz-item">
+    <summary>3. 如果一台六轴机械臂的第 4、5、6 轴之间存在偏置（三轴不相交于同一点），还能先用 \(P_W = P_{\mathrm{tcp}} - d_6\hat{z}_6\) 独立解出前三个关节角吗？</summary>
+    <div class="ans">
+      <strong>不能。</strong>当后三轴不相交于同一点时，转动 \(\theta_4\) 或 \(\theta_5\) 会引起手腕中心位置移动，前三轴位置与后三轴姿态相互耦合，不能照搬球腕的三步解耦法。
+    </div>
+  </details>
+
+  <details class="quiz-item">
+    <summary>4. 原书式 (4.1) 给出的 \(\theta'_4=\theta_4+180^\circ,\,\theta'_5=-\theta_5,\,\theta'_6=\theta_6+180^\circ\) 在物理上代表什么现象？</summary>
+    <div class="ans">
+      代表球腕的<strong>“翻腕（Wrist Flip）”对称双解</strong>：保持前三个关节不动（腕心位置不变），将第 4 轴转半圈、第 5 轴反向倾角、第 6 轴再转半圈补回末端自转，末端法兰的位置和姿态完全不变，从而使全臂逆解总数翻倍。
+    </div>
+  </details>
+
+  <nav class="nav-footer" aria-label="小节前后导航">
+    <a href="12-planar-two-link-inverse-kinematics.html">← 上一节：§4.4 平面两连杆几何逆解（笔记 12）</a>
+    <a href="craig-04-08-target-frame-transform.html">下一节：§4.8 把目标换到逆解器使用的坐标系 →</a>
+  </nav>
+</main>
+</body>
+</html>

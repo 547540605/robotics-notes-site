@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>笔记 12：二维两连杆逆运动学</title>
+  <title>Craig §4.4 专页（笔记 12）：平面两连杆几何逆解</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
   <style>
@@ -34,7 +34,6 @@
     .tip { background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--success); padding: 12px 16px; margin: 14px 0; border-radius: 0 6px 6px 0; }
     .warn { background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 12px 16px; margin: 14px 0; border-radius: 0 6px 6px 0; }
     .derive { background: var(--card-sub); border: 1px solid var(--line); border-radius: 6px; padding: 14px 18px; margin: 14px 0; }
-        
   </style>
   <style>
     /* Keep feedback legible regardless of the browser's light/dark system Canvas color. */
@@ -42,99 +41,140 @@
     .status.bad { background: #3a2028; color: #ffe7ec; border: 1px solid #c46979; }
     .solution { background: #142b38; }
     .solution.down { background: #332717; }
+    .top-nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .top-nav-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .nav-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--fg);
+      background: var(--card-sub);
+      border: 1px solid var(--line);
+    }
+    .nav-chip:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .nav-chip.current {
+      background: rgba(16, 185, 129, 0.18);
+      border-color: #10b981;
+      color: #6ee7b7;
+    }
+    .context-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .context-mini {
+      background: var(--card-sub);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.92rem;
+    }
+    .context-mini strong {
+      display: block;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    details.quiz-box {
+      background: var(--card-sub);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 10px 0;
+    }
+    details.quiz-box summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--fg);
+    }
+    details.quiz-box .quiz-ans {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--line);
+      color: var(--muted);
+    }
+    @media (max-width: 780px) {
+      .context-grid-3 { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
 <main>
-  <p class="muted"><a href="00-progress.html">学习进度</a> · <a href="04-planar-two-link-forward-kinematics.html">笔记 04：二维两连杆正运动学</a> · <a href="10-dh-table-to-forward-kinematics.html">笔记 10：DH 正运动学</a></p>
-  <h1>笔记 12：二维两连杆的逆运动学（Craig 第 4 章开篇）</h1>
-
-  <div class="card" style="border-left: 4px solid #38bdf8; background: rgba(15, 23, 42, 0.78);">
-    <strong style="color:#38bdf8; font-size:1.03rem;">⚡ Craig 第 4 章（操作臂逆运动学，原书 P71–94）看书脱水指南 2.0 &amp; 🤖 ROS 2 关联</strong>
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; margin-top:10px; font-size:0.9rem;">
-      <div style="background:var(--card-sub); padding:10px 12px; border-radius:6px; border:1px solid var(--line);">
-        <strong style="color:#10b981;">🟢 唯一需翻原书细看（仅 6 页）</strong>
-        <ul style="margin:6px 0 0; padding-left:18px;">
-          <li><strong>§4.1–4.2 (P71–74)</strong>：解的存在性（可达/灵巧工作空间）与多解性（肘上/肘下/翻腕）。</li>
-          <li><strong>§4.4 (P75–78)</strong>：<strong>几何解法</strong>（平面三角形余弦定理 + <code>atan2</code>，即本页交互核心）。</li>
-        </ul>
-      </div>
-      <div style="background:var(--card-sub); padding:10px 12px; border-radius:6px; border:1px solid var(--line);">
-        <strong style="color:#f59e0b;">💊 免翻书·直接看下方胶囊（原书不用翻）</strong>
-        <ul style="margin:6px 0 0; padding-left:18px;">
-          <li><strong>§4.3 (P74)</strong>：少于 6 轴时的可达子空间 → <em>见下方胶囊 ①</em></li>
-          <li><strong>§4.6 (P79–80)</strong>：Pieper 球腕位置-姿态解耦三步法 → <em>见下方胶囊 ②</em></li>
-          <li><strong>§4.8–4.9 (P87–88)</strong>：标准系反推手腕位姿 &amp; 加权最近邻选解 → <em>见下方胶囊 ③</em></li>
-          <li><strong>§4.10 (P88–89)</strong>：重复定位精度 vs 绝对定位精度 → <em>见下方胶囊 ④</em></li>
-        </ul>
-      </div>
-      <div style="background:var(--card-sub); padding:10px 12px; border-radius:6px; border:1px solid var(--line);">
-        <strong style="color:#f43f5e;">🔴 直接跳过不看（80年代老黄历）</strong>
-        <ul style="margin:6px 0 0; padding-left:18px;">
-          <li><strong>§4.5 (P78–79)</strong>：化为高次多项式的繁琐代数消元。</li>
-          <li><strong>§4.7 (P81–87)</strong>：PUMA 560 与 Motoman L-3 整整 6 页凑三角恒等式的手算逆解，<strong>千万别去硬啃</strong>！</li>
-          <li><strong>§4.11 (P89)</strong>：早期算力计算问题。</li>
-        </ul>
-      </div>
-      <div style="background:var(--card-sub); padding:10px 12px; border-radius:6px; border:1px solid var(--line);">
-        <strong style="color:#38bdf8;">🤖 ROS 2 (MoveIt 2) 真实工程怎么干</strong>
-        <ul style="margin:6px 0 0; padding-left:18px;">
-          <li>现代在售机械臂很多不再是严格球腕，工程中<strong>绝不用手推 6 轴三角方程</strong>！</li>
-          <li>在 MoveIt 2 的 <code>kinematics.yaml</code> 中直接配置数值迭代逆解器（<strong><code>KDL</code></strong>、<strong><code>Trac-IK</code></strong>、<strong><code>PickNik BioIK</code></strong>）或自动生成 C++ 代码的 <strong><code>IKFast</code></strong>。</li>
-        </ul>
-      </div>
+  <nav class="top-nav-bar" aria-label="第 4 章小节导航">
+    <div class="top-nav-group">
+      <a class="nav-chip" href="00-progress.html#craig-ch4">返回进度页 §4</a>
+      <a class="nav-chip" href="craig-04-reading-guide.html">第 4 章总入口</a>
+      <a class="nav-chip" href="craig-04-03-reachable-subspace.html">← 上一节：§4.3 少于 6 轴可达位姿</a>
     </div>
-    <div style="margin-top:12px; padding-top:12px; border-top:1px dashed var(--line);">
-      <strong style="color:#f59e0b; font-size:0.96rem;">💊 第 4 章免翻书干货提炼胶囊（看完即毕业，原书 §4.3、§4.6、§4.8–4.10 无需再翻）</strong>
-      <div style="display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px; font-size:0.88rem;">
-        <div id="craig-4-3" style="grid-column:1/-1; background:rgba(245, 158, 11, 0.07); padding:14px 16px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
-          <strong style="color:#fbbf24;">① §4.3 核心结论：少于 6 轴，不能把任意完整位姿当成可达目标（原书 P74–75）</strong>
-          <p style="margin:10px 0; padding:10px 12px; border-left:4px solid #fbbf24; background:#273044;"><strong>这一节只要记住：</strong>逆解之前，先问“这台机械臂能独立控制末端的哪些量？”少于 6 个独立关节时，不能同时任意指定三维位置和三维姿态；目标位姿不在它能实现的组合里，就<strong>没有精确逆解</strong>。这时要按任务需要放宽部分位置或姿态要求，或换一台具备所需自由度的机构。<strong>少于 6 轴不等于位置一定到不了</strong>，受限制的是“位置＋姿态”的组合。</p>
-          <p><strong>先分清任务：</strong>“末端到达某个点”只指定位置；“末端到达这个点，工具还必须朝指定方向”同时指定位置和姿态。空间中的完整位姿共有 6 个独立量：位置 <span data-tex="(x,y,z)"></span> 3 个、姿态 3 个（可用 roll、pitch、yaw 表示）。机械臂的 <span data-tex="n"></span> 个关节角是 <span data-tex="n"></span> 个输入；正运动学只能由它们产生某些位置与姿态的<strong>组合</strong>。当 <span data-tex="n&lt;6"></span> 时，一般不能把 6 个目标量都独立指定；“可达子空间”说的是<strong>可实现的位姿组合</strong>，不是说末端连某个位置都到不了。受关节限位或奇异位形影响，局部可独立变化的维数还可能小于 <span data-tex="n"></span>。</p>
-          <p><strong>先用本页的平面两连杆看图：</strong>令 <span data-tex="L_1=L_2=1\,\mathrm m"></span>，两种关节角都让末端到达 <span data-tex="P=(1,1)\,\mathrm m"></span>，但末端朝向 <span data-tex="\phi=q_1+q_2"></span> 不同。图中的两条折线共用起点和终点；最后一段的方向就是末端朝向。</p>
-          <figure style="margin:10px 0; overflow-x:auto;" aria-label="平面两连杆的两种关节角到达同一点，但末端朝向不同">
-            <svg viewBox="0 0 400 250" role="img" aria-label="A：水平向右再竖直向上，到达 P 时朝上；B：竖直向上再水平向右，到达同一个 P 时朝右" style="display:block; width:100%; max-width:520px; height:auto; margin:auto; background:#111c2d; border-radius:6px;">
-              <path d="M70 205V35M55 190H290" fill="none" stroke="#8ca3b7" stroke-width="2"/>
-              <text x="296" y="195" fill="#d7e6f3" font-size="16">x</text><text x="60" y="29" fill="#d7e6f3" font-size="16">y</text>
-              <path d="M70 190H180V80" fill="none" stroke="#59c8ef" stroke-width="7" stroke-linejoin="round"/>
-              <path d="M70 190V80H180" fill="none" stroke="#7de0a5" stroke-width="7" stroke-linejoin="round"/>
-              <circle cx="70" cy="190" r="6" fill="#fff"/><circle cx="180" cy="80" r="7" fill="#f4adfa"/>
-              <text x="40" y="225" fill="#e9f2ff" font-size="15">基座</text><text x="198" y="64" fill="#f4adfa" font-size="15">同一点 P=(1,1)</text>
-              <text x="193" y="151" fill="#59c8ef" font-size="15">A：末端朝上 ↑</text>
-              <text x="193" y="176" fill="#7de0a5" font-size="15">B：末端朝右 →</text>
-            </svg>
-          </figure>
-          <p><span style="color:#59c8ef;">A：<span data-tex="(q_1,q_2)=(0^\circ,90^\circ)"></span>，所以 <span data-tex="\phi=90^\circ"></span>。</span> <span style="color:#7de0a5;">B：<span data-tex="(q_1,q_2)=(90^\circ,-90^\circ)"></span>，所以 <span data-tex="\phi=0^\circ"></span>。</span> 同一位置只有这两种分支；若再要求 <span data-tex="\phi=45^\circ"></span>，这台两连杆就无解。<strong>能到 P，不等于能以任意朝向到 P。</strong></p>
-          <p style="margin-bottom:0;"><strong>对回原书：</strong>§4.3 的例 4.1 用平面三连杆说明 <span data-tex="(x,y,\phi)"></span> 这样的平面位姿；例 4.2 用二自由度极坐标臂说明位置可变、姿态却受几何约束。这里的两连杆图是本站补充的入门例子，<strong>不是原书的“四轴算例”</strong>。如果任务只要求位置，就先解位置；若还要求姿态，应检查该组合是否可达。不能把任意旋转矩阵塞进目标变换矩阵就当作机械臂能够实现；“优先保位置、放宽姿态”也只是任务允许时的一种取舍。</p>
-        </div>
-        <div id="craig-4-6" style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
-          <strong style="color:#fbbf24;">② §4.6 Pieper 准则与球腕三步解耦（原书 P79–80）</strong>
-          <p><strong>本节结论：</strong>只有确认机构具有球腕等可解耦结构，才按“先求腕心位置、再求姿态”拆开逆解；否则不能照搬这套步骤，应依据真实机构选择合适的解析或数值方法。三轴共点/平行是常见的封闭解析解<strong>充分条件</strong>，不是“其他机构一律没有解析解”的必要条件。</p>
-          <p style="margin:5px 0 0;"><strong>Pieper 准则</strong>：相邻三轴共点（例如后三轴交于腕心形成球腕）或平行，为一类 6 轴机构提供解析逆解的充分结构条件；并非说其他机构一概没有解析解。<strong>球腕解耦三步</strong>：1) 后三轴转动不改变腕心位置，在末端偏置确为沿第六轴、长度为 <span data-tex="d_6"></span> 的模型中，由 <span data-tex="P_{\mathrm{wrist}} = P_{\mathrm{tcp}} - d_6 \hat{z}_6"></span> 求腕心；2) 由腕心求前 3 轴 <span data-tex="(\theta_1,\theta_2,\theta_3)"></span>；3) 由 <span data-tex="{}^{3}_{6}R = ({}^{0}_{3}R)^T \, {}^{0}_{6}R"></span> 解后三轴姿态，并检查多解与奇异位形。</p>
-        </div>
-        <div id="craig-4-8-4-9" style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
-          <strong style="color:#fbbf24;">③ §4.8–4.9 标准系反推 &amp; 最近邻选解（原书 P87–88）</strong>
-          <p><strong>本节结论：</strong>先把外部给的目标换成逆解器实际使用的“基座到腕部”目标，再从满足限位等约束的解中选连续的一支；坐标系、工具偏置或目标本身错了，选最近解也无济于事。</p>
-          <p style="margin:5px 0 0;"><strong>§4.8 反推手腕目标</strong>：由第 3 章标准系链 <span data-tex="{}^{S}_{B}T \, {}^{B}_{W}T \, {}^{W}_{T}T = {}^{S}_{G}T"></span> 移项，得到逆解器输入 <span data-tex="{}^{B}_{W}T = ({}^{S}_{B}T)^{-1} \, {}^{S}_{G}T \, ({}^{W}_{T}T)^{-1}"></span>。<br><strong>§4.9 多解选哪组</strong>：先筛关节限位与碰撞等约束，再可用加权关节距离 <span data-tex="\min_k \sum w_i (\theta_{i,k}-\theta_{i,\mathrm{curr}})^2"></span> 挑连续分支；权重由机构、代价及任务决定，不存在“肩肘必须设大”的通用规则。</p>
-        </div>
-        <div id="craig-4-10" style="background:rgba(245, 158, 11, 0.07); padding:10px 12px; border-radius:6px; border:1px solid rgba(245, 158, 11, 0.3);">
-          <strong style="color:#fbbf24;">④ §4.10 重复定位精度 vs 绝对定位精度（原书 P88–89）</strong>
-          <p><strong>本节结论：</strong>反复回到同一示教点只证明重复性；要证明给一个新坐标也走得准，必须独立测量绝对误差，必要时做运动学标定。</p>
-          <p style="margin:5px 0 0;"><strong>重复定位精度（Repeatability）</strong>：反复执行同一目标时，实际到达位置的分散程度；受传动、编码、负载和控制等因素影响。<br><strong>绝对定位精度（Accuracy）</strong>：实际到达位置与给定坐标之间的偏差；受几何参数、零位、柔性变形和标定等影响。两种精度的具体数值依设备及测量条件而变，不能用示例数值代替验收数据。</p>
-        </div>
-      </div>
+    <div class="top-nav-group">
+      <span class="nav-chip current">当前：§4.4 平面两连杆几何逆解（笔记 12）</span>
+      <a class="nav-chip" href="12a-spatial-3r-position-ik.html">延伸：12a 空间 3R →</a>
+      <a class="nav-chip" href="craig-04-06-pieper-spherical-wrist.html">下一节：§4.6 Pieper 球腕解耦 →</a>
+    </div>
+  </nav>
+
+  <div id="legacy-anchor-banner" class="card warn" style="display:none; border-left:4px solid #f59e0b;">
+    <strong style="color:#fbbf24;">📌 拆页提示：你访问的教材小节已独立成专页</strong>
+    <p id="legacy-anchor-text" style="margin:6px 0 10px;">本页现专注于 <strong>§4.4 平面两连杆几何逆解</strong>。请点击下方按钮直接进入你要查阅的独立小节：</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+      <a class="nav-chip" href="craig-04-reading-guide.html">📖 第 4 章总入口</a>
+      <a class="nav-chip" href="craig-04-03-reachable-subspace.html">§4.3 少于 6 轴的可达位姿</a>
+      <a class="nav-chip" href="craig-04-06-pieper-spherical-wrist.html">§4.6 Pieper 条件与球腕解耦</a>
+      <a class="nav-chip" href="craig-04-08-target-frame-transform.html">§4.8 目标坐标系转换</a>
+      <a class="nav-chip" href="craig-04-09-choosing-ik-solution.html">§4.9 逆解有多个时怎么选</a>
+      <a class="nav-chip" href="craig-04-10-repeatability-vs-accuracy.html">§4.10 重复定位精度 vs 绝对定位精度</a>
     </div>
   </div>
 
-  <div id="craig-4-4" class="card" style="border-left:4px solid #10b981; scroll-margin-top:16px;">
-    <strong style="color:#10b981;">📖 正在读 Craig §4.4？从这里接上笔记</strong>
-    <p>原书这一节值得仔细读。读完几何解法后，沿本页的<a href="#steps">四步推导与交互</a>对照：① 可达三角形 → ② 余弦定理求肘角 → ③ <code>atan2</code> 求肩角 → ④ 正运动学回代。拖动目标点，观察两支解如何变化。</p>
-    <p style="margin-bottom:0;">本页是<strong>平面两连杆的位置逆解教学模型</strong>，不能代替原书所有 6 轴实例。会了这里，再去<a href="12a-spatial-3r-position-ik.html">笔记 12a</a>看同一几何法如何用于空间 3R 的肩肘剖面；12a 是后续迁移，不是 §4.4 原文的逐页替代。</p>
+  <div id="craig-4-4" style="scroll-margin-top:16px;">
+    <p class="muted" style="margin-bottom:6px;">Craig 第 4 章 · §4.4 独立专页（对应原书 P75–78 图 4-7、图 4-8，式 4.29–4.34） · 前置：<a href="04-planar-two-link-forward-kinematics.html" style="color:var(--primary);">笔记 04（平面两连杆正运动学）</a></p>
+    <h1 style="margin-top:0;">§4.4 平面两连杆几何逆解（笔记 12：余弦定理 + <code>atan2</code>）</h1>
   </div>
-  <div class="card key"><strong>正运动学：</strong>给 <span data-tex="q_1,q_2"></span>，求末端 <span data-tex="(x,y)"></span>。<br><strong>逆运动学：</strong>给希望到达的点 <span data-tex="P=(x,y)"></span>，反过来求哪两组关节角 <span data-tex="(q_1,q_2)"></span> 能让末端到那里。</div>
-  <div class="card"><strong>本页只解决平面两转动关节。</strong>这不是为了回避三维，而是先把“目标点 → 关节角”这件事讲透。三维机械臂的逆解会更复杂，但同样先要问：目标是否可达、可能有几组解、每一组的关节角分别是多少。</div>
 
-  <h2>先定一条全程使用的规则：角度正负</h2>
+  <div class="card key">
+    <strong>本节要解决的问题：</strong>已知平面两连杆机械臂的长度 <span data-tex="L_1, L_2"></span> 和希望末端到达的目标位置 <span data-tex="P=(x,y)"></span>，怎样反过来求出两组关节角 <span data-tex="(q_1, q_2)"></span>？<br>
+    <span class="small"><strong>模型边界说明：</strong>本页聚焦<strong>平面两转动关节（2R）的位置逆解教学模型</strong>（原书 §4.4 在平面 3R 中固定或分离末端姿态角 <span data-tex="\phi"></span> 后，对前两杆腕部点运用完全相同的三角形余弦定理与 <code>atan2</code>）。它用来把“可达三角形 → 肘角正负双支 → 肩角偏角相减 → 正运动学回代”一次讲透，不是任意六轴机械臂完整三维位姿逆解的替代品。</span>
+  </div>
+
+  <div class="context-grid-3" aria-label="前因后果短卡片">
+    <div class="context-mini">
+      <strong>前因（上一节做了什么）</strong>
+      <a href="craig-04-03-reachable-subspace.html" style="color:#38bdf8;">§4.3 少于 6 轴的可达位姿</a>已经指出：两连杆只有 2 个自由度，不能同时任意指定位置和朝向；一旦只给定平面目标位置 <span data-tex="P=(x,y)"></span>，本节就开始求具体角度。
+    </div>
+    <div class="context-mini">
+      <strong>本节（§4.4 核心四步）</strong>
+      ① 检验 <span data-tex="|L_1-L_2|\le r\le L_1+L_2"></span> → ② 余弦定理求肘角 <span data-tex="q_2=\pm\arccos c_2"></span> → ③ <span data-tex="q_1=\operatorname{atan2}(y,x)-\beta"></span> 求肩角 → ④ 代回正运动学验算。
+    </div>
+    <div class="context-mini">
+      <strong>后果（下一步去哪）</strong>
+      吃透这个平面三角形后，可去 <a href="12a-spatial-3r-position-ik.html" style="color:#38bdf8;">笔记 12a（空间 3R 逆解）</a>看底座多一轴后的剖面迁移，或进入 <a href="craig-04-06-pieper-spherical-wrist.html" style="color:#38bdf8;">§4.6 Pieper 球腕解耦</a>。
+    </div>
+  </div>
+
+  <h2>1. 图、符号与约定：先定一条全程使用的角度正负规则</h2>
   <div class="workspace"><section><div class="sign-plot"><canvas id="sign-canvas" aria-label="二维转动关节正负角约定"></canvas></div><p class="small">把纸面看成 <span data-tex="x"></span> 向右、<span data-tex="y"></span> 向上；从纸面外的 <span data-tex="+z"></span> 方向看向原点，逆时针为正，顺时针为负。</p></section><section class="card"><strong>这条规则怎样用到机械臂</strong><ol><li><span data-tex="q_1"></span>：从固定基座 <span data-tex="x_0"></span> 轴，转到第一根连杆的方向。</li><li><span data-tex="q_2"></span>：从第一根连杆当前的正向（也就是局部 <span data-tex="x_1"></span> 轴），转到第二根连杆的方向。</li></ol><span class="math" data-tex="\text{逆时针}\Rightarrow q_i>0,\qquad \text{顺时针}\Rightarrow q_i<0"></span><p>本页把 <span data-tex="q_2>0"></span> 称为正支，<span data-tex="q_2<0"></span> 称为负支；正负仅指关节角符号，不按肘点在画面中的上下位置命名。注意：<span data-tex="q_2"></span> 总是<strong>相对第一根连杆</strong>量，不是相对基座 x 轴量。<p>这只是在 XY 图上、+Z 朝向你时的观察结果；换成绕 +Y 的竖直剖面，纸面正负会反过来。<a href="05-3d-single-axis-rotations.html#rotation-y-viewpoint">看 05 的转轴视角解释 →</a></p></section></div>
 
   <h2>先拖动一个目标点：逆运动学究竟在做什么</h2>
@@ -176,10 +216,96 @@
   <div class="grid"><section class="card"><h3>q₂ 正支</h3><p>第二根相对第一根逆时针弯，因此 <span data-tex="q_2>0"></span>。它是一条从基座到目标的可行姿态，不是“更正确”的答案。</p><div class="solution"><strong id="up-solution">等待计算</strong></div></section><section class="card"><h3>q₂ 负支</h3><p>第二根相对第一根顺时针弯，因此 <span data-tex="q_2<0"></span>。它也到达同一个粉色点，但中间关节在另一侧。</p><div class="solution down"><strong id="down-solution">等待计算</strong></div></section></div>
   <div class="card warn"><strong>“两组”不是永远成立。</strong>目标恰好在最远或最近边界上时，两条姿态合并成一条；目标在环带外时是 0 组；更复杂的机械臂还可能有更多离散分支或连续多解。</div>
 
-  <h2>把这页与前面连起来</h2>
-  <div class="card"><ol><li><strong>笔记 04 / 11：</strong>已知 <span data-tex="q_1,q_2"></span>，用正运动学得到末端 <span data-tex="(x,y)"></span>。</li><li><strong>本页：</strong>目标点反过来给定；先用长度关系求 <span data-tex="q_2"></span>，再用目标方向扣掉局部偏角求 <span data-tex="q_1"></span>。</li><li><strong>下一步：</strong>把这套两连杆逆解拿来做手算和 Python 验证；之后再进入雅可比矩阵，理解末端微小移动与关节微小转动的关系。</li></ol></div>
-  <div class="card"><strong>从平面走向空间：</strong>如果想看底座多一个转动关节之后，三维目标怎样变成你刚学过的两连杆问题，接着看 <a href="12a-spatial-3r-position-ik.html">12a 空间 3R 联动实验台 →</a>。</div>
+  <h2>本节结论、适用范围与下一步</h2>
+  <div class="card">
+    <ol style="margin:0; padding-left:20px;">
+      <li><strong>适用范围：</strong>本页的几何三角形法适用于<strong>平面两连杆（2R）位置逆解</strong>，以及任何可降维到单一平面剖面的两杆子结构（例如平面 3R 扣除第 3 杆后的腕点，或空间 3R 绕底座旋转对齐后的竖直肩肘平面）。它<strong>不能直接替代一般 6 轴机械臂的完整位姿逆解</strong>。</li>
+      <li><strong>核心公式链：</strong>先算距离 <span data-tex="r=\sqrt{x^2+y^2}"></span> 判可达 → 再由余弦定理得 <span data-tex="c_2=(x^2+y^2-L_1^2-L_2^2)/(2L_1L_2)"></span> 求 <span data-tex="q_2=\pm\arccos c_2"></span> → 再由 <span data-tex="q_1=\operatorname{atan2}(y,x)-\operatorname{atan2}(L_2\sin q_2, L_1+L_2\cos q_2)"></span> 求肩角 → 最后代回正运动学验算。</li>
+      <li><strong>向空间 3R 的迁移：</strong>想看底座多一个旋转关节后，三维目标 <span data-tex="(x,y,z)"></span> 怎样通过竖直剖面转化为刚学过的平面两连杆问题，请进入 <a href="12a-spatial-3r-position-ik.html" style="color:var(--primary); font-weight:700;">笔记 12a：空间 3R 位置逆解联动实验台 →</a>（注：12a 是从平面 2R 向空间 3R 的扩展迁移，不是原书 §4.4 的逐页替代）。</li>
+      <li><strong>动手巩固与下一节：</strong>可前往 <a href="13-planar-forward-inverse-quiz.html" style="color:var(--primary);">笔记 13：平面正/逆运动学自检练习</a> 检验手算，或继续阅读第 4 章下一节 <a href="craig-04-06-pieper-spherical-wrist.html" style="color:var(--primary); font-weight:700;">§4.6 Pieper 条件与球腕三步解耦 →</a>。</li>
+    </ol>
+  </div>
+
+  <h2>随堂自检（点击展开答案）</h2>
+  <details class="quiz-box">
+    <summary>自检题 1：为什么求肘角余弦 <span data-tex="c_2=\cos q_2"></span> 时，分子是 <span data-tex="r^2 - L_1^2 - L_2^2"></span> 而不是普通余弦定理里的 <span data-tex="L_1^2 + L_2^2 - r^2"></span>？</summary>
+    <div class="quiz-ans">
+      因为三角形内角 <span data-tex="\gamma"></span> 夹在“回指基座的第一杆反向”与“第二杆”之间，而关节角 <span data-tex="q_2"></span> 是从“第一杆正向延长线”量到第二杆的外补角，满足 <span data-tex="\gamma = \pi - |q_2|"></span>。因此 <span data-tex="\cos q_2 = -\cos\gamma = (r^2 - L_1^2 - L_2^2)/(2L_1L_2)"></span>。
+    </div>
+  </details>
+  <details class="quiz-box">
+    <summary>自检题 2：在求肩角 <span data-tex="q_1 = \phi - \beta"></span> 时，为什么 <span data-tex="q_2"></span> 取正支或负支会直接导致 <span data-tex="q_1"></span> 也跟着变成两个不同的值？</summary>
+    <div class="quiz-ans">
+      因为局部偏角 <span data-tex="\beta = \operatorname{atan2}(L_2\sin q_2,\, L_1+L_2\cos q_2)"></span> 的纵分量含有 <span data-tex="\sin q_2"></span>。当 <span data-tex="q_2"></span> 变号（<span data-tex="+q_2 \to -q_2"></span>）时，<span data-tex="\sin q_2"></span> 反号而 <span data-tex="\cos q_2"></span> 不变，导致 <span data-tex="\beta"></span> 反号（<span data-tex="+\beta \to -\beta"></span>），因此 <span data-tex="q_1 = \phi - \beta"></span> 必然成对分叉出两个不同的肩角。
+    </div>
+  </details>
+  <details class="quiz-box">
+    <summary>自检题 3：如果把求肩角里的 <span data-tex="\operatorname{atan2}(y,x)"></span> 偷懒写成单参数反正切 <span data-tex="\arctan(y/x)"></span>，当目标点在第二或第三象限（<span data-tex="x<0"></span>）时会发生什么？</summary>
+    <div class="quiz-ans">
+      单参数 <span data-tex="\arctan(y/x)"></span> 的值域只有 <span data-tex="(-\pi/2, \pi/2)"></span>（第一、四象限）。当 <span data-tex="x<0"></span> 时，它会把目标方向 <span data-tex="\phi"></span> 算错整整 <span data-tex="180^\circ"></span>（<span data-tex="\pi"></span>），导致机械臂朝完全相反的半平面伸出。
+    </div>
+  </details>
+  <details class="quiz-box">
+    <summary>自检题 4：当目标距离 <span data-tex="r"></span> 恰好等于 <span data-tex="L_1 + L_2"></span>（外边界）时，正负两支解会怎样？</summary>
+    <div class="quiz-ans">
+      此时 <span data-tex="c_2 = 1"></span>，<span data-tex="q_2 = \pm\arccos(1) = 0^\circ"></span>，从而 <span data-tex="\beta = 0^\circ"></span>、<span data-tex="q_1 = \phi"></span>。原本分离的 <span data-tex="q_2"></span> 正支和负支合并成完全伸直的唯一一组解（奇异边界构型）。
+    </div>
+  </details>
+
+  <section class="card" aria-label="第 4 章其他小节独立专页入口（含旧锚点兼容）" style="margin-top:24px;">
+    <strong>🧭 Craig 第 4 章各小节独立专页导航（原同页胶囊已全部拆分为独立课页）</strong>
+    <p class="small" style="margin:6px 0 12px;">如果你从旧版书签或外部链接跳到本页的 <code>#craig-4-3</code>、<code>#craig-4-6</code>、<code>#craig-4-8-4-9</code>、<code>#craig-4-10</code>，请直接进入对应的独立小节页面：</p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:10px; font-size:0.9rem;">
+      <div id="craig-4-3" style="background:var(--card-sub); padding:10px 12px; border-radius:8px; border:1px solid var(--line);">
+        <strong style="color:#fbbf24;">§4.3 少于 6 轴的可达位姿</strong>
+        <p class="small" style="margin:4px 0 8px;">为什么能到某点不等于能以任意朝向到该点（原书 P74–75）。</p>
+        <a class="nav-chip" href="craig-04-03-reachable-subspace.html">打开 §4.3 专页 →</a>
+      </div>
+      <div id="craig-4-6" style="background:var(--card-sub); padding:10px 12px; border-radius:8px; border:1px solid var(--line);">
+        <strong style="color:#fbbf24;">§4.6 Pieper 条件与球腕解耦</strong>
+        <p class="small" style="margin:4px 0 8px;">三轴共点为什么能先求腕心位置、再求球腕姿态（原书 P79–81）。</p>
+        <a class="nav-chip" href="craig-04-06-pieper-spherical-wrist.html">打开 §4.6 专页 →</a>
+      </div>
+      <div id="craig-4-8-4-9" style="background:var(--card-sub); padding:10px 12px; border-radius:8px; border:1px solid var(--line);">
+        <strong style="color:#fbbf24;">§4.8 &amp; §4.9 目标转换与多解选解</strong>
+        <p class="small" style="margin:4px 0 8px;">原 <code>#craig-4-8-4-9</code> 已拆分为两节独立专页（原书 P87–88）：</p>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          <a class="nav-chip" href="craig-04-08-target-frame-transform.html">打开 §4.8 目标系转换 →</a>
+          <a class="nav-chip" href="craig-04-09-choosing-ik-solution.html">打开 §4.9 多解怎么选 →</a>
+        </div>
+      </div>
+      <div id="craig-4-10" style="background:var(--card-sub); padding:10px 12px; border-radius:8px; border:1px solid var(--line);">
+        <strong style="color:#fbbf24;">§4.10 重复精度 vs 绝对精度</strong>
+        <p class="small" style="margin:4px 0 8px;">回示教点与去逆解计算点的误差链区别与标定（原书 P88–89）。</p>
+        <a class="nav-chip" href="craig-04-10-repeatability-vs-accuracy.html">打开 §4.10 专页 →</a>
+      </div>
+    </div>
+  </section>
 </main>
+<script>
+  (function(){
+    function checkLegacyHash(){
+      const h = window.location.hash;
+      const banner = document.getElementById('legacy-anchor-banner');
+      const txt = document.getElementById('legacy-anchor-text');
+      if(!banner || !txt) return;
+      const map = {
+        '#craig-4-3': '你访问的是旧锚点 #craig-4-3（§4.3 少于 6 轴的可达位姿），该节已拆分为独立专页。',
+        '#craig-4-6': '你访问的是旧锚点 #craig-4-6（§4.6 Pieper 条件与球腕解耦），该节已拆分为独立专页。',
+        '#craig-4-8-4-9': '你访问的是旧锚点 #craig-4-8-4-9，现已拆分为 §4.8（目标坐标系转换）和 §4.9（逆解有多个时怎么选）两个独立专页。',
+        '#craig-4-10': '你访问的是旧锚点 #craig-4-10（§4.10 重复定位精度 vs 绝对定位精度），该节已拆分为独立专页。'
+      };
+      if(map[h]){
+        txt.textContent = map[h] + ' 请点击下方对应按钮直接打开：';
+        banner.style.display = 'block';
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+    window.addEventListener('hashchange', checkLegacyHash);
+    checkLegacyHash();
+  })();
+</script>
 <script>
 const L1=2.6,L2=2.0,plot=document.getElementById('plot');let x=3.2,y=1.2,branch='up',zoom=1,dragging=false;
 const el=id=>document.getElementById(id),rad=d=>d*Math.PI/180,deg=r=>r*180/Math.PI,fmt=n=>(Math.abs(n)<.005?0:n).toFixed(2),tex=(id,s)=>{const e=el(id);if(e&&window.katex)katex.render(s,e,{displayMode:true,throwOnError:false})};

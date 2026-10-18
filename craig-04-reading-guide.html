@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Craig 第 4 章导读：操作臂逆运动学（按小节寻路）</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}, {left: '\\[', right: '\\]', display: true}, {left: '\\(', right: '\\)', display: false}]});"></script>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #1e293b;
+      --card-sub: #172033;
+      --fg: #f8fafc;
+      --muted: #94a3b8;
+      --line: #334155;
+      --primary: #38bdf8;
+      --accent: #0284c7;
+      --success: #10b981;
+      --warn: #f59e0b;
+      --danger: #f43f5e;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.72 system-ui, -apple-system, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+    }
+    main {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 28px 20px 72px;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1, h2, h3 { line-height: 1.3; margin-top: 0; }
+    h1 { font-size: clamp(1.65rem, 2.6vw, 2.2rem); margin: 0.4rem 0 0.8rem; }
+    h2 {
+      font-size: 1.32rem;
+      margin-top: 2.2rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--line);
+    }
+    p { margin: 0.65rem 0; }
+    .muted { color: var(--muted); font-size: 0.92rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin: 16px 0;
+    }
+    .lead-card {
+      border-left: 4px solid var(--primary);
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.14), rgba(15, 23, 42, 0.9));
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .b-read { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .b-page { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+    .b-capsule { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .b-skip { background: rgba(244, 63, 94, 0.18); color: #fb7185; }
+    .b-ext { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--card);
+      margin: 16px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+      font-size: 0.94rem;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--card-sub);
+      color: #e2e8f0;
+      font-weight: 700;
+    }
+    tr:last-child td { border-bottom: 0; }
+    tr:hover td { background: rgba(56, 189, 248, 0.04); }
+
+    .btn-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.86rem;
+      text-decoration: none;
+    }
+    .btn-link:hover { background: #0369a1; text-decoration: none; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .sub-card {
+      background: var(--card-sub);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .flow-figure {
+      margin: 16px 0;
+      padding: 14px;
+      background: #0f172a;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+    .flow-figure svg {
+      display: block;
+      width: 100%;
+      max-width: 960px;
+      height: auto;
+      margin: 0 auto;
+    }
+    .nav-footer {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+    .card, .sub-card, .table-wrap { min-width: 0; max-width: 100%; overflow-wrap: break-word; }
+    .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding: 4px 0; }
+    @media (max-width: 680px) {
+      main { padding: 20px 14px 60px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      table { min-width: 0; font-size: 0.85rem; }
+      th, td { padding: 8px 8px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <p class="muted">
+    <a href="00-progress.html#craig-ch4">← 返回全景学习看板（第 4 章）</a> ·
+    <a href="10-dh-table-to-forward-kinematics.html">上一章：笔记 10（DH 全臂正运动学）</a> ·
+    <a href="14-planar-two-link-jacobian.html">下一章：笔记 14（雅可比矩阵）</a>
+  </p>
+
+  <h1>Craig 第 4 章总入口：操作臂逆运动学（原书 P71–P94 / PDF P82–P105）</h1>
+
+  <section class="card lead-card" aria-label="本章核心问题与导读">
+    <strong>本章在整本书里解决什么问题？</strong>
+    <p>
+      第 3 章正运动学是“已知各关节角 \(\Theta\)，顺着连杆算出末端位姿 \({}^B_W T\)”；而实际工作中，任务总是倒过来给的：<strong>已知期望工具到达目标位姿 \({}^S_G T\)，反求各关节角 \(\theta_1,\dots,\theta_n\)</strong>。
+    </p>
+    <p style="margin-bottom:0;">
+      为了让你读到原书任意一节都能<strong>直接进入只讲该节的独立页面</strong>（而不用在一篇长文里翻找锚点），本章已按教材 §4.1–§4.11 拆分为独立小节专页。下方表格标明了每节的阅读安排、直达入口与当前覆盖边界。
+    </p>
+  </section>
+
+  <figure class="flow-figure" aria-label="第 4 章各小节在逆运动学求解流水线中的位置">
+    <svg viewBox="0 0 940 165" role="img" aria-label="从外部目标换系（4.8），到解的存在性与子空间（4.1至4.3），再到求候选解（4.4与4.6），接着选解（4.9），最后评估现场定位精度（4.10）">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#38bdf8"/>
+        </marker>
+      </defs>
+      <rect x="12" y="22" width="162" height="118" rx="8" fill="#172033" stroke="#38bdf8" stroke-width="1.8"/>
+      <text x="24" y="48" fill="#38bdf8" font-size="14" font-weight="700">① 目标换系 (§4.8)</text>
+      <text x="24" y="72" fill="#e2e8f0" font-size="13">外部任务给 {S}→{G}</text>
+      <text x="24" y="94" fill="#94a3b8" font-size="12">剥离工作台与工具偏置</text>
+      <text x="24" y="116" fill="#94a3b8" font-size="12">算逆解器输入 ᴮ_W T</text>
+
+      <line x1="174" y1="81" x2="200" y2="81" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr)"/>
+
+      <rect x="204" y="22" width="174" height="118" rx="8" fill="#172033" stroke="#fbbf24" stroke-width="1.8"/>
+      <text x="216" y="48" fill="#fbbf24" font-size="14" font-weight="700">② 可达与自由度 (§4.1–4.3)</text>
+      <text x="216" y="72" fill="#e2e8f0" font-size="13">目标在工作空间内吗？</text>
+      <text x="216" y="94" fill="#94a3b8" font-size="12">n&lt;6 时只能实现特定</text>
+      <text x="216" y="116" fill="#94a3b8" font-size="12">“位置+姿态”子空间组合</text>
+
+      <line x1="378" y1="81" x2="404" y2="81" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr)"/>
+
+      <rect x="408" y="22" width="182" height="118" rx="8" fill="#172033" stroke="#10b981" stroke-width="1.8"/>
+      <text x="420" y="48" fill="#10b981" font-size="14" font-weight="700">③ 解算候选角 (§4.4 / §4.6)</text>
+      <text x="420" y="72" fill="#e2e8f0" font-size="13">平面几何法：余弦定理+atan2</text>
+      <text x="420" y="94" fill="#94a3b8" font-size="12">6R 球腕：Pieper 先定腕心</text>
+      <text x="420" y="116" fill="#94a3b8" font-size="12">位置，再解后三轴姿态</text>
+
+      <line x1="590" y1="81" x2="616" y2="81" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr)"/>
+
+      <rect x="620" y="22" width="146" height="118" rx="8" fill="#172033" stroke="#38bdf8" stroke-width="1.8"/>
+      <text x="632" y="48" fill="#38bdf8" font-size="14" font-weight="700">④ 选解 (§4.9)</text>
+      <text x="632" y="72" fill="#e2e8f0" font-size="13">先筛限位与碰撞</text>
+      <text x="632" y="94" fill="#94a3b8" font-size="12">再在合法解中选</text>
+      <text x="632" y="116" fill="#94a3b8" font-size="12">离当前角最近的一支</text>
+
+      <line x1="766" y1="81" x2="792" y2="81" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr)"/>
+
+      <rect x="796" y="22" width="132" height="118" rx="8" fill="#172033" stroke="#c084fc" stroke-width="1.8"/>
+      <text x="808" y="48" fill="#c084fc" font-size="14" font-weight="700">⑤ 精度 (§4.10)</text>
+      <text x="808" y="72" fill="#e2e8f0" font-size="13">示教点：重复精度</text>
+      <text x="808" y="94" fill="#94a3b8" font-size="12">计算点：绝对精度</text>
+      <text x="808" y="116" fill="#94a3b8" font-size="12">靠外部测量与标定</text>
+    </svg>
+  </figure>
+
+  <h2>一、按教材小节顺序寻路（§4.1 → §4.11）</h2>
+
+  <div class="table-wrap">
+    <table aria-label="Craig 第 4 章逐节阅读安排与独立页面入口">
+      <thead>
+        <tr>
+          <th style="width:16%;">教材小节与页码</th>
+          <th style="width:20%;">阅读安排</th>
+          <th style="width:38%;">本节核心问题与边界说明</th>
+          <th style="width:26%;">对应入口</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>§4.1–4.2</strong><br><span class="muted">引言与解的存在性<br>原书 P71–74 / PDF P82–85</span></td>
+          <td><span class="badge b-read">🟢 先读原书</span><br><span class="muted">尚无完整对应课程</span></td>
+          <td>
+            界定<strong>可达工作空间</strong>（至少一个方向能到）与<strong>灵巧工作空间</strong>（任意方向都能到，图 4-1）、多解成因与避障选解（图 4-2、4-3）、PUMA 560 翻腕关系（式 4.1、图 4-4）以及封闭解 vs 数值解分类。现有笔记仅提供两连杆可达环带与分支例子，不能替代原书这两节的完整讨论。
+          </td>
+          <td>
+            先读原书 P71–74；<br>
+            几何例子见 <a href="12-planar-two-link-inverse-kinematics.html">§4.4 专页</a> 与 <a href="craig-04-09-choosing-ik-solution.html">§4.9 专页</a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>§4.3</strong><br><span class="muted">当 \(n&lt;6\) 时操作臂子空间的描述<br>原书 P74–75 / PDF P85–86</span></td>
+          <td><span class="badge b-capsule">💊 免翻书结论页</span></td>
+          <td>
+            回答“能到某个位置”和“能以指定姿态到该位置”为何不同；通过平面两连杆同点不同朝向图解，对回原书例 4.1（平面三连杆）与例 4.2（二自由度极坐标臂）。
+          </td>
+          <td>
+            <a class="btn-link" href="craig-04-03-reachable-subspace.html">打开 §4.3 专页 →</a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>§4.4</strong><br><span class="muted">代数解法和几何解法<br>原书 P75–78 / PDF P86–89</span></td>
+          <td><span class="badge b-read">🟢 读原书 + 交互专页</span></td>
+          <td>
+            本章手算与直觉核心：已知平面末端目标 \((x,y)\)，按“可达三角形检查 → 余弦定理求肘角 \(q_2\) → <code>atan2</code> 求肩角 \(q_1\) → 正运动学回代”四步走通两支解。
+          </td>
+          <td>
+            <a class="btn-link" href="12-planar-two-link-inverse-kinematics.html">打开 §4.4 专页（笔记 12）→</a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>§4.5</strong><br><span class="muted">简化成多项式的代数解法<br>原书 P78–79 / PDF P89–90</span></td>
+          <td><span class="badge b-skip">🔴 当前路线跳过</span></td>
+          <td>
+            原书用半角正切代换 \(u=\tan(\theta/2)\)（式 4.35–4.40）将 \(a\cos\theta+b\sin\theta=c\) 等超越方程化为多项式方程。只需知道“四次及以下多项式有封闭根公式”，无需手算消元，不造空白课程页。
+          </td>
+          <td><span class="muted">直接跳过，进入 §4.6</span></td>
+        </tr>
+        <tr>
+          <td><strong>§4.6</strong><br><span class="muted">三轴相交的 Pieper 解法<br>原书 P79–81 / PDF P90–92</span></td>
+          <td><span class="badge b-capsule">💊 免翻书结论页</span></td>
+          <td>
+            独立讲清后三轴相交于腕心时“为什么可先求腕心位置 \((\theta_1,\theta_2,\theta_3)\)，再由剩余旋转矩阵 \({}^3_6 R = ({}^0_3 R)^T {}^0_6 R\) 求姿态 \((\theta_4,\theta_5,\theta_6)\)”，以及该方法的结构适用边界。
+          </td>
+          <td>
+            <a class="btn-link" href="craig-04-06-pieper-spherical-wrist.html">打开 §4.6 专页 →</a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>§4.7</strong><br><span class="muted">操作臂逆运动学实例<br>原书 P81–87 / PDF P92–98</span></td>
+          <td><span class="badge b-skip">🔴 当前路线跳过</span></td>
+          <td>
+            原书用 6 页手算展开 PUMA 560（式 4.54–4.97）和 Motoman L-3（式 4.98–4.107）的三角恒等式。它们高度绑定特定老机型参数，现代工程不靠手推 6 轴长方程；其球腕解耦思想与限位检查已分别在 §4.6、§4.9 讲清。
+          </td>
+          <td><span class="muted">跳过手算长式，进入 §4.8</span></td>
+        </tr>
+        <tr>
+          <td><strong>§4.8</strong><br><span class="muted">标准坐标系<br>原书 P87–88 / PDF P98–99</span></td>
+          <td><span class="badge b-capsule">💊 免翻书结论页</span></td>
+          <td>
+            区分工位五系 <code>{B, S, W, T, G}</code>，从闭环坐标链一步步导出逆解器输入 \({}^B_W T = {}^B_S T \, {}^S_G T \, ({}^W_T T)^{-1}\)（原书式 4.108），并配具体数值转换算例。
+          </td>
+          <td>
+            <a class="btn-link" href="craig-04-08-target-frame-transform.html">打开 §4.8 专页 →</a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>§4.9</strong><br><span class="muted">操作臂求解与多解选择<br>原书 P88 &amp; §4.2 P72–73</span></td>
+          <td><span class="badge b-capsule">💊 免翻书结论页</span></td>
+          <td>
+            承接 <code>SOLVE</code> 接口与 §4.2 多解讨论：先筛关节限位与碰撞等硬约束，再在合法候选解中用加权关节角距离选连续分支，配手算比较例子。
+          </td>
+          <td>
+            <a class="btn-link" href="craig-04-09-choosing-ik-solution.html">打开 §4.9 专页 →</a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>§4.10</strong><br><span class="muted">重复精度和精度<br>原书 P88–89 / PDF P99–100</span></td>
+          <td><span class="badge b-capsule">💊 免翻书结论页</span></td>
+          <td>
+            对比“反复回示教旧点（重复定位精度）”与“按笛卡尔坐标去计算新点（绝对定位精度）”，说明各自测量方法与参数标定作用。
+          </td>
+          <td>
+            <a class="btn-link" href="craig-04-10-repeatability-vs-accuracy.html">打开 §4.10 专页 →</a>
+          </td>
+        </tr>
+        <tr>
+          <td><strong>§4.11</strong><br><span class="muted">计算问题<br>原书 P89 / PDF P100</span></td>
+          <td><span class="badge b-skip">🔴 当前路线跳过</span></td>
+          <td>
+            讨论早期处理器用 <code>Atan2</code> 查表法加速 30 Hz 路径逆解；现代硬件浮点运算已无此瓶颈。
+          </td>
+          <td><span class="muted">直接跳过</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>二、本章配套延伸与自测入口</h2>
+
+  <div class="grid-2">
+    <div class="sub-card">
+      <span class="badge b-ext">三维几何迁移</span>
+      <h3 style="margin:8px 0 6px;">笔记 12a：空间 3R 机械臂位置逆解</h3>
+      <p class="muted" style="margin:0 0 10px;">
+        学完 §4.4 平面两连杆后，增加一个绕竖直轴回转的底座关节，看三维目标 \((x,y,z)\) 如何拆成俯视方位角 \(q_1\) 与肩肘剖面 \((r,h)\) 的两连杆问题。注意：12a 是空间 3R 的迁移延伸，不是原书 §4.4 或任意 6 轴逆解的完整替代。
+      </p>
+      <a class="btn-link" href="12a-spatial-3r-position-ik.html">打开 12a 空间 3R 实验台 →</a>
+    </div>
+
+    <div class="sub-card">
+      <span class="badge b-page">闭环自测与实战</span>
+      <h3 style="margin:8px 0 6px;">正逆运动学混合自测 &amp; ROS 2 工程衔接</h3>
+      <p class="muted" style="margin:0 0 10px;">
+        完成本章后，可先用笔记 13 检验二维正逆解闭环，再去 ROS 2 专栏查看 3R 解析逆解、有界关节选解与工位 TF2 坐标链的 Python 实现规格。
+      </p>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <a class="btn-link" href="13-planar-forward-inverse-quiz.html" style="background:#0f766e;">打开笔记 13 自测 →</a>
+        <a class="btn-link" href="ros2/04-3r-analytic-ik.html" style="background:#334155;">ROS2-04 解析逆解 →</a>
+        <a class="btn-link" href="ros2/05-ik-continuity-and-limits.html" style="background:#334155;">ROS2-05 限位与选支 →</a>
+      </div>
+    </div>
+  </div>
+
+  <section class="card" aria-label="现代 ROS 2 与 MoveIt 2 工程落点">
+    <h3 style="margin-bottom:6px; color:var(--primary);">🤖 本章概念在现代 ROS 2 / MoveIt 2 中对应什么？</h3>
+    <ul style="margin:6px 0 0; padding-left:20px;">
+      <li><strong>§4.8 标准系反推</strong>：直接对应 <code>tf2</code> 坐标树查询与工具偏置变换（见 <a href="ros2/10-tf2-workcell-frames.html">ROS2-10 工位 TF2</a>）。</li>
+      <li><strong>§4.4 / §4.6 解析解 vs 数值解</strong>：现代协作臂（如 UR、Franka）很多具有腕部偏置或 7 轴冗余，不再手工推导 6 页三角恒等式，而是在 MoveIt 2 的 <code>kinematics.yaml</code> 中配置数值迭代求解器（<code>KDL</code>、<code>Trac-IK</code>、<code>PickNik BioIK</code>）或自动生成解析代码的 <code>IKFast</code>。</li>
+      <li><strong>§4.9 限位过滤与连续选解</strong>：对应轨迹插补与在线伺服中的分支跳变保护（见 <a href="ros2/05-ik-continuity-and-limits.html">ROS2-05</a>）。</li>
+      <li><strong>§4.10 重复定位与绝对定位</strong>：视觉引导抓取走的是“计算点”，若绝对精度不达标，需排查 TCP 标定、手眼标定与基座标定误差预算（见 <a href="ros2/16-tcp-calibration-and-accuracy.html">ROS2-16</a>）。</li>
+    </ul>
+  </section>
+
+  <nav class="nav-footer" aria-label="章节前后导航">
+    <a href="00-progress.html#craig-ch4">← 返回全景学习看板</a>
+    <a href="craig-04-03-reachable-subspace.html">开始第 1 站：§4.3 少于 6 轴的可达位姿 →</a>
+  </nav>
+</main>
+</body>
+</html>

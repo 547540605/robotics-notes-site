@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Craig §4.9 专页：逆解有多个时怎么选（SOLVE 管线、硬约束与加权关节距离）</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+  <style>
+    :root {
+      --bg: #f6f4ee;
+      --panel: #fffdf9;
+      --ink: #1d232a;
+      --muted: #5a6570;
+      --accent: #b84a27;
+      --accent-soft: #f3ddd3;
+      --teal: #1d6b63;
+      --teal-soft: #dcefeb;
+      --blue: #225588;
+      --blue-soft: #dfe9f6;
+      --gold: #a06b14;
+      --gold-soft: #f7ecd6;
+      --border: #d8d1c5;
+      --shadow: 0 12px 30px rgba(29, 35, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(184, 74, 39, 0.09), transparent 28%),
+        radial-gradient(circle at top right, rgba(29, 107, 99, 0.09), transparent 32%),
+        var(--bg);
+      line-height: 1.72;
+    }
+
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    .top-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding: 12px 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .top-nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      color: var(--ink);
+      background: #fff;
+      transition: all 0.15s ease;
+    }
+
+    .nav-pill:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .nav-pill.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .hero, .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 26px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.84rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 12px;
+      line-height: 1.28;
+    }
+
+    h1 { font-size: clamp(1.65rem, 2.8vw, 2.25rem); }
+    h2 { font-size: 1.32rem; }
+    h3 { font-size: 1.06rem; }
+
+    p {
+      margin: 0 0 12px;
+      color: var(--muted);
+    }
+
+    .lead {
+      font-size: 1.02rem;
+      color: var(--ink);
+    }
+
+    .context-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .context-box {
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #fbf8f2;
+    }
+
+    .context-box strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 4px;
+      font-size: 0.94rem;
+    }
+
+    .context-box span {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .callout {
+      padding: 16px 18px;
+      border-radius: 16px;
+      border-left: 5px solid var(--accent);
+      background: #fdf6f2;
+      color: var(--ink);
+      margin: 14px 0;
+    }
+
+    .callout.teal {
+      border-left-color: var(--teal);
+      background: #f2faf8;
+    }
+
+    .callout.blue {
+      border-left-color: var(--blue);
+      background: #f3f7fc;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+
+    .box {
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #fbf8f2;
+    }
+
+    .box p:last-child { margin-bottom: 0; }
+
+    .svg-wrap {
+      margin: 16px 0;
+      padding: 18px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #fff;
+      text-align: center;
+    }
+
+    .svg-wrap svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .svg-caption {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+    }
+
+    th, td {
+      padding: 11px 13px;
+      border-bottom: 1px solid #e7dfd3;
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.93rem;
+    }
+
+    th {
+      background: #f5efe6;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .formula-block {
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+      overflow-x: auto;
+    }
+
+    .badge-pass, .badge-fail {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .badge-pass {
+      background: var(--teal-soft);
+      color: var(--teal);
+    }
+
+    .badge-fail {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    details.quiz-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fbf8f2;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    details.quiz-item summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    details.quiz-item .quiz-answer {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+      color: var(--muted);
+    }
+
+    .footer-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 24px;
+      padding: 16px 18px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .hero, .card, .box, .context-box, .table-wrap, .formula-block, details.quiz-item { min-width: 0; max-width: 100%; overflow-wrap: break-word; position: relative; overflow-x: hidden; }
+    .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding: 4px 0; }
+
+    @media (max-width: 820px) {
+      .context-strip, .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      table { min-width: 0; font-size: 0.85rem; }
+      th, td { padding: 8px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <nav class="top-nav" aria-label="第 4 章小节导航">
+      <div class="top-nav-links">
+        <a class="nav-pill" href="00-progress.html#craig-ch4">返回进度页 §4</a>
+        <a class="nav-pill" href="craig-04-reading-guide.html">第 4 章总入口</a>
+        <a class="nav-pill" href="craig-04-08-target-frame-transform.html">上一节：§4.8 目标坐标系转换</a>
+      </div>
+      <div class="top-nav-links">
+        <span class="nav-pill primary">当前：§4.9 多解选解与 SOLVE</span>
+        <a class="nav-pill" href="craig-04-10-repeatability-vs-accuracy.html">下一节：§4.10 重复精度 vs 绝对精度 →</a>
+      </div>
+    </nav>
+
+    <section class="hero" id="craig-4-9">
+      <div class="eyebrow">Craig 第 4 章 · §4.9 独立专页（统合原书 §4.2 P71–74 多解/避障/最近解、§4.7 P87 关节限位与 §4.9 P88 SOLVE）</div>
+      <h1>§4.9 逆解有多个时怎么选：<code>SOLVE</code> 管线、硬约束裁剪与加权关节距离</h1>
+      <p class="lead">
+        <strong>本节要解决的核心问题：</strong>把任务目标换算成腕部目标 ${}^B_W T$ 并调用解析逆解后，平面两连杆通常给出 <strong>2 组解</strong>，工业 6 轴球腕机械臂（如 PUMA 560）通常给出 <strong>4 到 8 组解</strong>，一般 6R 串联臂最多可达 <strong>16 组解</strong>。但伺服电机在同一时刻只能执行<strong>唯一一组关节角指令 $\theta^*$</strong>。<code>SOLVE</code> 到底按什么先后顺序从多组候选解中拍板？
+      </p>
+
+      <div class="context-strip">
+        <div class="context-box">
+          <strong>前因（§4.4–4.8 给了什么）</strong>
+          <span><a href="craig-04-08-target-frame-transform.html">§4.8</a> 算出了腕部目标 ${}^B_W T$；<a href="12-planar-two-link-inverse-kinematics.html">§4.4</a> 与 <a href="craig-04-06-pieper-spherical-wrist.html">§4.6</a> 解出了离散候选解集合 $\{\theta^{(1)}, \dots, \theta^{(M)}\}$。</span>
+        </div>
+        <div class="context-box">
+          <strong>本节（§4.9 解决什么）</strong>
+          <span>把原书 §4.2（多解与最近解）、§4.7（关节限位剔除）与 §4.9（<code>SOLVE</code> 封装）串成工程选解漏斗：<strong>先判硬约束，再比加权连续性距离</strong>。</span>
+        </div>
+        <div class="context-box">
+          <strong>后果（下一步去哪）</strong>
+          <span>选出唯一解下发执行后，进入 <a href="craig-04-10-repeatability-vs-accuracy.html">§4.10 重复定位精度与绝对定位精度</a>，理解为何算出的逆解点在真机上仍有偏差。</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>1. 为什么逆解天然有多个？多解从哪来？</h2>
+      <p>
+        逆运动学方程本质上是一组三角函数超越方程（含 $\cos\theta_i, \sin\theta_i$），每经过一次几何对称分支就会产生倍增（Craig §4.2 图 4-2、4-4、4-5）：
+      </p>
+      <div class="grid-2">
+        <div class="box">
+          <h3>典型分支倍增来源（以 PUMA 560 的 8 解为例）</h3>
+          <p>
+            1. <strong>肩部左右翻支（Left / Right arm，$\times 2$）：</strong>底座第 1 轴旋转 $180^\circ$ 前后对称到达同一腕心水平投影。<br>
+            2. <strong>肘部上下翻支（Elbow-up / Elbow-down，$\times 2$）：</strong><a href="12-planar-two-link-inverse-kinematics.html">§4.4</a> 中 $\cos\theta_2$ 对应 $\pm\theta_2$ 两支三角形折叠方式。<br>
+            3. <strong>球腕翻转双支（Wrist flip / no-flip，$\times 2$）：</strong><a href="craig-04-06-pieper-spherical-wrist.html">§4.6</a> 中 $(\theta_4, \theta_5, \theta_6)$ 与 $(\theta_4+180^\circ, -\theta_5, \theta_6+180^\circ)$ 给出完全相同的末端姿态（原书 P73 式 4.1）。<br>
+            三者相乘：$2 \times 2 \times 2 = \mathbf{8}$ 组数学合法解。
+          </p>
+        </div>
+        <div class="box">
+          <h3>原书结构说明（诚实对照）</h3>
+          <p>
+            在 Craig 原书中，<strong>§4.9（P88）</strong>主要定义了工业机器人语言里的顶层动作原语 <code>SOLVE</code>（先用式 4.108 算 ${}^B_W T$，再调逆解并选解）；而具体的选解依据则分布在 <strong>§4.2（P71–74 图 4-2、4-3：避障与大轴高权重最近解）</strong> 和 <strong>§4.7（P87 式 4.106–4.107：驱动器行程限位筛选）</strong>。本页将这三处合一，构成完整的工程选解规范。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. 核心裁决漏斗图：<code>SOLVE</code> 的“两道硬门槛 + 一把加权尺”</h2>
+      <p>
+        工程中绝不能上来就求“离当前角度最近”的解——因为<strong>数学上最近的那支解，可能正好超出了机械限位，或者正把肘部撞向工作台障碍物</strong>（原书 P72 图 4-2、4-3）。正确的裁决顺序必须是<strong>先过两道一票否决的硬约束，再在幸存的可行解里最小化加权关节距离</strong>：
+      </p>
+
+      <div class="svg-wrap">
+        <svg viewBox="0 0 880 360" role="img" aria-label="SOLVE 多解裁决漏斗与平面两杆双支避障对比图">
+          <!-- Background -->
+          <rect x="14" y="14" width="852" height="332" rx="16" fill="#fcfaf5" stroke="#e2dacd"/>
+
+          <!-- Left Half: Decision Funnel -->
+          <text x="235" y="44" text-anchor="middle" font-size="15" font-weight="700" fill="#1d232a">（a）SOLVE 选解三级裁决漏斗</text>
+
+          <!-- Stage 0: Input -->
+          <rect x="55" y="60" width="360" height="46" rx="10" fill="#eef4fb" stroke="#225588" stroke-width="1.8"/>
+          <text x="235" y="81" text-anchor="middle" font-size="13" font-weight="700" fill="#225588">输入：数学候选解集合 {θ⁽¹⁾, θ⁽²⁾, …, θ⁽ᴹ⁾} 及当前角 θ_curr</text>
+          <text x="235" y="98" text-anchor="middle" font-size="11.5" fill="#5a6570">（例如 2R 共 2 解，PUMA 球腕共 8 解）</text>
+
+          <!-- Stage 1: Hard Constraint 1 -->
+          <path d="M 235 106 L 235 124" stroke="#1d232a" stroke-width="2"/>
+          <rect x="70" y="124" width="330" height="54" rx="10" fill="#fff4ef" stroke="#b84a27" stroke-width="2"/>
+          <text x="235" y="146" text-anchor="middle" font-size="13" font-weight="700" fill="#b84a27">硬约束 ①：关节软/硬限位检查（§4.7 式 4.106）</text>
+          <text x="235" y="166" text-anchor="middle" font-size="11.5" fill="#5a6570">要求 ∀i, θ_i,min ≤ θ_i⁽ᵏ⁾ ≤ θ_i,max；越界直接剔除</text>
+
+          <!-- Stage 2: Hard Constraint 2 -->
+          <path d="M 235 178 L 235 196" stroke="#1d232a" stroke-width="2"/>
+          <rect x="85" y="196" width="300" height="54" rx="10" fill="#fff4ef" stroke="#b84a27" stroke-width="2"/>
+          <text x="235" y="218" text-anchor="middle" font-size="13" font-weight="700" fill="#b84a27">硬约束 ②：连杆碰撞与奇异规避（§4.2 图 4-2）</text>
+          <text x="235" y="238" text-anchor="middle" font-size="11.5" fill="#5a6570">剔除肘部/腕部擦碰障碍物或陷入死锁的分支</text>
+
+          <!-- Stage 3: Soft Metric -->
+          <path d="M 235 250 L 235 268" stroke="#1d232a" stroke-width="2"/>
+          <rect x="65" y="268" width="340" height="60" rx="12" fill="#f2faf8" stroke="#1d6b63" stroke-width="2.2"/>
+          <text x="235" y="290" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1d6b63">软指标排序：在可行解集合 𝓕 中最小化加权距离</text>
+          <text x="235" y="313" text-anchor="middle" font-size="12" font-weight="700" fill="#1d232a">θ* = arg min_{k ∈ 𝓕} ∑ w_i (θ_i⁽ᵏ⁾ − θ_i,curr)²  (w_i &gt; 0)</text>
+
+          <!-- Divider -->
+          <line x1="455" y1="36" x2="455" y2="328" stroke="#dcd4c6" stroke-dasharray="6,6"/>
+
+          <!-- Right Half: Geometric Illustration of Closest vs Obstacle (Craig Fig 4-2 / 4-3) -->
+          <text x="665" y="44" text-anchor="middle" font-size="15" font-weight="700" fill="#1d232a">（b）原书图 4-2 / 4-3：最近解 vs 避障/限位冲突</text>
+
+          <!-- Base -->
+          <rect x="495" y="220" width="44" height="16" rx="4" fill="#8b949e"/>
+          <circle cx="517" cy="220" r="8" fill="#1d232a"/>
+          <text x="517" y="254" text-anchor="middle" font-size="12" font-weight="700" fill="#1d232a">基座 {B}</text>
+
+          <!-- Current Pose (light gray dashed) -->
+          <line x1="517" y1="220" x2="625" y2="232" stroke="#7f8c98" stroke-width="4" stroke-dasharray="5,4"/>
+          <line x1="625" y1="232" x2="735" y2="165" stroke="#7f8c98" stroke-width="4" stroke-dasharray="5,4"/>
+          <circle cx="625" cy="232" r="5" fill="#7f8c98"/>
+          <text x="618" y="252" font-size="11.5" fill="#5a6570">当前姿态 θ_curr（下肘）</text>
+
+          <!-- Branch B: Elbow-Down (Closer to θ_curr, but hits obstacle / limit) -->
+          <line x1="517" y1="220" x2="650" y2="255" stroke="#b84a27" stroke-width="5" opacity="0.85"/>
+          <line x1="650" y1="255" x2="770" y2="145" stroke="#b84a27" stroke-width="5" opacity="0.85"/>
+          <circle cx="650" cy="255" r="6" fill="#b84a27"/>
+
+          <!-- Obstacle Table Box -->
+          <rect x="622" y="242" width="115" height="48" rx="6" fill="#f8d7ce" stroke="#b84a27" stroke-width="2"/>
+          <text x="680" y="266" text-anchor="middle" font-size="12" font-weight="700" fill="#b84a27">障碍物 / 限位禁区</text>
+          <text x="680" y="282" text-anchor="middle" font-size="11" fill="#b84a27">下肘解虽近但被否决 ✗</text>
+
+          <!-- Branch A: Elbow-Up (Valid Winner) -->
+          <line x1="517" y1="220" x2="605" y2="112" stroke="#1d6b63" stroke-width="6"/>
+          <line x1="605" y1="112" x2="770" y2="145" stroke="#1d6b63" stroke-width="6"/>
+          <circle cx="605" cy="112" r="7" fill="#1d6b63"/>
+          <text x="595" y="96" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1d6b63">上肘解 θ⁽ᴬ⁾（唯一可行解 ✓）</text>
+
+          <!-- Target Point -->
+          <circle cx="770" cy="145" r="8" fill="#225588"/>
+          <text x="770" y="125" text-anchor="middle" font-size="12.5" font-weight="700" fill="#225588">新目标点 P</text>
+
+          <rect x="485" y="302" width="360" height="32" rx="8" fill="#eef4fb"/>
+          <text x="665" y="323" text-anchor="middle" font-size="11.5" font-weight="700" fill="#225588">若无障碍且都不超限，选离 θ_curr 更近的下肘；一旦下肘碰障/超限，必须选上肘</text>
+        </svg>
+        <div class="svg-caption">
+          图 4.9-1：左图为 <code>SOLVE</code> 选解的三级漏斗；右图对应原书 P72 图 4-2 与图 4-3——当目标无障碍时优先保持当前下肘分支（避免大幅甩臂），但若下肘触碰障碍或越过关节限位，硬约束将一票否决下肘解。
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. 数学模型：硬约束可行域与加权关节空间距离</h2>
+      <p>
+        设逆解器对当前目标位姿共求出 $M$ 组候选解 $\theta^{(k)} = [\theta_{1,k}, \theta_{2,k}, \dots, \theta_{n,k}]^T$（$k=1,\dots,M$），机器人上一控制周期的实际关节角为 $\theta_{\text{curr}} = [\theta_{1,\text{curr}}, \dots, \theta_{n,\text{curr}}]^T$。
+      </p>
+
+      <div class="formula-block">
+        $$\mathcal{F} = \Big\{\, k \in \{1,\dots,M\} \;\Big|\; \theta_{i,\min} \le \theta_{i,k} \le \theta_{i,\max}\ (\forall i), \text{ 且连杆构型 } \theta^{(k)} \text{ 无碰撞}\,\Big\}$$
+      </div>
+
+      <p>
+        当可行集 $\mathcal{F}$ 非空时，在 $\mathcal{F}$ 内部按<strong>加权关节二次距离</strong>最小化选出唯一解 $\theta^*$：
+      </p>
+
+      <div class="formula-block">
+        $$\boxed{\theta^* = \arg\min_{k \in \mathcal{F}} J(k), \qquad J(k) = \sum_{i=1}^{n} w_i \left(\theta_{i,k} - \theta_{i,\text{curr}}\right)^2, \quad w_i > 0}$$
+      </div>
+
+      <div class="callout teal">
+        <strong>权重 $w_i > 0$ 的物理意义（Craig §4.2 P72 图 4-3）：</strong><br>
+        1. <strong>必须满足 $w_i > 0$：</strong>保证每个关节的跳变都会产生正代价。<br>
+        2. <strong>大轴高权重，小轴低权重（$w_1, w_2, w_3 \gg w_4, w_5, w_6$）：</strong>底座和肩肘前 3 个大关节转动惯量大、扫掠空间大、能耗高；腕部后 3 个小关节惯量小、动作快。因此工程上常取例如 $w_{1..3} = 5.0 \sim 10.0$、$w_{4..6} = 1.0$，宁可让手腕多转几十度，也尽量不让肩部和底座发生“左臂变右臂”的剧烈甩动。
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>4. 完整数值例子：两组候选解 + 当前关节角，先判硬约束再算距离</h2>
+      <p>
+        下面用平面两连杆机械臂（$n=2$）的一组具体角度，完整演示一次“纯连续性选解”与“触发限位硬约束后的反转”：
+      </p>
+
+      <div class="box" style="margin-bottom:14px;">
+        <h3>已知条件（教学算例）</h3>
+        <p>
+          • <strong>当前关节角：</strong>$\theta_{\text{curr}} = [25^\circ,\; 35^\circ]^T$（当前处于<strong>下肘 Elbow-down</strong> 构型，$\theta_2 > 0$）。<br>
+          • <strong>下一拍目标点的两组几何逆解：</strong><br>
+            &emsp;– 候选解 1（下肘支）：$\theta^{(1)} = [30^\circ,\; 40^\circ]^T$<br>
+            &emsp;– 候选解 2（上肘支）：$\theta^{(2)} = [68^\circ,\; -40^\circ]^T$<br>
+          • <strong>关节距离权重：</strong>肩关节（大轴）权重 $w_1 = 4.0$，肘关节（小轴）权重 $w_2 = 1.0$（均满足 $w_i > 0$）。
+        </p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>场景设定</th>
+              <th>候选解</th>
+              <th>第 1 步：硬约束（限位与碰撞）</th>
+              <th>第 2 步：加权距离代价 $J(k) = 4(\Delta\theta_1)^2 + 1(\Delta\theta_2)^2$</th>
+              <th>最终裁决结果</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="2"><strong>情形 A：常规限位</strong><br>$\theta_1 \in [-180^\circ, 180^\circ]$<br>$\theta_2 \in [-150^\circ, 150^\circ]$<br>无障碍物</td>
+              <td><strong>解 1（下肘）</strong><br>$[30^\circ, 40^\circ]^T$</td>
+              <td><span class="badge-pass">通过 ✓</span><br>两轴均在限位内</td>
+              <td>
+                $\Delta\theta_1 = 30^\circ - 25^\circ = 5^\circ$<br>
+                $\Delta\theta_2 = 40^\circ - 35^\circ = 5^\circ$<br>
+                $J(1) = 4\times 5^2 + 1\times 5^2 = \mathbf{125}\text{ deg}^2$
+              </td>
+              <td><strong>选中解 1 ✓</strong><br>保持下肘分支，平滑过渡</td>
+            </tr>
+            <tr>
+              <td><strong>解 2（上肘）</strong><br>$[68^\circ, -40^\circ]^T$</td>
+              <td><span class="badge-pass">通过 ✓</span><br>两轴均在限位内</td>
+              <td>
+                $\Delta\theta_1 = 68^\circ - 25^\circ = 43^\circ$<br>
+                $\Delta\theta_2 = -40^\circ - 35^\circ = -75^\circ$<br>
+                $J(2) = 4\times 43^2 + 1\times (-75)^2 = \mathbf{13021}\text{ deg}^2$
+              </td>
+              <td>淘汰（距离代价过大，会引发翻肘突变）</td>
+            </tr>
+            <tr>
+              <td rowspan="2"><strong>情形 B：限位/障碍受限</strong><br>肘关节上限收紧为<br>$\theta_2 \in [-150^\circ, \mathbf{38^\circ}]$<br>（或下肘侧有障碍）</td>
+              <td><strong>解 1（下肘）</strong><br>$[30^\circ, 40^\circ]^T$</td>
+              <td><span class="badge-fail">否决 ✗</span><br>$\theta_{2,1}=40^\circ > 38^\circ$ 超上限</td>
+              <td><em>（已被第 1 步硬约束剔除，不参与距离评比）</em></td>
+              <td><strong>淘汰 ✗</strong><br>虽离当前角最近，但越界违法</td>
+            </tr>
+            <tr>
+              <td><strong>解 2（上肘）</strong><br>$[68^\circ, -40^\circ]^T$</td>
+              <td><span class="badge-pass">通过 ✓</span><br>$-40^\circ \in [-150^\circ, 38^\circ]$</td>
+              <td>$J(2) = 13021\text{ deg}^2$（可行集 $\mathcal{F}=\{2\}$ 中唯一解）</td>
+              <td><strong>选中解 2 ✓</strong><br>唯一合法解（规划器需插入过渡轨迹翻肘）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">
+        <strong>工程警示（情形 B 的速度突跳）：</strong>当连续轨迹走到某一步，原本跟得好好的分支（如解 1）突然因限位或障碍被剔除，迫使算法切换到另一分支（解 2）时，相邻两拍之间的 $\Delta\theta$ 会瞬间暴增（上例中肘角跳变 $-75^\circ$）。在真实控制器里，<strong>绝不能把这种跨分支跳变直接作为单周期位置指令发给伺服驱动器</strong>，否则会立刻触发过速/跟随误差报警；必须先暂停笛卡尔直线跟踪，通过关节空间重规划完成安全的“翻肘重构”。
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>5. 适用范围与 ROS 2 工程衔接</h2>
+      <div class="grid-2">
+        <div class="box">
+          <h3>本节选解规则何时够用、何时不够用？</h3>
+          <p>
+            • <strong>单点点位运动（PTP）或短步长在线跟踪：</strong>“硬约束筛选 + 单步加权最近解”简单高效，是工业控制器底层 <code>SOLVE</code> 的标配。<br>
+            • <strong>长距离笛卡尔直线/圆弧轨迹：</strong>单步贪心选最近解可能在轨迹中途走到限位死胡同。现代运动规划器（如 MoveIt 2 的笛卡尔路径规划或 Descarte/TrajOpt）会把整条轨迹离散成一张图，搜索<strong>全程不翻支、总关节代价最小</strong>的全局路径。
+          </p>
+        </div>
+        <div class="box">
+          <h3>动手实验入口（ROS 2 学习实验室）</h3>
+          <p>
+            想亲手调整关节限位、观察跨分支跳变与加权连续性选解的代码实现，请直接打开配套实验页：<br>
+            👉 <a href="ros2/05-ik-continuity-and-limits.html"><strong>ROS 2 实验 05：逆运动学多解连续性优选与关节限位裁剪</strong></a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>6. 本节结论与随堂自检（点击展开答案）</h2>
+      <div class="callout blue">
+        <strong>本节一句话结论：</strong>多解选解必须遵循<strong>“硬约束一票否决（关节限位 + 碰撞检测）在前，加权关节距离 $\sum w_i(\Delta\theta_i)^2$（$w_i>0$，大轴权重高于小轴）最小化在后”</strong>的顺序；若可行集为空则报错不可达，若被迫跨分支则必须触发轨迹重规划。
+      </div>
+
+      <details class="quiz-item">
+        <summary>自检题 1：为什么不能把“离当前关节角最近”放在第一步，直接选出最近解后再检查它是否超限？</summary>
+        <div class="quiz-answer">
+          如果只看最近解，当最近解超限时固然会退而求其次；但很多初学者在代码里只对 <code>argmin J(k)</code> 做了返回，忘了把超限解从候选池 $\mathcal{F}$ 中预先剔除，导致机械臂直接往限位死区冲。先过滤出合法可行集 $\mathcal{F}$ 再在 $\mathcal{F}$ 内求最小代价，逻辑最严密且绝不会漏判。
+        </div>
+      </details>
+
+      <details class="quiz-item">
+        <summary>自检题 2：在加权距离公式 $J(k) = \sum_{i=1}^n w_i (\theta_{i,k} - \theta_{i,\text{curr}})^2$ 中，为什么肩部第 1、2 轴的权重 $w_1, w_2$ 要设得比腕部第 5、6 轴的 $w_5, w_6$ 更大？</summary>
+        <div class="quiz-answer">
+          因为第 1、2 轴带着整条机械臂运动，转动惯量和扫掠体积远大于手腕小轴。增大 $w_1, w_2$ 可以惩罚大臂翻动，优先选择“大臂基本不动、靠手腕旋转适应姿态”的候选解，既省能又降低扫碰周围设备的风险。
+        </div>
+      </details>
+
+      <details class="quiz-item">
+        <summary>自检题 3：如果逆解器算出了 8 组实数解，但经过关节限位和碰撞检查后可行集 $\mathcal{F} = \varnothing$（全军覆没），此时控制器应该怎么做？</summary>
+        <div class="quiz-answer">
+          此时说明该目标位姿虽然在“无约束几何工作空间”内，但不在“考虑限位与障碍的有效工作空间”内。控制器必须返回 <code>IK_NO_FEASIBLE_SOLUTION</code> 错误并拒绝执行，绝不能随便挑一组超限或碰撞解强行下发。
+        </div>
+      </details>
+
+      <details class="quiz-item">
+        <summary>自检题 4：回转关节的角度具有 $360^\circ$（$2\pi$）周期性。如果当前第 6 轴在 $\theta_{6,\text{curr}} = 175^\circ$，某候选解算出的主值在 $-175^\circ$，计算 $\Delta\theta_6$ 时要注意什么？</summary>
+        <div class="quiz-answer">
+          首先必须结合多圈编码器计数和第 6 轴的物理行程限位（例如电缆限制在 $[-180^\circ, 180^\circ]$ 还是允许 $[-360^\circ, 360^\circ]$）：若允许跨 $\pm 180^\circ$ 连续旋转，$-175^\circ$ 展开到同支就是 $+185^\circ$，实际角位移只有 $+10^\circ$；若机械硬限位卡死在 $\pm 180^\circ$，则不能穿过 $180^\circ$ 分界线，必须反转 $-350^\circ$ 才能到达 $-175^\circ$。
+        </div>
+      </details>
+    </section>
+
+    <footer class="footer-nav" aria-label="章节尾部导航">
+      <div>
+        <a class="nav-pill" href="craig-04-08-target-frame-transform.html">← 上一节：§4.8 把目标换到逆解器坐标系</a>
+        <a class="nav-pill" href="craig-04-reading-guide.html">返回第 4 章总入口</a>
+      </div>
+      <div>
+        <a class="nav-pill primary" href="craig-04-10-repeatability-vs-accuracy.html">下一节：§4.10 重复定位精度 vs 绝对定位精度 →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.renderMathInElement) {
+        window.renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</body>
+</html>

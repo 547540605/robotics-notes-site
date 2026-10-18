@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Craig §4.3：少于 6 轴的可达位姿与操作臂子空间</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}, {left: '\\[', right: '\\]', display: true}, {left: '\\(', right: '\\)', display: false}]});"></script>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #1e293b;
+      --card-sub: #172033;
+      --fg: #f8fafc;
+      --muted: #94a3b8;
+      --line: #334155;
+      --primary: #38bdf8;
+      --accent: #0284c7;
+      --success: #10b981;
+      --warn: #f59e0b;
+      --danger: #f43f5e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.72 system-ui, -apple-system, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 20px 72px;
+    }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1, h2, h3 { line-height: 1.3; margin-top: 0; }
+    h1 { font-size: clamp(1.6rem, 2.5vw, 2.15rem); margin: 0.4rem 0 0.8rem; }
+    h2 {
+      font-size: 1.28rem;
+      margin-top: 2.2rem;
+      padding-bottom: 0.38rem;
+      border-bottom: 1px solid var(--line);
+    }
+    p { margin: 0.65rem 0; }
+    .muted { color: var(--muted); font-size: 0.92rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin: 16px 0;
+    }
+    .takeaway {
+      border-left: 4px solid var(--warn);
+      background: rgba(245, 158, 11, 0.08);
+    }
+    .context-bar {
+      border-left: 4px solid var(--primary);
+      background: var(--card-sub);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+      font-size: 0.94rem;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .sub-card {
+      background: var(--card-sub);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .formula-box {
+      background: #0f172a;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 12px 0;
+      overflow-x: auto;
+    }
+    details.quiz-item {
+      background: var(--card-sub);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin: 10px 0;
+    }
+    details.quiz-item summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #e2e8f0;
+      padding: 4px 0;
+    }
+    details.quiz-item .ans {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--line);
+      color: #cbd5e1;
+      font-size: 0.94rem;
+    }
+    .nav-footer {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+    @media (max-width: 680px) {
+      main { padding: 20px 14px 60px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <p class="muted">
+    <a href="craig-04-reading-guide.html">← 第 4 章导读总入口</a> ·
+    <a href="00-progress.html#craig-ch4">全景学习看板</a> ·
+    <a href="12-planar-two-link-inverse-kinematics.html">下一节：§4.4 平面两连杆几何逆解（笔记 12）→</a>
+  </p>
+
+  <h1>Craig §4.3：当 \(n&lt;6\) 时操作臂子空间的描述（原书 P74–P75 / PDF P85–P86）</h1>
+
+  <div class="context-bar" aria-label="前因后果衔接">
+    <strong>前因后果：</strong>原书 §4.2 先指出“目标必须在工作空间内才有逆解”；到了 <strong>§4.3</strong>，进一步追问：如果机械臂的独立关节数 \(n&lt;6\)，哪怕目标点的<strong>位置</strong>能够到达，为什么也不能把任意的三维位置与三维姿态同时塞给逆解器？读完本页后，再进入 <a href="12-planar-two-link-inverse-kinematics.html">§4.4 几何逆解（笔记 12）</a>求解具体关节角。
+  </div>
+
+  <section class="card takeaway" aria-label="本节核心结论">
+    <strong style="color:#fbbf24; font-size:1.05rem;">💊 本节结论（看完直接带走，原书 §4.3 无需再翻）</strong>
+    <p style="margin:8px 0 0;">
+      逆解之前，先问<strong>“这台机械臂能独立控制末端的哪些量？”</strong>三维空间中的完整位姿有 6 个独立自由度（位置 3 个 + 姿态 3 个）。当独立关节数 \(n&lt;6\) 时，机械臂不能同时任意指定全部 6 个目标量，而只能在 6 维位姿空间的一个 <strong>\(n\) 维子空间（subspace）</strong>上运动。<strong>少于 6 轴不等于位置一定到不了</strong>——受限制的是“位置＋姿态”的组合；若外部给定的一般目标位姿不在该子空间内，就没有精确逆解，必须按任务需求先投影/放宽为子空间内的可达目标，或改用自由度足够的机构。
+    </p>
+  </section>
+
+  <h2>1. 先分清两件事：“能到某个位置” vs “能以指定姿态到该位置”</h2>
+  <p>
+    初学者写逆解时最容易犯的错误，是造一个任意的 \(4\times 4\) 齐次变换矩阵 \({}^B_W T\)（既有想要的位置 \((x,y,z)\)，又随便填了一个想要的旋转矩阵 \(R\)），然后强行丢给少于 6 轴的机械臂去求逆解。
+  </p>
+  <ul>
+    <li><strong>只指定位置：</strong>“让末端到达点 \(P\)”，只需要满足 2 个（平面）或 3 个（空间）位置坐标。</li>
+    <li><strong>同时指定位置和姿态：</strong>“让末端到达点 \(P\)，且工具朝向必须为指定角度”，需要同时满足位置与姿态约束。</li>
+    <li>机械臂的 \(n\) 个关节角 \((\theta_1,\dots,\theta_n)\) 是仅有的 \(n\) 个自由输入变量。通过正运动学，它们最多只能张成 \(n\) 个独立变化的位姿参数。当 \(n&lt;6\) 时，剩下的 \(6-n\) 个位姿分量已经被连杆几何结构<strong>死死绑定</strong>，不由你任意指定。</li>
+  </ul>
+
+  <h2>2. 直观图解：为什么平面两连杆“能到同一点 P，却不能任选朝向”？</h2>
+  <div class="card">
+    <p style="margin-top:0;">
+      先看我们在 <a href="04-planar-two-link-forward-kinematics.html">笔记 04</a> 和 <a href="12-planar-two-link-inverse-kinematics.html">笔记 12（§4.4）</a> 中使用的平面两连杆模型（\(n=2\)）：令两根连杆长度均为 \(L_1=L_2=1\,\mathrm{m}\)，目标点位于 \(P=(1,1)\,\mathrm{m}\)。
+    </p>
+    <figure style="margin:14px 0; overflow-x:auto;" aria-label="平面两连杆的两种关节角到达同一点，但末端朝向不同">
+      <svg viewBox="0 0 460 260" role="img" aria-label="分支 A：先水平向右 1m 再竖直向上 1m，到达 P(1,1) 时末端朝上 90 度；分支 B：先竖直向上 1m 再水平向右 1m，到达同一个 P(1,1) 时末端朝右 0 度" style="display:block; width:100%; max-width:560px; height:auto; margin:auto; background:#111c2d; border:1px solid var(--line); border-radius:8px;">
+        <defs>
+          <marker id="dirA" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 Z" fill="#59c8ef"/>
+          </marker>
+          <marker id="dirB" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 Z" fill="#7de0a5"/>
+          </marker>
+        </defs>
+        <path d="M70 215V30M50 195H330" fill="none" stroke="#8ca3b7" stroke-width="2"/>
+        <text x="338" y="200" fill="#d7e6f3" font-size="15">x (m)</text>
+        <text x="58" y="24" fill="#d7e6f3" font-size="15">y (m)</text>
+        <!-- Branch A: (0, 90 deg) -->
+        <path d="M70 195H185V80" fill="none" stroke="#59c8ef" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="185" y1="80" x2="185" y2="42" stroke="#59c8ef" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#dirA)"/>
+        <!-- Branch B: (90, -90 deg) -->
+        <path d="M70 195V80H185" fill="none" stroke="#7de0a5" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="185" y1="80" x2="225" y2="80" stroke="#7de0a5" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#dirB)"/>
+        <!-- Joints & target -->
+        <circle cx="70" cy="195" r="6" fill="#fff"/>
+        <circle cx="185" cy="195" r="5" fill="#59c8ef"/>
+        <circle cx="70" cy="80" r="5" fill="#7de0a5"/>
+        <circle cx="185" cy="80" r="7" fill="#f4adfa" stroke="#111c2d" stroke-width="2"/>
+        <text x="36" y="232" fill="#e9f2ff" font-size="14">基座 (0,0)</text>
+        <text x="196" y="62" fill="#f4adfa" font-size="15" font-weight="700">同一点 P = (1, 1)</text>
+        <text x="200" y="135" fill="#59c8ef" font-size="14">分支 A：(q₁, q₂) = (0°, 90°) ⇒ 朝向 ϕ = 90° ↑</text>
+        <text x="200" y="162" fill="#7de0a5" font-size="14">分支 B：(q₁, q₂) = (90°, −90°) ⇒ 朝向 ϕ = 0° →</text>
+        <text x="200" y="188" fill="#fb7185" font-size="13">若要求到 P(1,1) 且 ϕ = 45°：两连杆精确无解！</text>
+      </svg>
+    </figure>
+    <p>
+      图中的两条折线共用起点 \((0,0)\) 和终点 \(P=(1,1)\)，末端在平面内的朝向角为 \(\phi = q_1 + q_2\)：
+    </p>
+    <ul>
+      <li><span style="color:#59c8ef;"><strong>分支 A：</strong></span>\((q_1,q_2)=(0^\circ,90^\circ)\)，末端到达 \((1,1)\)，此时末端朝向只能是 \(\phi = 0^\circ + 90^\circ = 90^\circ\)（竖直朝上）。</li>
+      <li><span style="color:#7de0a5;"><strong>分支 B：</strong></span>\((q_1,q_2)=(90^\circ,-90^\circ)\)，末端也到达 \((1,1)\)，此时末端朝向只能是 \(\phi = 90^\circ - 90^\circ = 0^\circ\)（水平朝右）。</li>
+    </ul>
+    <p style="margin-bottom:0;">
+      因为两个自由度已经全部用来满足 \(x=1\) 和 \(y=1\)，在 \(P=(1,1)\) 这个点上，末端朝向 \(\phi\) 只剩 \(90^\circ\) 或 \(0^\circ\) 两种离散结果。如果工艺还要求<strong>“到达 \(P=(1,1)\) 的同时末端朝向 \(\phi=45^\circ\)”</strong>，这台两连杆机械臂就<strong>不存在精确逆解</strong>。
+    </p>
+  </div>
+
+  <h2>3. 对回原书 §4.3 的两个算例（原书 P74–P75）</h2>
+  <p>
+    上面用平面两连杆帮你建立直觉；对回 Craig 原书 §4.3，作者用<strong>把全部关节角视为自由变量时末端齐次矩阵能取到的形式</strong>来刻画子空间，并给出了两个具体例子（注意：上面的两连杆是本站入门补充，不是原书例题本身）：
+  </p>
+
+  <div class="grid-2">
+    <div class="sub-card">
+      <strong style="color:var(--primary);">原书例 4.1：平面三连杆操作臂的子空间（式 4.2）</strong>
+      <p>
+        如果在平面两连杆末端再加第 3 个旋转关节 \(\theta_3\)（见原书图 3-6 / 图 4-7 的平面 3R 臂，\(n=3\)），它就能在 XY 平面内独立控制腕部位置 \((x,y)\) 和平面朝向角 \(\phi = \theta_1+\theta_2+\theta_3\)。其子空间由 3 个自由参数 \((x,y,\phi)\) 描述：
+      </p>
+      <div class="formula-box">
+        \[
+          {}^B_W T =
+          \begin{bmatrix}
+            \cos\phi & -\sin\phi & 0 & x \\
+            \sin\phi & \cos\phi & 0 & y \\
+            0 & 0 & 1 & 0 \\
+            0 & 0 & 0 & 1
+          \end{bmatrix}
+          \quad \text{（原书式 4.2）}
+        \]
+      </div>
+      <p class="muted" style="margin-bottom:0;">
+        凡是不符合式 (4.2) 结构的目标（例如要求 \(z \neq 0\)，或要求末端绕 X/Y 轴倾斜），都在该 3R 臂的 3 维子空间之外；而连杆长度与关节限位再把可达工作空间限制为该子空间的一个有界子集。
+      </p>
+    </div>
+
+    <div class="sub-card">
+      <strong style="color:var(--success);">原书例 4.2：两自由度极坐标臂的子空间（图 4-6，式 4.3–4.5）</strong>
+      <p>
+        原书图 4-6 是一个 \(n=2\) 的极坐标机械臂（关节 1 绕竖直轴转，关节 2 沿水平方向伸缩）。它的末端位置可以取 \(z=0\) 平面上的点 \({}^0 P_{2\text{ORG}} = [x,\,y,\,0]^T\)（式 4.3），但伸缩杆轴向 \(\hat{Z}_2\) 必然沿着从原点指向 \((x,y)\) 的径向：
+      </p>
+      <div class="formula-box">
+        \[
+          {}^0 \hat{Z}_2 =
+          \begin{bmatrix}
+            \dfrac{x}{\sqrt{x^2+y^2}} \\[6pt]
+            \dfrac{y}{\sqrt{x^2+y^2}} \\[4pt]
+            0
+          \end{bmatrix}, \quad
+          {}^0_2 T =
+          \begin{bmatrix}
+            \frac{y}{\sqrt{x^2+y^2}} & 0 & -\frac{x}{\sqrt{x^2+y^2}} & x \\
+            \frac{-x}{\sqrt{x^2+y^2}} & 0 & \frac{y}{\sqrt{x^2+y^2}} & y \\
+            0 & -1 & 0 & 0 \\
+            0 & 0 & 0 & 1
+          \end{bmatrix}
+        \]
+      </div>
+      <p class="muted" style="margin-bottom:0;">
+        对应原书式 (4.4)–(4.5)（在 \(x^2+y^2&gt;0\) 时定义）：一旦给定了位置 \((x,y)\)，旋转矩阵的每一项都被 \((x,y)\) 完全锁死，没有任何独立调节姿态的余地。
+      </p>
+    </div>
+  </div>
+
+  <h2>4. 当 \(n&lt;6\) 遇到一般目标时，工程与教材怎样处理？</h2>
+  <div class="card">
+    <p style="margin-top:0;">
+      原书 P75 给出了少于 6 自由度机械臂面对一般目标 \({}^S_G T\) 时的标准两步法：
+    </p>
+    <ol style="margin:6px 0; padding-left:22px;">
+      <li>
+        <strong>第一步（子空间投影 / 目标修正）：</strong>已知一般目标坐标系 \({}^S_G T\)，先在操作臂的 \(n\) 维子空间内寻找一个与原目标尽可能“靠近”的修正目标 \({}^S_{G'} T\)（例如：若工艺必须保证位置准确，就先固定期望位置 \((x,y,z)\)，再在子空间允许的姿态里选最接近期望姿态的那一个）。“靠近”的度量标准必须按具体工艺任务预先定义。
+      </li>
+      <li>
+        <strong>第二步（工作空间与限位检验 + 逆运动学求解）：</strong>把修正后的 \({}^S_{G'} T\) 作为期望输入求逆解。注意：<strong>位于子空间内不代表一定可达</strong>——还要继续检查连杆长度构成的可达范围（如 \(|L_1-L_2|\le r\le L_1+L_2\)）与关节限位，超出范围同样无解。
+      </li>
+    </ol>
+    <p class="muted" style="margin-bottom:0;">
+      <strong>适用边界提醒：</strong>受关节限位或局部奇异位形影响，机械臂在某一点附近可独立变化的维数还可能小于 \(n\)。在 ROS 2 / MoveIt 2 中，若对 4 轴或 5 轴机械臂调用默认 6D 位姿逆解，往往会直接报 IK 失败；必须在规划配置中开启仅位置求解（<code>position_only_ik: true</code>）或使用支持部分自由度权重松弛的求解器（如 <code>BioIK</code>）。
+    </p>
+  </div>
+
+  <h2>5. 本节自测（点击展开答案）</h2>
+
+  <details class="quiz-item">
+    <summary>1. 一台 4 自由度机械臂（如 SCARA 或便携四轴臂）能到达空间某点 \(P=(x,y,z)\)，是否意味着它能以任意三维姿态（roll, pitch, yaw）到达该点？为什么？</summary>
+    <div class="ans">
+      <strong>不能。</strong>三维完整位姿共有 6 个独立自由度（3 个位置 + 3 个姿态）。4 自由度机械臂只有 4 个关节变量，确定了三维位置 \((x,y,z)\) 之后只剩 1 个自由度可用于调整姿态（例如绕竖直轴的偏航角 yaw），其余两个姿态角被机构几何完全锁死。
+    </div>
+  </details>
+
+  <details class="quiz-item">
+    <summary>2. 在本页平面两连杆（\(L_1=L_2=1\,\mathrm{m}\)）例子中，目标位置 \(P=(1,1)\,\mathrm{m}\) 是否可达？如果同时要求末端朝向 \(\phi=45^\circ\)，为什么无解？</summary>
+    <div class="ans">
+      <strong>位置可达，但指定 \(\phi=45^\circ\) 的完整平面位姿无解。</strong>因为 \(r=\sqrt{1^2+1^2}=\sqrt{2}\in[0,2]\)，只要求到达位置 \((1,1)\) 时有 \((0^\circ,90^\circ)\) 和 \((90^\circ,-90^\circ)\) 两组解；但这两种姿态下的末端朝向 \(\phi=q_1+q_2\) 只能是 \(90^\circ\) 或 \(0^\circ\)，没有第 3 个关节来把末端转到 \(45^\circ\)。
+    </div>
+  </details>
+
+  <details class="quiz-item">
+    <summary>3. 某目标位姿矩阵 \({}^B_W T\) 已经满足原书式 (4.2) 的子空间形式，是否就一定存在实数关节角逆解？</summary>
+    <div class="ans">
+      <strong>不一定。</strong>满足式 (4.2) 只说明该目标落在平面三连杆所在的 3 维子空间（\(z=0\) 且姿态轴垂直于平面）内；但实际可达工作空间只是该子空间的一个有界子集。如果 \(\sqrt{x^2+y^2}\) 超出连杆总长，或者所需角度超出关节物理限位，依然没有可执行逆解。
+    </div>
+  </details>
+
+  <details class="quiz-item">
+    <summary>4. 当任务只要求工具尖端到达三维位置 \((x,y,z)\)、对部分姿态角不做硬性要求时，直接把单位矩阵 \(I\) 塞进目标姿态去求 4 轴/5 轴逆解有什么问题？</summary>
+    <div class="ans">
+      把单位矩阵 \(I\) 当作目标旋转矩阵，等于强行指定了全部 3 个姿态角为 \(0^\circ\)，这大概率不在 \(n&lt;6\) 机械臂的可达子空间内，会导致逆解器误判为“无解”。正确做法是只对位置分量列约束，或先按机械臂几何算出该位置处可达的姿态矩阵 \({}^S_{G'} T\) 再求解。
+    </div>
+  </details>
+
+  <nav class="nav-footer" aria-label="小节前后导航">
+    <a href="craig-04-reading-guide.html">← 上一页：第 4 章导读总入口</a>
+    <a href="12-planar-two-link-inverse-kinematics.html">下一节：§4.4 平面两连杆几何逆解（笔记 12）→</a>
+  </nav>
+</main>
+</body>
+</html>

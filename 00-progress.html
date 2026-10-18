@@ -510,30 +510,58 @@
       </div>
       <div style="display:flex; gap:6px;"><a href="quiz-center.html#practice" class="badge badge-purple" style="font-size:0.8rem;">📖 自由刷题</a><a href="quiz-center.html#exams" class="badge badge-blue" style="font-size:0.8rem;">🏆 模块考核</a></div>
     </div>
-    <p style="color:var(--muted); font-size:0.88rem; margin:0 0 8px 0;">现有平面两连杆与空间 3R 位置逆解；教材的完整代数法、姿态逆解与解的选择仍待系统展开。</p>
+    <p style="color:var(--muted); font-size:0.88rem; margin:0 0 8px 0;">已按教材小节拆分为独立专页：总入口导读 + §4.3、§4.4（笔记 12）、§4.6、§4.8、§4.9、§4.10 独立课页，配套空间 3R 延伸（12a）与正逆运动学自测（13）。§4.1–4.2 仍以原书为主，§4.5/4.7/4.11 当前路线跳过。</p>
     <details class="dehydrate-guide" open>
-      <summary>⚡ 本章看书脱水指南（🟢原书必读 / 💊免翻书提炼 / 🔴直接跳过）&amp; 🤖 ROS 2 落点</summary>
+      <summary>⚡ 本章看书脱水指南（🟢原书必读 / 💊免翻书独立专页 / 🔴直接跳过）&amp; 🤖 ROS 2 落点</summary>
       <div class="dehydrate-grid">
-        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 唯一需翻原书细看（仅 6 页）</strong><ul><li><strong>§4.1–4.2 (P71–74上)</strong>：工作空间、多解性与封闭解 vs 数值解；<a href="12-planar-two-link-inverse-kinematics.html#craig-4-4">笔记 12</a>只提供两连杆的可达性和分支例子，不能代替原书的完整讨论。</li><li><strong>§4.4 (P75下–78)</strong>：平面连杆的<strong>几何解法</strong>（余弦定理 + <code>atan2</code>）与代数解法对比。<a href="12-planar-two-link-inverse-kinematics.html#craig-4-4">读书后直达：笔记 12 的 §4.4 对照入口 →</a></li></ul></div>
-        <div class="dg-col"><strong class="dg-title" style="color:#c084fc;">💊 免翻书·直接看提炼（原书不用翻，详见笔记 12）</strong><ul><li><strong>§4.3 (\(n&lt;6\) 子空间)</strong>：少于 6 轴无法同时独立指定任意位置和姿态，应按任务要求确定需要保留的位置与姿态分量。<br><strong>带走：</strong>少于 6 个独立关节时，先限定任务实际要求的位姿分量；目标不在可达位姿集合就没有精确逆解。</li><li><strong>§4.6 Pieper 球腕解耦</strong>：后三轴交于腕心 \(P_W\) 时，先用前 3 轴定腕心位置 \((\theta_1,\theta_2,\theta_3)\)，再由 \({}^3_6 R = ({}^0_3 R)^T {}^0_6 R\) 解欧拉角 \((\theta_4,\theta_5,\theta_6)\)。<br><strong>带走：</strong>只有机构满足球腕等解耦条件，才可先求腕心位置、再求末端姿态。</li><li><strong>§4.8–4.9 反推与选解</strong>：\({}^B_W T = {}^B_S T\,{}^S_G T\,({}^W_T T)^{-1}\)；多解选离当前关节角加权距离最近的一组（权重依任务设置）。<br><strong>带走：</strong>先将外部目标换到逆解器的基座—腕部定义，再筛限位与碰撞、选连续的合法分支。</li><li><strong>§4.10 精度区分</strong>：<strong>重复定位精度</strong>=走同一角度百次的集中度；<strong>绝对定位精度</strong>=按坐标算逆解走过去的尺量误差（受几何误差与标定影响）。<br><strong>带走：</strong>重复回到旧点不等于新坐标也准确；绝对精度要靠独立测量与标定验证。</li></ul></div>
-        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§4.5 代数消元化高次多项式 (P78–79)</strong>：繁琐的半角万能公式置换消元。</li><li><strong>§4.7 PUMA 560 与 Motoman L-3 完整手算逆解 (P81–87)</strong>：整整 6 页凑三角恒等式，千万别去一行行啃！</li><li><strong>§4.11 计算问题 (P89)</strong>：老式算力讨论。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 唯一需翻原书细看（仅 6 页）</strong><ul><li><strong>§4.1–4.2 (P71–74上)</strong>：工作空间、多解性与封闭解 vs 数值解（尚无独立对应课程，先读原书；<a href="craig-04-reading-guide.html">第 4 章总入口</a>提供全章地图，多解选解规则见 <a href="craig-04-09-choosing-ik-solution.html">§4.9 专页</a>）。</li><li><strong>§4.4 (P75下–78)</strong>：平面连杆的<strong>几何解法</strong>（余弦定理 + <code>atan2</code>）。<a href="12-planar-two-link-inverse-kinematics.html">读书后直达：§4.4 平面两连杆几何逆解专页（笔记 12） →</a></li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#c084fc;">💊 免翻书·直接进对应小节独立专页（原书不用翻）</strong><ul><li><strong><a href="craig-04-03-reachable-subspace.html">§4.3 少于 6 轴的可达位姿专页 →</a></strong>：少于 6 轴无法同时独立指定任意位置和姿态，先判目标位姿是否落在可达子空间。</li><li><strong><a href="craig-04-06-pieper-spherical-wrist.html">§4.6 Pieper 条件与球腕解耦专页 →</a></strong>：后三轴交于腕心 \(P_W\) 时，先求腕心定前 3 轴 \((\theta_1,\theta_2,\theta_3)\)，再由 \({}^3_6 R = ({}^0_3 R)^T {}^0_6 R\) 解后 3 轴姿态。</li><li><strong><a href="craig-04-08-target-frame-transform.html">§4.8 目标坐标系转换专页 →</a></strong>：五标准系 \(\{B,S,W,T,G\}\) 与逆解器输入变换 \({}^B_W T = {}^B_S T\,{}^S_G T\,({}^W_T T)^{-1}\)。</li><li><strong><a href="craig-04-09-choosing-ik-solution.html">§4.9 逆解有多个时怎么选专页 →</a></strong>：<code>SOLVE</code> 先筛关节限位与碰撞硬约束，再最小化加权关节距离 \(\sum w_i(\Delta\theta_i)^2\)。</li><li><strong><a href="craig-04-10-repeatability-vs-accuracy.html">§4.10 重复定位精度 vs 绝对定位精度专页 →</a></strong>：对比“回示教点”与“去逆解计算点”的误差链、外部测量方法与标定补偿。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§4.5 代数消元化高次多项式 (P78–79)</strong>：繁琐的半角万能公式置换消元。</li><li><strong>§4.7 PUMA 560 与 Motoman L-3 完整手算逆解 (P81–87)</strong>：整整 6 页特定机型凑三角恒等式，工程由 <code>IKFast</code> 或数值逆解替代。</li><li><strong>§4.11 计算问题 (P89)</strong>：80 年代老式算力查表讨论。</li></ul></div>
         <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong>MoveIt 2 逆解器插件</strong>：现代协作臂（如 UR5e、Franka）很多不再是严格球腕，ROS 2 中直接配置数值迭代逆解器（<strong><code>KDL</code></strong>、<strong><code>Trac-IK</code></strong>、<strong><code>PickNik BioIK</code></strong>）或自动生成 C++ 解析代码的 <strong><code>IKFast</code></strong>。</li></ul></div>
       </div>
     </details>
     <div class="card" style="background:var(--card-sub);border:1px solid var(--line);padding:14px 16px;margin:12px 0;">
-      <strong style="color:var(--primary);">按教材小节找现有笔记</strong>
-      <p style="margin:6px 0;">正在读 <strong>§4.4</strong>：先仔细看原书的几何解法，再点<a href="12-planar-two-link-inverse-kinematics.html#craig-4-4">笔记 12 · §4.4 对照入口</a>，直接进入“可达性 → 余弦定理 → <code>atan2</code> → 回代”的交互讲解；随后可看<a href="12a-spatial-3r-position-ik.html">12a 空间 3R 迁移</a>。12a 是延伸，不冒充原书 §4.4 的完整替代。</p>
-      <p style="margin:6px 0;">正在读 <strong>§4.3、§4.6、§4.8–4.10</strong>：按本章 💊 分类，分别直达笔记 12 的<a href="12-planar-two-link-inverse-kinematics.html#craig-4-3">§4.3</a>、<a href="12-planar-two-link-inverse-kinematics.html#craig-4-6">§4.6</a>、<a href="12-planar-two-link-inverse-kinematics.html#craig-4-8-4-9">§4.8–4.9</a>和<a href="12-planar-two-link-inverse-kinematics.html#craig-4-10">§4.10</a>的结论胶囊。</p>
-      <p style="margin:6px 0 0;color:var(--muted);">§4.1–4.2：现有笔记只有几何入门，仍以原书为主；§4.5、§4.7、§4.11：本路线跳过。这里整理的是<strong>阅读入口</strong>，不是宣称第四章已完整覆盖。</p>
+      <strong style="color:var(--primary);">按教材小节打开独立页面</strong>
+      <p style="margin:6px 0;"><strong>全章导航：</strong>先打开 <a href="craig-04-reading-guide.html"><strong>第 4 章总入口（craig-04-reading-guide.html）</strong></a> 查看 §4.1–§4.11 逐节分类表、全章数据流图与现有课程边界。</p>
+      <p style="margin:6px 0;"><strong>正在读 §4.4：</strong>先看原书几何解法，再进入 <a href="12-planar-two-link-inverse-kinematics.html"><strong>§4.4 平面两连杆几何逆解专页（笔记 12）</strong></a> 交互体验“可达性 → 余弦定理 → <code>atan2</code> → 回代”；随后可看 <a href="12a-spatial-3r-position-ik.html">12a 空间 3R 迁移</a>（延伸材料，非 §4.4 完整替代）与 <a href="13-planar-forward-inverse-quiz.html">13 正逆运动学混合自测</a>。</p>
+      <p style="margin:6px 0 0;"><strong>正在读 §4.3、§4.6、§4.8、§4.9、§4.10：</strong>点击直达对应独立专页：<a href="craig-04-03-reachable-subspace.html">§4.3 少于 6 轴可达位姿</a> · <a href="craig-04-06-pieper-spherical-wrist.html">§4.6 Pieper 球腕解耦</a> · <a href="craig-04-08-target-frame-transform.html">§4.8 目标坐标系转换</a> · <a href="craig-04-09-choosing-ik-solution.html">§4.9 多解怎么选</a> · <a href="craig-04-10-repeatability-vs-accuracy.html">§4.10 重复精度 vs 绝对精度</a>。</p>
     </div>
     <div class="note-list">
+      <a href="craig-04-reading-guide.html" class="note-item">
+        <span><strong>Ch04 导读</strong> 第 4 章总入口：按教材小节阅读导航</span>
+        <span class="badge badge-purple">🧭 全章路线图</span>
+      </a>
+      <a href="craig-04-03-reachable-subspace.html" class="note-item">
+        <span><strong>§4.3</strong> 少于 6 轴的可达位姿（可达子空间）</span>
+        <span class="badge badge-green">💊 免翻书独立页</span>
+      </a>
       <a href="12-planar-two-link-inverse-kinematics.html" class="note-item">
-        <span><strong>12</strong> 二维两连杆逆运动学</span>
+        <span><strong>§4.4（12）</strong> 平面两连杆几何逆解：余弦定理与 atan2</span>
         <span class="badge badge-blue">🕹️ 鼠标拖拽逆解台</span>
+      </a>
+      <a href="craig-04-06-pieper-spherical-wrist.html" class="note-item">
+        <span><strong>§4.6</strong> Pieper 条件与球腕三步解耦</span>
+        <span class="badge badge-green">💊 免翻书独立页</span>
+      </a>
+      <a href="craig-04-08-target-frame-transform.html" class="note-item">
+        <span><strong>§4.8</strong> 把目标换到逆解器使用的坐标系（标准系与式 4.108）</span>
+        <span class="badge badge-green">💊 免翻书独立页</span>
+      </a>
+      <a href="craig-04-09-choosing-ik-solution.html" class="note-item">
+        <span><strong>§4.9</strong> 逆解有多个时怎么选（SOLVE、硬约束与加权距离）</span>
+        <span class="badge badge-green">💊 免翻书独立页</span>
+      </a>
+      <a href="craig-04-10-repeatability-vs-accuracy.html" class="note-item">
+        <span><strong>§4.10</strong> 重复定位精度 vs 绝对定位精度</span>
+        <span class="badge badge-green">💊 免翻书独立页</span>
       </a>
       <a href="12a-spatial-3r-position-ik.html" class="note-item">
         <span><strong>12a</strong> 空间 3R：从三维目标到两连杆逆解</span>
         <span class="badge badge-blue">🕹️ 俯视与肩部剖面联动</span>
+      </a>
+      <a href="13-planar-forward-inverse-quiz.html" class="note-item">
+        <span><strong>13</strong> 二维两连杆正/逆运动学混合自测</span>
+        <span class="badge badge-amber">📝 随堂测验</span>
       </a>
       <a href="project-01-portable-4axis-robot.html" class="note-item">
         <span><strong>项目 1</strong> 自研便携四轴机械手算法答辩</span>
