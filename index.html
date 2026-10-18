@@ -79,23 +79,31 @@
           ['🧭', 'Craig 全景学习总指挥看板', '00-progress.html'],
           ['🏆', '智能题库与考核中心 (续考/每日三题)', 'quiz-center.html']
         ] },
-        { name: '教材第 1 章 · 概述', status: '教材导入课待补；先从学习看板了解路线', items: [] },
-        { name: '教材第 2–3 章 · 坐标、旋转与两连杆入门', status: '01–07 沿现有学习顺序衔接两章', items: [
-          ['01', '坐标系中的点', '01-coordinate-frames.html'],
-          ['02', '齐次变换矩阵', '02-homogeneous-transform.html'],
-          ['03', '变换链', '03-transform-chains.html'],
-          ['04', '二维两连杆正运动学', '04-planar-two-link-forward-kinematics.html'],
-          ['05', '三维单轴旋转', '05-3d-single-axis-rotations.html'],
-          ['06', '三维机械臂坐标系', '06-3d-arm-coordinate-frames.html'],
-          ['07', '基础复习自测', '07-foundation-review-quiz.html']
+        { name: '教材第 1 章 · 概述', status: '导入课待补；看板标明原书小节与缺口', items: [
+          ['路线', '第 1 章：按小节找现有内容', '00-progress.html#craig-ch1'],
+          ['§1.3', '四角记号的用法（01，部分对应）', '01-coordinate-frames.html#craig-1-3']
         ] },
-        { name: '教材第 3 章 · DH 与正运动学', items: [
+        { name: '教材第 2 章 · 坐标与空间变换', status: '先按原书小节定位；现有笔记不等于整章验收', items: [
+          ['路线', '第 2 章：按小节找笔记', '00-progress.html#craig-ch2'],
+          ['§2.2–3', '点与旋转矩阵（01）', '01-coordinate-frames.html'],
+          ['§2.4–6', '齐次变换与求逆（02）', '02-homogeneous-transform.html'],
+          ['§2.5–6', '变换链连乘（03）', '03-transform-chains.html'],
+          ['补图', '三维单轴旋转（05）', '05-3d-single-axis-rotations.html'],
+          ['§2.7–9', '免翻书结论：变换、姿态与自由矢量', '01-coordinate-frames.html#craig-ch2-capsules'],
+          ['可选', '第 2–3 章基础复习自测', '07-foundation-review-quiz.html']
+        ] },
+        { name: '教材第 3 章 · DH 与正运动学', status: '§3.2–3.5 读书后对照；其余见小节路线', items: [
+          ['路线', '第 3 章：按小节找笔记', '00-progress.html#craig-ch3'],
+          ['前置', '二维两连杆正运动学', '04-planar-two-link-forward-kinematics.html'],
+          ['前置', '三维机械臂坐标系', '06-3d-arm-coordinate-frames.html'],
           ['补图', 'Craig 3.3：连杆偏距与关节角', '08a-craig-link-connection.html'],
           ['§3.4', 'Craig 3.4：逐步建立连杆坐标系', '08b-craig-frame-assignment.html'],
-          ['08', 'DH 坐标系分配', '08-dh-coordinate-assignment.html'],
-          ['09', '单节 DH 变换', '09-dh-single-link-transform.html'],
-          ['10', 'DH 表到正运动学', '10-dh-table-to-forward-kinematics.html'],
-          ['11', 'DH 复习自测', '11-dh-review-quiz.html']
+          ['§3.2–4', 'DH 坐标系分配（08）', '08-dh-coordinate-assignment.html'],
+          ['§3.5', '单节 DH 变换（09）', '09-dh-single-link-transform.html'],
+          ['§3.5', 'DH 表到全臂正解（10）', '10-dh-table-to-forward-kinematics.html'],
+          ['§3.6–7', '免翻书结论：空间映射与结构', '08-dh-coordinate-assignment.html#craig-ch3-capsules'],
+          ['§3.8–9', '标准系与工具坐标链（10）', '10-dh-table-to-forward-kinematics.html#craig-3-8-3-9'],
+          ['可选', '基础与 DH 复习自测', '11-dh-review-quiz.html']
         ] },
         { name: '教材第 4 章 · 逆运动学', status: '按原书小节找内容；§4.4 先读书，再进 12 对照', items: [
           ['路线', '第 4 章：按小节找笔记', '00-progress.html#craig-ch4'],
@@ -108,44 +116,58 @@
           ['可选', '正逆运动学混合自测（旧笔记 13）', '13-planar-forward-inverse-quiz.html']
         ] },
         { name: '教材第 5 章 · 雅可比、速度与静力', status: '现有课程聚焦速度；静力待补', items: [
-          ['14', '二维两连杆雅可比矩阵', '14-planar-two-link-jacobian.html'],
-          ['15', '二维两连杆奇异位形', '15-planar-two-link-singularity.html'],
+          ['路线', '第 5 章：按小节找笔记与缺口', '00-progress.html#craig-ch5'],
+          ['§5.3', '刚体上两点速度（21）', '21-spatial-rigid-body-velocity.html'],
+          ['§5.5–6', '递推与雅可比列结论（14）', '14-planar-two-link-jacobian.html#craig-ch5-capsules'],
+          ['§5.7–8', '二维两连杆雅可比（14）', '14-planar-two-link-jacobian.html'],
+          ['§5.8', '二维两连杆奇异位形（15）', '15-planar-two-link-singularity.html'],
           ['16', '二维两连杆的速度雅可比', '16-planar-jacobian-velocity.html'],
           ['17', '二维两连杆的逆速度运动学', '17-planar-inverse-velocity.html'],
           ['18', '用逆速度让末端靠近目标', '18-resolved-rate-motion.html'],
           ['19', '位置随时间变化与速度', '19-time-varying-position-velocity.html'],
           ['20', '雅可比与速度运动学自测', '20-velocity-jacobian-review-quiz.html'],
-          ['21', '空间刚体上两点的速度', '21-spatial-rigid-body-velocity.html'],
           ['22', '速度递推：一节怎样传给下一节', '22-velocity-propagation.html'],
           ['23', '三维角速度递推', '23-angular-velocity-propagation.html'],
           ['24', '三维线速度递推', '24-linear-velocity-propagation.html'],
           ['25', '两连杆速度递推实算', '25-two-link-velocity-recursion.html']
         ] },
         { name: '教材第 6 章 · 操作臂动力学', items: [
+          ['路线', '第 6 章：按小节找笔记与缺口', '00-progress.html#craig-ch6'],
+          ['§6.3', '惯量、能量与折算结论（26）', '26-single-joint-dynamics.html#craig-ch6-capsules'],
           ['26', '单关节动力学：惯性、重力与摩擦', '26-single-joint-dynamics.html'],
-          ['27', '多连杆空间角速度与角加速度递推', '27-recursive-newton-euler-dynamics.html'],
+          ['§6.2', '空间角速度与角加速度外推（27）', '27-recursive-newton-euler-dynamics.html'],
           ['28', '单连杆线加速度空间解耦', '28-recursive-newton-euler-dynamics.html'],
           ['29', '两连杆空间加速度两级外推', '29-recursive-newton-euler-dynamics.html'],
           ['30', '小臂质心正交解耦与牛顿力标定', '30-recursive-newton-euler-dynamics.html'],
           ['31', '递归 Newton-Euler 动力学算法总览', '31-rnea-overview.html'],
-          ['31a', '单杆 Newton–Euler 受力与受矩', '31a-newton-euler-force-balance.html'],
-          ['31b', 'RNEA 外推与内推双向递推', '31b-rnea-forward-backward-pass.html'],
+          ['§6.4', '单杆 Newton–Euler 受力与受矩（31a）', '31a-newton-euler-force-balance.html'],
+          ['§6.5', 'RNEA 外推与内推双向递推（31b）', '31b-rnea-forward-backward-pass.html'],
           ['31c', '两连杆惯性力与关节力矩仿真台', '31c-rnea-two-link-simulation-lab.html'],
           ['31d', 'RNEA 四类力矩来源逐项深推导', '31d-rnea-four-torque-terms.html'],
-          ['32', '两连杆动力学结构式：M(q)、h、g', '32-two-link-dynamics-structure.html']
+          ['§6.8', '两连杆动力学结构式：M(q)、h、g（32）', '32-two-link-dynamics-structure.html']
         ] },
         { name: '教材第 7 章 · 轨迹生成（现有入门）', items: [
-          ['33', '轨迹时间律：三次、五次、LSPB', '33-trajectory-time-laws.html']
+          ['路线', '第 7 章：按小节找笔记与缺口', '00-progress.html#craig-ch7'],
+          ['§7.2–3', '轨迹时间律：三次、五次、LSPB（33）', '33-trajectory-time-laws.html#craig-7-2-7-3'],
+          ['§7.4–5', '笛卡尔路径三类风险结论（33）', '33-trajectory-time-laws.html#craig-ch7-capsules']
         ] },
-        { name: '教材第 8 章 · 操作臂机械设计', status: '尚无独立主线课程', items: [] },
+        { name: '教材第 8 章 · 操作臂机械设计', status: '尚无独立主线课程；看板有小节判断', items: [
+          ['路线', '第 8 章：按小节看已有结论与缺口', '00-progress.html#craig-ch8']
+        ] },
         { name: '教材第 9 章 · 线性控制（现有入门）', items: [
-          ['34', '单关节 PD / PID 位置闭环控制', '34-pid-position-control.html']
+          ['路线', '第 9 章：按小节找笔记与缺口', '00-progress.html#craig-ch9'],
+          ['§9.3–4', '单关节 PD / PID 位置闭环（34）', '34-pid-position-control.html#craig-9-3-9-4'],
+          ['§9.6–7', '构型惯量与结构谐振结论（34）', '34-pid-position-control.html#craig-ch9-capsules']
         ] },
         { name: '教材第 10 章 · 非线性控制（现有入门）', items: [
-          ['35', '计算力矩控制 CTC：动力学解耦前馈', '35-computed-torque-control.html']
+          ['路线', '第 10 章：按小节找笔记与缺口', '00-progress.html#craig-ch10'],
+          ['§10.4', '计算力矩控制：模型前馈＋反馈（35）', '35-computed-torque-control.html#craig-10-4'],
+          ['§10.5–8', '笛卡尔控制与模型误差结论（35）', '35-computed-torque-control.html#craig-ch10-capsules']
         ] },
         { name: '教材第 11 章 · 力控制（现有入门）', items: [
-          ['36', '接触、阻抗控制与导纳顺应', '36-force-impedance-admittance-control.html']
+          ['路线', '第 11 章：按小节找笔记与缺口', '00-progress.html#craig-ch11'],
+          ['§11.2–3', '接触约束直觉（36，部分对应）', '36-force-impedance-admittance-control.html#craig-11-2-11-3'],
+          ['§11.4–5', '混合力位方向分工结论（36）', '36-force-impedance-admittance-control.html#craig-ch11-capsules']
         ] },
         { name: '工程扩展 · 验证、辨识与驱动接口', items: [
           ['37', '两连杆端到端闭环动力学仿真', '37-two-link-closed-loop-simulation.html'],

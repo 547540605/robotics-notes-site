@@ -13,7 +13,7 @@
       <b>§7.1–§7.3 (P144–153)</b> 关节空间三次/五次多项式插值与抛物线过渡线性路径（LSPB 梯形速度律，即本页交互核心）。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
+      <b id="craig-ch7-capsules" style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
       <b>§7.4 笛卡尔规划 (P154)</b>：要求末端走空间直线时，先给位置线段加时间律；若姿态也要变化，可按约定对姿态插值（如 Slerp），再逐点求合法且连续的关节解。<br><strong>带走：</strong>末端直线不是“关节角线性变化”；每个中间位姿都须可达，并满足关节运动约束。<br>
       <b>§7.5 三大几何陷阱 (P155–157)</b>：① 中间点不可达；② 近奇异位形需很高关节速度；③ 逆解分支切换造成关节突跳。<br><strong>带走：</strong>起终点都可达不等于整条路可执行；检查全路径的可达性、奇异性与分支连续性。
     </div>
@@ -29,7 +29,7 @@
 
 <section class="card guide"><h2 style="margin-top:0;border:0;padding:0">本篇只解决一维关节，但它是多关节轨迹的时间骨架</h2><div class="grid"><div><strong>输入：</strong>起点 <code>q₀</code>、终点 <code>qf</code>、总时长 <code>T</code>，以及速度/加速度/jerk 边界。</div><div><strong>输出：</strong>任意时刻都有定义的 <code>q(t),q̇(t),q̈(t)</code>；需要更平顺时还关注 <code>q⃛(t)</code>。</div></div><span class="formula">路径（去哪里） + 时间律（怎么走） = 可供控制器消费的轨迹</span></section>
 
-<h2>1. 三类时间律，各自解决什么问题</h2><table class="table"><thead><tr><th>时间律</th><th>端点条件</th><th>优点</th><th>不能保证什么</th></tr></thead><tbody><tr><td>三次多项式</td><td>通常约束 q、q̇</td><td>表达简单，位置和速度连续</td><td>端点加速度一般不为零，切换段时可能有加速度突变</td></tr><tr><td>五次多项式</td><td>可同时约束 q、q̇、q̈</td><td>端点速度/加速度都平滑归零，适合段间衔接</td><td>仍需检查峰值速度、加速度、jerk 是否超限</td></tr><tr><td>LSPB 梯形速度</td><td>加速—匀速—减速</td><td>直觉强，易按峰值速度组织工艺节拍</td><td>加速度在分段点跳变，jerk 理想化为尖峰</td></tr></tbody></table>
+<h2 id="craig-7-2-7-3">1. 三类时间律，各自解决什么问题</h2><table class="table"><thead><tr><th>时间律</th><th>端点条件</th><th>优点</th><th>不能保证什么</th></tr></thead><tbody><tr><td>三次多项式</td><td>通常约束 q、q̇</td><td>表达简单，位置和速度连续</td><td>端点加速度一般不为零，切换段时可能有加速度突变</td></tr><tr><td>五次多项式</td><td>可同时约束 q、q̇、q̈</td><td>端点速度/加速度都平滑归零，适合段间衔接</td><td>仍需检查峰值速度、加速度、jerk 是否超限</td></tr><tr><td>LSPB 梯形速度</td><td>加速—匀速—减速</td><td>直觉强，易按峰值速度组织工艺节拍</td><td>加速度在分段点跳变，jerk 理想化为尖峰</td></tr></tbody></table>
 
 <h2>2. 先用归一化时间，把“形状”与“距离/时长”拆开</h2><p>令 <code>u=t/T∈[0,1]</code>，令 <code>Δq=qf-q₀</code>。只要先构造一个从 0 走到 1 的 <code>s(u)</code>，便可得到：</p><span class="formula">q(t)=q₀+Δq·s(t/T),   q̇(t)=Δq/T·s′(u),   q̈(t)=Δq/T²·s″(u)</span>
 <div class="grid"><section class="card"><h3>三次（端点速度为零）</h3><span class="formula">s₃(u)=3u²-2u³</span><p>它满足 <code>s(0)=0,s(1)=1,s′(0)=s′(1)=0</code>，但 <code>s″(0)=6,s″(1)=-6</code>，端点加速度不连续地切换到下一段时会有冲击风险。</p></section><section class="card"><h3>五次（端点速度、加速度为零）</h3><span class="formula">s₅(u)=10u³-15u⁴+6u⁵</span><p>它同时满足端点位置、速度、加速度条件。注意“端点平滑”不等于“全程永远安全”；T 太小仍会让峰值速度、加速度、jerk 过大。</p></section></div>

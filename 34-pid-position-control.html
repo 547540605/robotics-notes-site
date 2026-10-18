@@ -14,7 +14,7 @@
       <b>§9.2–§9.5 (P193–203)</b> 二阶线性系统、单关节 PD 控制阻尼比与自然频率、稳态误差与 PID 控制（积分抗饱和）。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
+      <b id="craig-ch9-capsules" style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
       <b>§9.6 有效惯量随构型变化 (P204)</b>：手臂姿态改变会改变关节所见的有效惯量 <code>M_eff(q)</code>，同一组固定增益在不同姿态下可能呈现不同响应。<br><strong>带走：</strong>整定不能只看一个姿态；应在任务范围内验证最不利构型的响应与稳定裕度。<br>
       <b>§9.7 结构谐振决定增益上限 (P205–207)</b>：减速器柔性与连杆弯曲等模态限制可用带宽；刚体模型不能证明增益可以无限提高。<br><strong>带走：</strong>增益和带宽必须给实际结构谐振留裕度；“带宽不超过某一固定谐振比例”不是对所有机构通用的判据，要以模型、频响和实测验证。
     </div>
@@ -38,7 +38,7 @@
 <tr><td><code>τ_cmd</code></td><td>控制器</td><td>为缩小误差而输出的努力量；受电流、力矩、速度与安全边界约束。</td></tr>
 </tbody></table>
 
-<h2>2. PD：P 像虚拟弹簧，D 像虚拟阻尼器</h2>
+<h2 id="craig-9-3-9-4">2. PD：P 像虚拟弹簧，D 像虚拟阻尼器</h2>
 <span class="formula">τ_PD = K_p (q_d-q) + K_d (q̇_d-q̇)</span>
 <div class="grid"><section class="card"><h3>P：看“离目标还有多远”</h3><p><code>Kp</code> 增大，偏差会产生更大的纠正努力，通常响应更快；但仅靠 P，负载重力或恒定摩擦会留下稳态误差，Kp 过大还会推高振荡和执行器负担。</p></section><section class="card"><h3>D：看“正在以多快偏离”</h3><p><code>Kd</code> 对相对速度施加阻尼，能压制过冲和来回摆动。D 对噪声敏感，真实系统通常基于速度测量/滤波实现，不能无上限增大。</p></section></div>
 <div class="term" style="--color:#38bdf8"><b>一个关键连接：</b>若参考不是静止点，而是 33 的运动轨迹，D 项应比较 <code>q̇_d-q̇</code>，不能只拿 <code>-q̇</code> 当“阻尼”。后者只适合目标速度为零的简化情形。</div>

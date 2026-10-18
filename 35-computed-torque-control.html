@@ -14,7 +14,7 @@
       <b>§10.2–§10.5 (P213–223)</b> 非线性模型前馈 + PD 反馈解耦（计算力矩法 CTC：<code>τ = M̂(q̈_d + K_v ė + K_p e) + V̂ + Ĝ</code>，把非线性强耦合系统化为单位质量二阶线性系统 <code>ë + K_v ė + K_p e = 0</code>）。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
+      <b id="craig-ch10-capsules" style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
       <b>§10.6 笛卡尔空间解耦 (P224–226)</b>：先由末端位置误差得到期望任务加速度，再借助 <code>ẍ = J q̈ + J̇ q̇</code> 求关节加速度，最后代入关节动力学求力矩；直接写 <code>J⁻¹</code> 只适用于方阵且当前位形非奇异的情形。<br><strong>带走：</strong>任务加速度 → 关节加速度 → 动力学力矩是两段不同映射；<code>Jᵀ</code> 对应末端力/力矩到关节力矩，不是把加速度直接变成力矩。<br>
       <b>§10.7 模型失配鲁棒性 (P227)</b>：模型参数与真机有偏差（如负载未知）时，前馈抵消不再精确，反馈需处理剩余误差。<br><strong>带走：</strong>算出逆动力学力矩不等于真实运动必定准确；要用实际反馈验证跟踪误差和稳定性，再选择合适的补偿方法。
     </div>
@@ -39,7 +39,7 @@
 <tr><td><code>q_d,q̇_d,q̈_d</code></td><td>33 的连续参考轨迹</td><td>定义要实现的运动，而不只是终点位置。</td></tr>
 </tbody></table>
 
-<h2>2. CTC 控制律：模型前馈 + 误差反馈</h2>
+<h2 id="craig-10-4">2. CTC 控制律：模型前馈 + 误差反馈</h2>
 <p>取 <code>e=q_d-q</code> 与 <code>ė=q̇_d-q̇</code>，先构造一个虚拟加速度：</p>
 <span class="formula">v = q̈_d + K_d ė + K_p e</span>
 <p>再通过模型把它转换成关节力矩：</p>

@@ -203,7 +203,7 @@
         </ul>
       </div>
       <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
-        <strong style="color:#f59e0b;">💊 免翻书·干货提炼（原书不用翻）</strong>
+        <strong id="craig-ch6-capsules" style="color:#f59e0b;">💊 免翻书·干货提炼（原书不用翻）</strong>
         <ul style="margin:5px 0 0; padding-left:16px;">
           <li><strong>§6.5 牛顿-欧拉递推 RNEA (P122–125)</strong>：核心是两趟循环——<strong>1) 从基座向末端外推</strong>算各连杆角加速度与质心线加速度；<strong>2) 从末端向基座内推</strong>计算力和力矩并投影到关节轴，得到驱动力矩 \(\tau_i\)（复杂度 \(O(n)\)）。<br><strong>带走：</strong>给定模型及 \(q,\dot q,\ddot q\)，RNEA 回答“要实现这段运动，每轴需要多少力矩”；质心力只是内推的一部分，还要计入转动惯性、重力等项。</li>
           <li><strong>§6.9 拉格朗日法 (P129–131)</strong>：由动能减势能 \(L=K-P\) 建立动力学；在相同模型与约定下，应与牛顿—欧拉法描述同一系统。惯量矩阵可由各连杆的平动和转动动能构造，通常对称；若独立自由度的质量/惯量参数有效，则正定。<br><strong>带走：</strong>用能量法理解惯量与重力项的来历，工程上不必死背满页展开式。</li>

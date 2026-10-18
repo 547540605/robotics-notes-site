@@ -199,6 +199,11 @@
       color: #cbd5e1;
     }
     .dg-col li { margin-bottom: 3px; }
+    .section-route { margin: 12px 0; padding: 12px 14px; background: var(--card-sub); border: 1px solid var(--line); border-radius: 8px; }
+    .section-route > strong { color: var(--primary); }
+    .section-route ul { margin: 7px 0 0; padding-left: 20px; }
+    .section-route li { margin: 5px 0; }
+    .section-route .gap { color: var(--muted); }
   </style>
 </head>
 <body>
@@ -316,7 +321,7 @@
   </h2>
 
   <!-- Ch 01 -->
-  <div class="chapter-card">
+  <div class="chapter-card" id="craig-ch1">
     <div class="chapter-head">
       <div>
         <span class="badge badge-amber">现有导览；教材导入待补</span>
@@ -325,7 +330,7 @@
       <div style="display:flex; gap:6px;"><a href="quiz-center.html#practice" class="badge badge-purple" style="font-size:0.8rem;">📖 自由刷题</a><a href="quiz-center.html#exams" class="badge badge-blue" style="font-size:0.8rem;">🏆 模块考核</a></div>
     </div>
     <p style="color:var(--muted); font-size:0.88rem; margin:0 0 8px 0;">当前只有全书导览；教材 §1.1–1.3 的任务、力学与控制全景、符号约定尚需独立核对。</p>
-    <details class="dehydrate-guide">
+    <details class="dehydrate-guide" open>
       <summary>⚡ 本章看书脱水指南（🟢原书必读 / 💊免翻书提炼 / 🔴直接跳过）&amp; 🤖 ROS 2 落点</summary>
       <div class="dehydrate-grid">
         <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 唯一需翻原书细看</strong><ul><li><strong>§1.3 符号约定 (P10)</strong>：左上标参考系、左下标目标系的四角记号法（如 \({}^A P\)、\({}^A_B R\)）。</li></ul></div>
@@ -334,6 +339,14 @@
         <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li>全书符号直接对应 ROS 2 标准消息：位姿 <code>TransformStamped</code>、关节状态 <code>JointState</code>、末端六维力 <code>WrenchStamped</code>。</li></ul></div>
       </div>
     </details>
+    <div class="section-route">
+      <strong>按原书小节走</strong>
+      <ul>
+        <li>🟢 §1.3 记号约定：先读原书，再直达<a href="01-coordinate-frames.html#craig-1-3">笔记 01 的四角记号</a>对照；这里只覆盖用法，教材导入课仍待补。</li>
+        <li>💊 §1.2 全书主线：本卡上方已有结论，不另造一篇课程。</li>
+        <li class="gap">🔴 §1.1 旧统计背景按本路线跳过；第 1 章目前没有独立完整课程。</li>
+      </ul>
+    </div>
     <div class="note-list">
       <a href="00-progress.html" class="note-item">
         <span><strong>00</strong> 学习进度与全景地图</span>
@@ -343,7 +356,7 @@
   </div>
 
   <!-- Ch 02 -->
-  <div class="chapter-card">
+  <div class="chapter-card" id="craig-ch2">
     <div class="chapter-head">
       <div>
         <span class="badge badge-amber">已有课程；整章待核对</span>
@@ -361,6 +374,15 @@
         <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong><code>tf2</code> 坐标树</strong>：齐次矩阵 \({}^A_B T\) 就是 <code>TransformStamped</code>（<code>frame_id: A, child_frame_id: B</code>）。</li><li><strong>URDF <code>&lt;origin&gt;</code></strong>：直接采用 §2.8.1 的定轴 <code>rpy="r p y" xyz="x y z"</code>。</li><li><strong>四元数</strong>：ROS 2 话题统一用四元数 <code>(x,y,z,w)</code> 传姿态以规避万向节死锁。</li></ul></div>
       </div>
     </details>
+    <div class="section-route">
+      <strong>按原书小节走</strong>
+      <ul>
+        <li>🟢 §2.2–2.3 位置、旋转矩阵：先读原书，再对照<a href="01-coordinate-frames.html">01 点与坐标轴</a>、<a href="05-3d-single-axis-rotations.html">05 单轴旋转</a>。</li>
+        <li>🟢 §2.4–2.6 齐次变换、求逆与连乘：读书后分别看<a href="02-homogeneous-transform.html">02 变换及逆变换</a>、<a href="03-transform-chains.html">03 变换链</a>。</li>
+        <li>💊 §2.7–2.9 变换方程、姿态表示、自由矢量：直达<a href="01-coordinate-frames.html#craig-ch2-capsules">01 开篇提炼</a>；需要完整推导再按问题回到 02–03。</li>
+        <li class="gap">🔴 §2.10 的早期计算量讨论按本路线跳过；这些链接是对应讲解，不是整章验收。</li>
+      </ul>
+    </div>
     <div class="note-list">
       <a href="01-coordinate-frames.html" class="note-item">
         <span><strong>01</strong> 坐标系中的点</span>
@@ -407,7 +429,7 @@
   </div>
 
   <!-- Ch 03 -->
-  <div class="chapter-card">
+  <div class="chapter-card" id="craig-ch3">
     <div class="chapter-head">
       <div>
         <span class="badge badge-amber">已有课程；整章待核对</span>
@@ -425,6 +447,15 @@
         <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong>URDF 替代 DH 表</strong>：厂家直接提供 <code>.urdf</code>，每个 <code>&lt;joint&gt;</code> 用 6 参数 <code>&lt;origin&gt;</code> 乘 <code>Rz(q)</code>，与式 (3.6) 完全同构。</li><li><strong>§3.8 五个标准系即 <code>tf2</code></strong>：一行 <code>lookup_transform('world','tcp')</code> 自动算完式 (3.18)。</li></ul></div>
       </div>
     </details>
+    <div class="section-route">
+      <strong>按原书小节走</strong>
+      <ul>
+        <li>🟢 §3.2–3.4 连杆参数与建系：读书后先看<a href="08a-craig-link-connection.html">08a 连杆连接补图</a>，再看<a href="08b-craig-frame-assignment.html">08b 逐步建系</a>、<a href="08-dh-coordinate-assignment.html">08 DH 法则</a>。</li>
+        <li>🟢 §3.5 单节变换与全臂连乘：对照<a href="09-dh-single-link-transform.html">09 单节四步推导</a>、<a href="10-dh-table-to-forward-kinematics.html">10 DH 表到正解</a>。</li>
+        <li>💊 §3.6 三空间映射：直达<a href="08-dh-coordinate-assignment.html#craig-ch3-capsules">08 开篇提炼</a>；§3.8–3.9 标准系再直达<a href="10-dh-table-to-forward-kinematics.html#craig-3-8-3-9">10 文末坐标链</a>。</li>
+        <li class="gap">§3.7 PUMA/Motoman 的完整教材实例尚未系统复刻；10 是方法演示，不是原实例全覆盖。§3.10 旧算力讨论跳过。</li>
+      </ul>
+    </div>
     <div class="note-list">
       <a href="04-planar-two-link-forward-kinematics.html" class="note-item">
         <span><strong>04</strong> 二维两连杆正运动学</span>
@@ -512,7 +543,7 @@
   </div>
 
   <!-- Ch 05 -->
-  <div class="chapter-card">
+  <div class="chapter-card" id="craig-ch5">
     <div class="chapter-head">
       <div>
         <span class="badge badge-amber">速度已有课程；静力待补</span>
@@ -530,6 +561,16 @@
         <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong><code>MoveIt Servo</code> 实时控制</strong>：手柄遥操作或视觉伺服发末端速度指令 \(v\)，底层正是靠 \(\dot{q} = J^\dagger v\) 实时算关节速度并做奇异点降速保护。</li><li><strong>力控与碰撞检测</strong>：利用 \(\tau = J^T F\) 把期望末端接触力直接转成电机电流/力矩指令。</li></ul></div>
       </div>
     </details>
+    <div class="section-route">
+      <strong>按原书小节走</strong>
+      <ul>
+        <li>🟢 §5.3 同一刚体两点速度：读书后看<a href="21-spatial-rigid-body-velocity.html">21 刚体上两点</a>。</li>
+        <li>💊 §5.5–5.6 速度递推与雅可比列：先看<a href="14-planar-two-link-jacobian.html#craig-ch5-capsules">14 提炼</a>；想逐步实算，再走<a href="23-angular-velocity-propagation.html">23 角速度</a> → <a href="24-linear-velocity-propagation.html">24 线速度</a> → <a href="25-two-link-velocity-recursion.html">25 两杆递推</a>。</li>
+        <li>🟢 §5.7–5.8 雅可比与奇异：读书后对照<a href="14-planar-two-link-jacobian.html">14 雅可比</a>、<a href="15-planar-two-link-singularity.html">15 奇异位形</a>。</li>
+        <li>💊 §5.11 同点换系：直达<a href="14-planar-two-link-jacobian.html#craig-ch5-capsules">14 开篇提炼</a>。</li>
+        <li class="gap">§5.9–5.10 静力与力域没有独立主线；现有零散公式不算完整讲解，仍须读原书并等待补课。</li>
+      </ul>
+    </div>
     <div class="note-list">
       <a href="14-planar-two-link-jacobian.html" class="note-item">
         <span><strong>14</strong> 两连杆雅可比矩阵推导</span>
@@ -579,7 +620,7 @@
   </div>
 
   <!-- Ch 06 -->
-  <div class="chapter-card" style="border-left:4px solid var(--warn);">
+  <div class="chapter-card" id="craig-ch6" style="border-left:4px solid var(--warn);">
     <div class="chapter-head">
       <div>
         <span class="badge badge-amber">已有课程；阅读阶梯待复核</span>
@@ -597,6 +638,16 @@
         <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong>URDF <code>&lt;inertial&gt;</code> 标签</strong>：对应 <code>&lt;mass&gt;</code> 和 <code>&lt;inertia ixx ixy ixz iyy iyz izz/&gt;</code>（由 SolidWorks 自动导出）。</li><li><strong><code>Pinocchio</code> / <code>KDL</code> 动力学库</strong>：一行 <code>pinocchio::rnea(model, data, q, v, a)</code> 微秒级算出重力补偿与前馈力矩！</li></ul></div>
       </div>
     </details>
+    <div class="section-route">
+      <strong>按原书小节走</strong>
+      <ul>
+        <li>§6.2 加速度外推：<a href="27-recursive-newton-euler-dynamics.html">27 角速度/角加速度</a> → <a href="28-recursive-newton-euler-dynamics.html">28 单杆线加速度</a> → <a href="29-recursive-newton-euler-dynamics.html">29 两杆</a> → <a href="30-recursive-newton-euler-dynamics.html">30 质心</a>；这一组是学习阶梯，不等于教材逐页复刻。</li>
+        <li>🟢 §6.4 单杆牛顿/欧拉方程：读书后看<a href="31a-newton-euler-force-balance.html">31a 受力与受矩</a>；💊 §6.5 RNEA 双遍：接着看<a href="31b-rnea-forward-backward-pass.html">31b 外推/内推</a>及<a href="31c-rnea-two-link-simulation-lab.html">31c 仿真</a>。</li>
+        <li>🟢 §6.8 动力学结构式：对照<a href="32-two-link-dynamics-structure.html">32 的 M、h、g 账本</a>；它是两杆模型，不代替任意机构的完整动力学推导。</li>
+        <li>💊 §6.3 惯量、§6.9 能量法、§6.10–6.12 折算与摩擦：直达<a href="26-single-joint-dynamics.html#craig-ch6-capsules">26 开篇提炼</a>；空间张量再按需看<a href="ref-spatial-inertia-tensor-euler-equations.html">附录 4</a>。</li>
+        <li class="gap">§6.6–6.7 不必硬算满页三角式；§6.13 旧算力讨论跳过。第 6 章仍有覆盖待核对。</li>
+      </ul>
+    </div>
     <div class="note-list">
       <a href="ref-dynamics-foundations-force-torque-inertia.html" class="note-item" style="border-color:var(--warn);">
         <span><strong>附录 3</strong> 动力学前置补课：力矩与转动惯量</span>
@@ -664,7 +715,7 @@
   </div>
 
   <!-- Craig Ch 07–11: existing lessons are entry points, not complete chapters. -->
-  <div class="chapter-card">
+  <div class="chapter-card" id="craig-ch7">
     <div class="chapter-head"><strong>Ch 07 轨迹生成 (原书 P144–P164 / PDF P155–P175)</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
     <details class="dehydrate-guide">
       <summary>⚡ 本章看书脱水指南（🟢原书必读 / 💊免翻书提炼 / 🔴直接跳过）&amp; 🤖 ROS 2 落点</summary>
@@ -675,12 +726,20 @@
         <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong>MoveIt 2 规划管道</strong>：OMPL 搜路径点 \(\to\) <strong>TOTG / Ruckig</strong> 打时间戳生成 <code>JointTrajectory</code> \(\to\) <code>joint_trajectory_controller</code> 执行。</li><li><strong>Pilz 工业规划器</strong>：提供标准 <code>PTP</code>（关节）、<code>LIN</code>（直线）、<code>CIRC</code>（圆弧）。</li></ul></div>
       </div>
     </details>
+    <div class="section-route">
+      <strong>按原书小节走</strong>
+      <ul>
+        <li>🟢 §7.2–7.3 关节空间时间律：先读原书，再直达<a href="33-trajectory-time-laws.html#craig-7-2-7-3">33 的三次、五次与 LSPB</a>；这篇覆盖的是关节时间律入门。</li>
+        <li>💊 §7.4–7.5 笛卡尔路径的可达、奇异和分支风险：直达<a href="33-trajectory-time-laws.html#craig-ch7-capsules">33 开篇提炼</a>。<a href="ros2/06-cartesian-line-and-time-law.html">ROS2-06</a>是工程延伸，不等于教材本节已系统讲完。</li>
+        <li class="gap">§7.6–7.9 的其余规划内容尚无教材主线；本路线跳过旧式手算与硬件细节，不把整段一概标为已覆盖。</li>
+      </ul>
+    </div>
     <div class="note-list"><a href="33-trajectory-time-laws.html" class="note-item"><span class="note-id">33</span><span class="note-title">关节轨迹时间律：三次、五次与 LSPB</span></a></div>
   </div>
-  <div class="chapter-card">
+  <div class="chapter-card" id="craig-ch8">
     <div class="chapter-head"><strong>Ch 08 操作臂的机构设计 (原书 P165–P191 / PDF P176–P202)</strong><span class="badge badge-amber">尚无独立主线课程</span></div>
     <p style="color:var(--muted);font-size:0.88rem;margin:0 0 8px 0;">任务需求、构型、工作空间、驱动、刚度与传感器将按教材展开；现有伺服接口笔记不能代替本章。</p>
-    <details class="dehydrate-guide">
+    <details class="dehydrate-guide" open>
       <summary>⚡ 本章看书脱水指南（🟢原书必读 / 💊免翻书提炼 / 🔴直接跳过）&amp; 🤖 ROS 2 落点</summary>
       <div class="dehydrate-grid">
         <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 唯一需翻原书细看</strong><ul><li><strong>§8.3 运动学构型 (P167–172)</strong>：笛卡尔型、SCARA 型、关节型（6R）与球腕结构特点。</li><li><strong>§8.6–8.7 驱动与刚度 (P175–180)</strong>：谐波/齿轮减速器、皮带/连杆传动与串联刚度计算。</li></ul></div>
@@ -689,44 +748,76 @@
         <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong><code>ros2_control</code> 硬件接口 (<code>hardware_interface</code>)</strong>：编码器对应 <code>state_interface (position/velocity)</code>，电机驱动器对应 <code>command_interface (effort/velocity/position)</code>，六维力传感器对应 <code>force_torque_sensor_broadcaster</code>。</li></ul></div>
       </div>
     </details>
+    <div class="section-route">
+      <strong>按原书小节走：本章尚无独立课程</strong>
+      <ul>
+        <li>🟢 §8.3 机构构型、§8.6–8.7 驱动和刚度：当前<strong>没有对应的系统笔记</strong>，先读原书；<a href="39-servo-cascade-and-limits.html">39 伺服接口</a>只是工程扩展，不能代替机构设计。</li>
+        <li>💊 §8.5 冗余/闭链、§8.8–8.10 传感器：先看本卡上方的简要结论；若需要选型和计算细节，现阶段仍以原书与具体设备资料为准。</li>
+        <li class="gap">老式传感电路和液压定量细节按本路线跳过；这里没有“点进一篇就学完第 8 章”的入口。</li>
+      </ul>
+    </div>
   </div>
-  <div class="chapter-card">
+  <div class="chapter-card" id="craig-ch9">
     <div class="chapter-head"><strong>Ch 09 操作臂的线性控制 (原书 P192–P211 / PDF P203–P222)</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
     <details class="dehydrate-guide">
       <summary>⚡ 本章看书脱水指南（🟢原书必读 / 💊免翻书提炼 / 🔴直接跳过）&amp; 🤖 ROS 2 落点</summary>
       <div class="dehydrate-grid">
-        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 唯一需翻原书细看</strong><ul><li><strong>§9.3–9.4 二阶系统与 PD 控制 (P193–199)</strong>：自然频率 \(\omega_n\)、阻尼比 \(\zeta\)、为什么机械臂位置控制必须追求<strong>临界阻尼（\(\zeta=1\)，绝不超调撞击）</strong>。</li></ul></div>
-        <div class="dg-col"><strong class="dg-title" style="color:#c084fc;">💊 免翻书·直接看提炼（原书不用翻，详见笔记 34）</strong><ul><li><strong>§9.6–9.10 构型惯量变化 &amp; 谐振限制 \(K_p\) 上限</strong>：① 手臂伸直时有效惯量 \(M\) 剧增，固定 PID 增益会导致伸直时欠阻尼震荡；② 连杆与减速器有结构谐振频率 \(\omega_{\text{res}}\)，闭环带宽必须结合具体结构模态留出经验证的裕度。<br><strong>带走：</strong>同一套增益要跨构型检查惯量与柔性模态；不要把某个固定频率比例当作普适稳定边界。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 唯一需翻原书细看</strong><ul><li><strong>§9.3–9.4 二阶系统与 PD 控制 (P193–199)</strong>：自然频率 \(\omega_n\)、阻尼比 \(\zeta\)、阻尼比对响应速度、超调和振荡的影响。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#c084fc;">💊 免翻书·直接看提炼（原书不用翻，详见笔记 34）</strong><ul><li><strong>§9.6–9.10 构型惯量变化 &amp; 谐振限制 \(K_p\) 上限</strong>：① 有效惯量随构型变化，同一组固定增益的响应可能不同；② 连杆与减速器有结构谐振频率 \(\omega_{\text{res}}\)，闭环带宽必须结合具体结构模态留出经验证的裕度。<br><strong>带走：</strong>同一套增益要跨构型检查惯量与柔性模态；不要把某个固定频率比例当作普适稳定边界。</li></ul></div>
         <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§9.8–9.9 老式有刷直流电机电枢电感推导与模拟电路细节</strong>。</li></ul></div>
         <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong><code>joint_trajectory_controller</code> 参数调优</strong>：YAML 配置文件里的 <code>gains: {p, i, d, i_clamp, ff_velocity_scale}</code> 就是本章公式的直接工程实现。</li></ul></div>
       </div>
     </details>
+    <div class="section-route">
+      <strong>按原书小节走</strong>
+      <ul>
+        <li>🟢 §9.3–9.4 二阶系统与 PD：先读原书，再直达<a href="34-pid-position-control.html#craig-9-3-9-4">34 的 PD 讲解</a>对照比例、阻尼和反馈响应；不要把某个阻尼比当成所有任务的唯一目标。</li>
+        <li>💊 §9.6–9.7 构型惯量与柔性模态：直达<a href="34-pid-position-control.html#craig-ch9-capsules">34 开篇提炼</a>。</li>
+        <li class="gap">§9.5、§9.8–9.10 的轨迹跟踪、实现结构等未形成完整教材主线；<a href="39-servo-cascade-and-limits.html">39</a>只补驱动接口。老式模拟电路细节按本路线跳过。</li>
+      </ul>
+    </div>
     <div class="note-list"><a href="34-pid-position-control.html" class="note-item"><span class="note-id">34</span><span class="note-title">单关节 PD / PID 位置闭环</span></a></div>
   </div>
-  <div class="chapter-card">
+  <div class="chapter-card" id="craig-ch10">
     <div class="chapter-head"><strong>Ch 10 操作臂的非线性控制 (原书 P212–P236 / PDF P223–P247)</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
     <details class="dehydrate-guide">
       <summary>⚡ 本章看书脱水指南（🟢原书必读 / 💊免翻书提炼 / 🔴直接跳过）&amp; 🤖 ROS 2 落点</summary>
       <div class="dehydrate-grid">
         <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 唯一需翻原书细看</strong><ul><li><strong>§10.4 计算力矩控制 CTC (P215–216)</strong>：用第 6 章动力学模型 \(\tau = \hat{M}(\ddot{\Theta}_d + K_v\dot{E} + K_p E) + \hat{V} + \hat{G}\) 把耦合非线性机械臂解耦成独立二阶线性系统。</li></ul></div>
-        <div class="dg-col"><strong class="dg-title" style="color:#c084fc;">💊 免翻书·直接看提炼（原书不用翻，详见笔记 35）</strong><ul><li><strong>§10.5–10.8 工业实用简化 &amp; 笛卡尔解耦</strong>：① 高减速比工业臂耦合项 \(V\) 占比小，工程上常简化为“单关节 PD + 重力前馈 \(\hat{G}(q)\)”；② 笛卡尔空间同样可先算末端虚拟加速度 \(f^*=\ddot{x}_d+K_v\dot{e}_x+K_p e_x\) 再经雅可比运动学关系求关节加速度，代入动力学求力矩。<br><strong>带走：</strong>动力学简化要用实际误差验证；笛卡尔虚拟加速度不能直接用 Jᵀ 变成力矩，Jᵀ 映射的是任务空间力。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#c084fc;">💊 免翻书·直接看提炼（原书不用翻，详见笔记 35）</strong><ul><li><strong>§10.5–10.8 工业实用简化 &amp; 笛卡尔解耦</strong>：① 部分高减速比机构可在验证误差后简化为“单关节 PD + 重力前馈 \(\hat{G}(q)\)”；② 笛卡尔空间同样可先算末端虚拟加速度 \(f^*=\ddot{x}_d+K_v\dot{e}_x+K_p e_x\) 再经雅可比运动学关系求关节加速度，代入动力学求力矩。<br><strong>带走：</strong>动力学简化要用实际误差验证；笛卡尔虚拟加速度不能直接用 Jᵀ 变成力矩，Jᵀ 映射的是任务空间力。</li></ul></div>
         <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§10.7 李雅普诺夫稳定性严格数学证明 (P221–223)</strong>。</li><li><strong>§10.9 自适应控制长篇推导 (P227–232)</strong>：初学完全不必看。</li></ul></div>
         <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong>自定义力矩控制器 / 重力补偿模式（零力拖动示教）</strong>：在 <code>ros2_control</code> 的 <code>update()</code> 循环里调 <code>Pinocchio</code> 算出 \(\hat{G}(q)\) 发给电机力矩接口，机械臂就能用手轻松掰动并悬停！</li></ul></div>
       </div>
     </details>
+    <div class="section-route">
+      <strong>按原书小节走</strong>
+      <ul>
+        <li>🟢 §10.4 计算力矩控制：先读原书，再直达<a href="35-computed-torque-control.html#craig-10-4">35 的前馈＋反馈结构</a>；<a href="37-two-link-closed-loop-simulation.html">37</a>可验证两杆教学模型的闭环，不是真机证明。</li>
+        <li>💊 §10.5–10.8 的工程简化、笛卡尔控制与模型失配：直达<a href="35-computed-torque-control.html#craig-ch10-capsules">35 开篇提炼</a>；更深入的稳定性或自适应推导尚无完整课程。</li>
+        <li class="gap">§10.9 长篇自适应推导按本路线跳过；本章仍是 CTC 入门而非全章覆盖。</li>
+      </ul>
+    </div>
     <div class="note-list"><a href="35-computed-torque-control.html" class="note-item"><span class="note-id">35</span><span class="note-title">计算力矩控制：模型前馈与 PD 反馈</span></a></div>
   </div>
-  <div class="chapter-card">
+  <div class="chapter-card" id="craig-ch11">
     <div class="chapter-head"><strong>Ch 11 操作臂的力控制 (原书 P237–P252 / PDF P248–P263)</strong><span class="badge badge-amber">现有入门，整章待展开</span></div>
     <details class="dehydrate-guide">
       <summary>⚡ 本章看书脱水指南（🟢原书必读 / 💊免翻书提炼 / 🔴直接跳过）&amp; 🤖 ROS 2 落点</summary>
       <div class="dehydrate-grid">
-        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 唯一需翻原书细看</strong><ul><li><strong>§11.2–11.3 自然约束与人工约束 (P237–241)</strong>：在任务坐标系 <code>{C}</code> 下，碰到硬表面的方向只能控力（自然位置约束），能自由滑动的方向只能控位置（自然力约束）。</li></ul></div>
+        <div class="dg-col"><strong class="dg-title" style="color:#10b981;">🟢 唯一需翻原书细看</strong><ul><li><strong>§11.2–11.3 自然约束与人工约束 (P237–241)</strong>：在任务坐标系 <code>{C}</code> 下，接触方向与自由方向具有不同的自然约束；控制目标需在任务坐标系中按接触几何分配。</li></ul></div>
         <div class="dg-col"><strong class="dg-title" style="color:#c084fc;">💊 免翻书·直接看提炼（原书不用翻，详见笔记 36）</strong><ul><li><strong>§11.4–11.7 选择矩阵 \(S\) 混合控制 &amp; 刚性接触法则</strong>：① 用对角阵 \(S=\operatorname{diag}(s_1,\dots,s_6)\)（\(1\) 控位、\(0\) 控力）正交分流位置环与力环；② 环境刚度 \(k_e\) 越大（硬碰硬），力控增益和带宽越需谨慎整定并实测稳定性；③ 现代工程主力是阻抗控制（位移差生力）与导纳控制（测力改位置）。<br><strong>带走：</strong>先根据接触方向分配位置环和力环，再验证硬接触下的稳定性、限幅与停止条件；控制律不能代替安全措施。</li></ul></div>
         <div class="dg-col"><strong class="dg-title" style="color:#f43f5e;">🔴 直接跳过不看</strong><ul><li><strong>§11.6 基于完整逆动力学解耦的理想混合力位控制繁琐推导</strong>。</li></ul></div>
         <div class="dg-col"><strong class="dg-title" style="color:#38bdf8;">🤖 ROS 2 真实工程关联</strong><ul><li><strong><code>ros2_control</code> 的 <code>admittance_controller</code>（导纳控制器）</strong>：工业界最主流方案——直接读六维力传感器数据，把接触力折算成末端位置偏移量叠加上去，实现柔顺插拔孔与恒力打磨。</li></ul></div>
       </div>
     </details>
+    <div class="section-route">
+      <strong>按原书小节走</strong>
+      <ul>
+        <li>🟢 §11.2–11.3 自然/人工约束：先读原书，再直达<a href="36-force-impedance-admittance-control.html#craig-11-2-11-3">36 的一维接触直觉</a>对照；它没有完整复刻原书的装配阶段与六维任务坐标系。</li>
+        <li>💊 §11.4–11.5 混合力位控制的方向分工：直达<a href="36-force-impedance-admittance-control.html#craig-ch11-capsules">36 开篇提炼</a>。<a href="force-control-and-compliant-assembly/index.html">柔顺装配专题</a>是独立工程延伸，不算教材整章。</li>
+        <li class="gap">§11.6–11.7 的理想解耦推导与工业实现尚未形成完整主线；初读可跳过繁复推导，但不能把安全和硬件边界一并跳过。</li>
+      </ul>
+    </div>
     <div class="note-list"><a href="36-force-impedance-admittance-control.html" class="note-item"><span class="note-id">36</span><span class="note-title">接触、阻抗与导纳的基本直觉</span></a></div>
   </div>
   <div class="chapter-card">

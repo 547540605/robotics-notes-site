@@ -19,7 +19,7 @@
       <b>§11.1–§11.4 (P237–245)</b> 接触约束坐标系 \(\{C\}\)、自然约束与人工约束正交性、单自由度质点弹簧柔顺/刚度直觉。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
-      <b style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
+      <b id="craig-ch11-capsules" style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
       <b>§11.5 力/位置混合控制 (P246–248)</b>：在选定的任务坐标系中，用选择矩阵 \(S\) 指定哪些方向管位置、哪些方向管力；这个拆分是控制目标的划分，不保证真实系统动态上完全互不耦合。<br><strong>带走：</strong>先按接触几何确定受约束方向及其参考系，再决定各方向控制位置还是接触力；不能在同一方向同时强求精确位置和精确力。<br>
       <b>★ 现代补齐</b>：本课与 <a href="force-control-and-compliant-assembly/index.html">NISTIR 7901 柔顺装配专题</a> 继续讨论阻抗与导纳。<br><strong>带走：</strong>阻抗着重规定运动偏差与交互力的关系；导纳从测得的外力生成运动修正。先看机器人开放什么控制接口和传感量，再选实现方式。
     </div>
@@ -35,7 +35,7 @@
 
 <section class="card guide"><h2 style="margin-top:0;border:0;padding:0">延伸专题：机器人力控制与柔顺装配</h2><p>本课先建立阻抗、导纳和接触的基本直觉。NISTIR 7901 的 A–F 方法、逐段中文译文、原报告链接、两张控制框图及独立 PI 仿真放在<a href="force-control-and-compliant-assembly/index.html">独立专题</a>，不并入本课正文。</p></section>
 
-<section class="card guide"><h2 style="margin-top:0;border:0;padding:0">先用一维推墙，固定三个概念</h2><p>取末端正向为向右。目标点在墙右侧，墙会对末端施加向左的反作用力 \(F_{\mathrm{ext}}<0\)。纯位置控制会继续追逐目标点；柔顺控制则允许末端根据测得的外力后退。</p><span class="formula">自由空间：位置误差主要是几何问题   →   接触空间：位置误差与接触力必须一起被约束</span></section>
+<section class="card guide"><h2 id="craig-11-2-11-3" style="margin-top:0;border:0;padding:0">先用一维推墙，固定三个概念</h2><p>取末端正向为向右。目标点在墙右侧，墙会对末端施加向左的反作用力 \(F_{\mathrm{ext}}<0\)。纯位置控制会继续追逐目标点；柔顺控制则允许末端根据测得的外力后退。</p><span class="formula">自由空间：位置误差主要是几何问题   →   接触空间：位置误差与接触力必须一起被约束</span></section>
 
 <h2>1. 三种控制目标，先不要混为一个词</h2>
 <table class="table"><thead><tr><th>方式</th><th>优先规定什么</th><th>典型问题/适用面</th></tr></thead><tbody>
