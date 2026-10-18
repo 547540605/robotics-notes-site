@@ -15,8 +15,8 @@
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
       <b style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
-      <b>§10.6 笛卡尔空间解耦 (P224–226)</b>：先在末端任务空间算虚拟加速度 <code>ẍ_star = ẍ_d + K_v ė_x + K_p e_x</code>，再经雅可比几何关系 <code>q̈_star = J⁻¹(ẍ_star - J̇ q̇)</code> 映射回关节加速度代入动力学求力矩。<br>
-      <b>§10.7 模型失配鲁棒性 (P227)</b>：当 <code>M̂, V̂, Ĝ</code> 与真机存在偏差（如抓取未知负载）时，闭环方程右侧出现残余扰动项，需靠外环高增益 PD、积分项或鲁棒/自适应控制兜底。
+      <b>§10.6 笛卡尔空间解耦 (P224–226)</b>：先由末端位置误差得到期望任务加速度，再借助 <code>ẍ = J q̈ + J̇ q̇</code> 求关节加速度，最后代入关节动力学求力矩；直接写 <code>J⁻¹</code> 只适用于方阵且当前位形非奇异的情形。<br><strong>带走：</strong>任务加速度 → 关节加速度 → 动力学力矩是两段不同映射；<code>Jᵀ</code> 对应末端力/力矩到关节力矩，不是把加速度直接变成力矩。<br>
+      <b>§10.7 模型失配鲁棒性 (P227)</b>：模型参数与真机有偏差（如负载未知）时，前馈抵消不再精确，反馈需处理剩余误差。<br><strong>带走：</strong>算出逆动力学力矩不等于真实运动必定准确；要用实际反馈验证跟踪误差和稳定性，再选择合适的补偿方法。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,113,133,0.35);border-radius:8px;padding:10px;">
       <b style="color:#fb7185;display:block;margin-bottom:4px;">🔴 直接跳过不看</b>

@@ -20,8 +20,8 @@
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
       <b style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
-      <b>§11.5 力/位置混合控制 (P246–248)</b>：用对角选择矩阵 \(S=\mathrm{diag}(s_1,\dots,s_6)\)（\(s_i\in\{0,1\}\)）将任务空间正交拆分为两个互不干扰的通道——\(S\) 选出的自由方向走位置 PID，\(I-S\) 选出的受约束方向走力 PI，两边输出叠加驱动机械臂。<br>
-      <b>★ 现代补齐</b>：直接阅读本课与 <a href="force-control-and-compliant-assembly/index.html">NISTIR 7901 柔顺装配专题</a> 掌握现代主流的<b>阻抗（位差生力）</b>与<b>导纳（测力改位）</b>。
+      <b>§11.5 力/位置混合控制 (P246–248)</b>：在选定的任务坐标系中，用选择矩阵 \(S\) 指定哪些方向管位置、哪些方向管力；这个拆分是控制目标的划分，不保证真实系统动态上完全互不耦合。<br><strong>带走：</strong>先按接触几何确定受约束方向及其参考系，再决定各方向控制位置还是接触力；不能在同一方向同时强求精确位置和精确力。<br>
+      <b>★ 现代补齐</b>：本课与 <a href="force-control-and-compliant-assembly/index.html">NISTIR 7901 柔顺装配专题</a> 继续讨论阻抗与导纳。<br><strong>带走：</strong>阻抗着重规定运动偏差与交互力的关系；导纳从测得的外力生成运动修正。先看机器人开放什么控制接口和传感量，再选实现方式。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,113,133,0.35);border-radius:8px;padding:10px;">
       <b style="color:#fb7185;display:block;margin-bottom:4px;">🔴 直接跳过不看</b>

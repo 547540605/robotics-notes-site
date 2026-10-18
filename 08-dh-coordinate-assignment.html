@@ -51,8 +51,8 @@
       <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
         <strong style="color:#f59e0b;">💊 免翻书·干货提炼（原书不用翻）</strong>
         <ul style="margin:5px 0 0; padding-left:16px;">
-          <li><strong>§3.6 三空间映射 (P54)</strong>：驱动器空间（电机脉冲/丝杠行程）<span data-tex="\leftrightarrow"></span> 关节空间 <span data-tex="\Theta"></span> <span data-tex="\leftrightarrow"></span> 笛卡尔空间 <span data-tex="X"></span>（详见 <a href="09-joint-space-and-actuator-space.html">笔记 09</a>）。</li>
-          <li><strong>§3.7 PUMA 560 算例 (P55–56)</strong>：原书 6 页只是演示“把 6 行 DH 表逐行代入通用公式 (3.6) 先用 <span data-tex="\alpha_{i-1}\in\{0,\pm 90^\circ\}"></span> 化简出 6 个单节矩阵 <span data-tex="{}^{i-1}_{i}T"></span> 再连乘”，看懂 <a href="10-dh-table-to-forward-kinematics.html">笔记 10</a> 即无需翻书。</li>
+          <li><strong>§3.6 三空间映射 (P54)</strong>：驱动器空间（电机脉冲/丝杠行程）<span data-tex="\leftrightarrow"></span> 关节空间 <span data-tex="\Theta"></span> <span data-tex="\leftrightarrow"></span> 笛卡尔空间 <span data-tex="X"></span>（详见 <a href="09-joint-space-and-actuator-space.html">笔记 09</a>）。<br><strong>带走：</strong>先认清电机、关节、末端这三层变量及其映射，不能把电机脉冲直接当作关节角或 TCP 坐标。</li>
+          <li><strong>§3.7 PUMA 560 算例 (P55–56)</strong>：原书算例演示把 DH 表逐行代入单节变换，再按顺序连乘；详见 <a href="10-dh-table-to-forward-kinematics.html">笔记 10</a>。<br><strong>带走：</strong>能用<strong>自己机构</strong>的参数表生成各节变换并连乘即可；PUMA 的数值不能照搬到其他机械臂。</li>
         </ul>
       </div>
       <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">

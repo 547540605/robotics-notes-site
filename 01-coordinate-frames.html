@@ -269,9 +269,9 @@
         <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">
           <strong style="color:#f59e0b;">💊 免翻书·干货提炼（原书不用翻）</strong>
           <ul style="margin:5px 0 0; padding-left:16px;">
-            <li><strong>§2.7 变换方程 (P25–27)</strong>：两条路径到同一系结果相等（\({}^U_A T \, {}^A_B T = {}^U_C T \, {}^C_B T\)），左乘逆矩阵即解未知变换：\({}^A_B T = ({}^U_A T)^{-1} \, {}^U_C T \, {}^C_B T\)。</li>
-            <li><strong>§2.8 姿态三表示 (P27–35)</strong>：<strong>定轴 RPY</strong> 绕固定轴左乘 \(R_z(\alpha)R_y(\beta)R_x(\gamma)\)；<strong>动轴欧拉角</strong>绕自身新轴右乘；<strong>四元数</strong> \((x,y,z,w)\) 彻底规避 \(\beta=\pm 90^\circ\) 万向节死锁。</li>
-            <li><strong>§2.9 自由矢量 (P35)</strong>：速度、力等自由矢量无位置原点，跨系变换<strong>只乘旋转矩阵</strong> \({}^A V = {}^A_B R \, {}^B V\)，绝不加平移项。</li>
+            <li><strong>§2.7 变换方程 (P25–27)</strong>：两条路径到同一系结果相等（\({}^U_A T \, {}^A_B T = {}^U_C T \, {}^C_B T\)），左乘逆矩阵即解未知变换：\({}^A_B T = ({}^U_A T)^{-1} \, {}^U_C T \, {}^C_B T\)。<br><strong>带走：</strong>先画清起终坐标系及两条路径，再按链条顺序连乘、求逆；矩阵乘法不可随意换序。</li>
+            <li><strong>§2.8 姿态三表示 (P27–35)</strong>：姿态角公式必须指定旋转次序和固定轴/动轴约定；四元数 \((x,y,z,w)\) 不具有欧拉角在 \(\beta=\pm 90^\circ\) 处的表示奇异，但不能消除机械臂本身的运动学奇异。<br><strong>带走：</strong>遇到姿态输入先核对约定，再做转换；不要把“换了姿态表示”误当成“机械臂不再奇异”。</li>
+            <li><strong>§2.9 自由矢量 (P35)</strong>：同一几何矢量只换表达坐标系时，其分量只乘旋转矩阵，不像点坐标那样加原点平移。<br><strong>带走：</strong>先确认是在换表达系，还是在换速度/力矩参考点；后者还需额外的位移相关项。</li>
           </ul>
         </div>
         <div style="background:var(--card-sub); padding:9px 12px; border-radius:6px; border:1px solid var(--line);">

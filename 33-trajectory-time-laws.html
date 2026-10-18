@@ -14,8 +14,8 @@
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:10px;">
       <b style="color:#fbbf24;display:block;margin-bottom:4px;">💊 免翻书·干货提炼（原书不用翻）</b>
-      <b>§7.4 笛卡尔规划 (P154)</b>：要求末端走空间直线时，位置做线性插值、姿态做球面插值（Slerp），每周期实时调逆运动学映射回关节角。<br>
-      <b>§7.5 三大几何陷阱 (P155–157)</b>：① <b>中间点不可达</b>（直线穿过工作空间空洞）；② <b>近奇异点关节速度暴增</b>（<code>q̇ = J⁻¹ v</code> 失控）；③ <b>起终点落入不同逆解分支</b>（中途被迫翻肘突跳）。
+      <b>§7.4 笛卡尔规划 (P154)</b>：要求末端走空间直线时，先给位置线段加时间律；若姿态也要变化，可按约定对姿态插值（如 Slerp），再逐点求合法且连续的关节解。<br><strong>带走：</strong>末端直线不是“关节角线性变化”；每个中间位姿都须可达，并满足关节运动约束。<br>
+      <b>§7.5 三大几何陷阱 (P155–157)</b>：① 中间点不可达；② 近奇异位形需很高关节速度；③ 逆解分支切换造成关节突跳。<br><strong>带走：</strong>起终点都可达不等于整条路可执行；检查全路径的可达性、奇异性与分支连续性。
     </div>
     <div style="background:rgba(15,23,42,0.7);border:1px solid rgba(251,113,133,0.35);border-radius:8px;padding:10px;">
       <b style="color:#fb7185;display:block;margin-bottom:4px;">🔴 直接跳过不看</b>
