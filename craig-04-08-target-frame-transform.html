@@ -437,11 +437,11 @@
 
           <!-- Upper Path Banner -->
           <rect x="34" y="28" width="812" height="34" rx="8" fill="#eef4fb"/>
-          <text x="50" y="50" font-size="13" font-weight="700" fill="#225588">上链（机械臂本体 + 工具链）：{B} 基座 ── ᴮ_W T(θ)（待喂给逆解器） ──▶ {W} 腕部法兰 ── ᵂ_T T（工具 TCP 常量） ──▶ {T} 工具尖端</text>
+          <text x="50" y="50" font-size="12.5" font-weight="700" fill="#225588">上链（机械臂本体 + 工具链）：{B} 基座 ── <tspan dy="-4" font-size="9.5">B</tspan><tspan dy="7" font-size="9.5">W</tspan><tspan dy="-3">T(θ)（待喂给逆解器） ──▶ {W} 腕部法兰 ── </tspan><tspan dy="-4" font-size="9.5">W</tspan><tspan dy="7" font-size="9.5">T</tspan><tspan dy="-3">T（工具 TCP 常量） ──▶ {T} 工具尖端</tspan></text>
 
           <!-- Lower Path Banner -->
           <rect x="34" y="324" width="812" height="34" rx="8" fill="#eaf5f3"/>
-          <text x="50" y="346" font-size="13" font-weight="700" fill="#1d6b63">下链（工作台标定 + 任务链）：{B} 基座 ── ᴮ_S T（工作台标定常量） ──▶ {S} 工作台系 ── ˢ_G T（任务/视觉输入） ──▶ {G} 目标位姿</text>
+          <text x="50" y="346" font-size="12.5" font-weight="700" fill="#1d6b63">下链（工作台标定 + 任务链）：{B} 基座 ── <tspan dy="-4" font-size="9.5">B</tspan><tspan dy="7" font-size="9.5">S</tspan><tspan dy="-3">T（工作台标定常量） ──▶ {S} 工作台系 ── </tspan><tspan dy="-4" font-size="9.5">S</tspan><tspan dy="7" font-size="9.5">G</tspan><tspan dy="-3">T（任务/视觉输入） ──▶ {G} 目标位姿</tspan></text>
 
           <!-- Node {B} Base -->
           <g transform="translate(105, 192)">
@@ -452,7 +452,7 @@
           </g>
 
           <!-- Node {W} Wrist -->
-          <g transform="translate(430, 112)">
+          <g transform="translate(420, 112)">
             <rect x="-78" y="-42" width="156" height="84" rx="14" fill="#fff4ef" stroke="#b84a27" stroke-width="2.4"/>
             <text x="0" y="-12" text-anchor="middle" font-size="16" font-weight="700" fill="#b84a27">{W} Wrist</text>
             <text x="0" y="8" text-anchor="middle" font-size="12" fill="#5a6570">第 6 轴末端法兰</text>
@@ -460,7 +460,7 @@
           </g>
 
           <!-- Node {S} Station -->
-          <g transform="translate(430, 272)">
+          <g transform="translate(420, 272)">
             <rect x="-78" y="-42" width="156" height="84" rx="14" fill="#f2faf8" stroke="#1d6b63" stroke-width="2.2"/>
             <text x="0" y="-12" text-anchor="middle" font-size="16" font-weight="700" fill="#1d6b63">{S} Station</text>
             <text x="0" y="8" text-anchor="middle" font-size="12" fill="#5a6570">工作台 / 料盘系</text>
@@ -468,37 +468,37 @@
           </g>
 
           <!-- Node {T} === {G} Coincidence -->
-          <g transform="translate(748, 192)">
-            <rect x="-86" y="-54" width="172" height="108" rx="16" fill="#eef4fb" stroke="#225588" stroke-width="2.5"/>
-            <text x="0" y="-22" text-anchor="middle" font-size="16" font-weight="700" fill="#225588">{T} Tool ≡ {G} Goal</text>
-            <text x="0" y="0" text-anchor="middle" font-size="12.5" fill="#1d232a">任务到位条件：工具与目标重合</text>
-            <text x="0" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="#225588">ᴮ_W T · ᵂ_T T = ᴮ_S T · ˢ_G T</text>
-            <text x="0" y="40" text-anchor="middle" font-size="11.5" fill="#b84a27">反向回退求 ᴮ_W T 即可喂给 IK</text>
+          <g transform="translate(742, 192)">
+            <rect x="-102" y="-54" width="204" height="108" rx="16" fill="#eef4fb" stroke="#225588" stroke-width="2.5"/>
+            <text x="0" y="-22" text-anchor="middle" font-size="15.5" font-weight="700" fill="#225588">{T} Tool ≡ {G} Goal</text>
+            <text x="0" y="0" text-anchor="middle" font-size="12" fill="#1d232a">任务到位条件：工具与目标重合</text>
+            <text x="0" y="21" text-anchor="middle" font-size="12" font-weight="700" fill="#225588"><tspan dy="-4" font-size="9">B</tspan><tspan dy="7" font-size="9">W</tspan><tspan dy="-3">T · </tspan><tspan dy="-4" font-size="9">W</tspan><tspan dy="7" font-size="9">T</tspan><tspan dy="-3">T = </tspan><tspan dy="-4" font-size="9">B</tspan><tspan dy="7" font-size="9">S</tspan><tspan dy="-3">T · </tspan><tspan dy="-4" font-size="9">S</tspan><tspan dy="7" font-size="9">G</tspan><tspan dy="-3">T</tspan></text>
+            <text x="0" y="41" text-anchor="middle" font-size="11.5" fill="#b84a27">反向回退求 <tspan dy="-3.5" font-size="8.5">B</tspan><tspan dy="6.5" font-size="8.5">W</tspan><tspan dy="-3">T 即可喂给 IK</tspan></text>
           </g>
 
           <!-- Arrow {B} -> {W} -->
-          <path d="M 167 168 L 346 118" fill="none" stroke="#b84a27" stroke-width="3" marker-end="url(#arrow-red)"/>
-          <rect x="202" y="108" width="118" height="32" rx="6" fill="#fff4ef" stroke="#e4b7a7"/>
-          <text x="261" y="129" text-anchor="middle" font-size="13" font-weight="700" fill="#b84a27">ᴮ_W T (待求输入)</text>
+          <path d="M 167 168 L 336 118" fill="none" stroke="#b84a27" stroke-width="3" marker-end="url(#arrow-red)"/>
+          <rect x="196" y="108" width="122" height="32" rx="6" fill="#fff4ef" stroke="#e4b7a7"/>
+          <text x="257" y="129" text-anchor="middle" font-size="12.5" font-weight="700" fill="#b84a27"><tspan dy="-4" font-size="9">B</tspan><tspan dy="7" font-size="9">W</tspan><tspan dy="-3">T (待求输入)</tspan></text>
 
           <!-- Arrow {W} -> {T} -->
-          <path d="M 508 118 L 656 164" fill="none" stroke="#225588" stroke-width="2.6" marker-end="url(#arrow-blue)"/>
-          <rect x="530" y="106" width="114" height="30" rx="6" fill="#eef4fb" stroke="#bdd2ea"/>
-          <text x="587" y="126" text-anchor="middle" font-size="12.5" font-weight="700" fill="#225588">ᵂ_T T (TCP 标定)</text>
+          <path d="M 498 118 L 636 164" fill="none" stroke="#225588" stroke-width="2.6" marker-end="url(#arrow-blue)"/>
+          <rect x="514" y="106" width="118" height="30" rx="6" fill="#eef4fb" stroke="#bdd2ea"/>
+          <text x="573" y="126" text-anchor="middle" font-size="12" font-weight="700" fill="#225588"><tspan dy="-4" font-size="9">W</tspan><tspan dy="7" font-size="9">T</tspan><tspan dy="-3">T (TCP 标定)</tspan></text>
 
           <!-- Dashed Inverse Arrow {T} -> {W} -->
-          <path d="M 656 178 C 595 176, 548 162, 508 140" fill="none" stroke="#b84a27" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow-red)"/>
-          <text x="586" y="182" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b84a27">右乘 (ᵂ_T T)⁻¹ 回退到腕部</text>
+          <path d="M 636 178 C 580 176, 536 162, 498 140" fill="none" stroke="#b84a27" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow-red)"/>
+          <text x="570" y="182" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b84a27">右乘 (<tspan dy="-3.5" font-size="8.5">W</tspan><tspan dy="6.5" font-size="8.5">T</tspan><tspan dy="-3">T)⁻¹ 回退到腕部</tspan></text>
 
           <!-- Arrow {B} -> {S} -->
-          <path d="M 167 216 L 346 266" fill="none" stroke="#1d6b63" stroke-width="2.6" marker-end="url(#arrow-teal)"/>
-          <rect x="200" y="246" width="122" height="30" rx="6" fill="#f2faf8" stroke="#b7dfd9"/>
-          <text x="261" y="266" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1d6b63">ᴮ_S T (台面标定)</text>
+          <path d="M 167 216 L 336 266" fill="none" stroke="#1d6b63" stroke-width="2.6" marker-end="url(#arrow-teal)"/>
+          <rect x="196" y="246" width="122" height="30" rx="6" fill="#f2faf8" stroke="#b7dfd9"/>
+          <text x="257" y="266" text-anchor="middle" font-size="12" font-weight="700" fill="#1d6b63"><tspan dy="-4" font-size="9">B</tspan><tspan dy="7" font-size="9">S</tspan><tspan dy="-3">T (台面标定)</tspan></text>
 
           <!-- Arrow {S} -> {G} -->
-          <path d="M 508 266 L 656 218" fill="none" stroke="#1d6b63" stroke-width="2.6" marker-end="url(#arrow-teal)"/>
-          <rect x="530" y="246" width="114" height="30" rx="6" fill="#f2faf8" stroke="#b7dfd9"/>
-          <text x="587" y="266" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1d6b63">ˢ_G T (目标位姿)</text>
+          <path d="M 498 266 L 636 218" fill="none" stroke="#1d6b63" stroke-width="2.6" marker-end="url(#arrow-teal)"/>
+          <rect x="514" y="246" width="118" height="30" rx="6" fill="#f2faf8" stroke="#b7dfd9"/>
+          <text x="573" y="266" text-anchor="middle" font-size="12" font-weight="700" fill="#1d6b63"><tspan dy="-4" font-size="9">S</tspan><tspan dy="7" font-size="9">G</tspan><tspan dy="-3">T (目标位姿)</tspan></text>
         </svg>
         <div class="svg-caption">
           图 4.8-1：从基座 $\{B\}$ 到工作点共有两条坐标链。逆解器只认识上链前半段的 ${}^B_W T$，因此必须走“下链全长 ${}^B_S T \, {}^S_G T$，再沿工具变换逆矩阵 $({}^W_T T)^{-1}$ 回退一步”求出 ${}^B_W T$。

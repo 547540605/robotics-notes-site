@@ -349,21 +349,21 @@
           <rect x="14" y="14" width="852" height="362" rx="16" fill="#fcfaf5" stroke="#e2dacd"/>
 
           <!-- Left Column: Taught Point & Repeatability -->
-          <rect x="32" y="30" width="396" height="330" rx="14" fill="#f2faf8" stroke="#1d6b63" stroke-width="1.8"/>
-          <text x="230" y="58" text-anchor="middle" font-size="15.5" font-weight="700" fill="#1d6b63">（a）回示教点（Taught Point）→ 只考“重复定位精度”</text>
+          <rect x="28" y="30" width="402" height="330" rx="14" fill="#f2faf8" stroke="#1d6b63" stroke-width="1.8"/>
+          <text x="229" y="57" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1d6b63">（a）回示教点（Taught Point）→ 只考“重复定位精度”</text>
 
-          <rect x="54" y="74" width="352" height="74" rx="10" fill="#fff" stroke="#b7dfd9"/>
-          <text x="230" y="96" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1d232a">工作流：完全绕开运动学模型与逆解器</text>
-          <text x="230" y="117" text-anchor="middle" font-size="11.5" fill="#5a6570">1. 人眼看着工具对准实物 → 读关节编码器 θ_taught</text>
-          <text x="230" y="136" text-anchor="middle" font-size="11.5" fill="#5a6570">2. 再现时伺服直接闭环回到同一编码器计数 θ_taught</text>
+          <rect x="46" y="74" width="366" height="74" rx="10" fill="#fff" stroke="#b7dfd9"/>
+          <text x="229" y="96" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1d232a">工作流：完全绕开运动学模型与逆解器</text>
+          <text x="229" y="117" text-anchor="middle" font-size="11.2" fill="#5a6570">1. 人眼看着工具对准实物 → 读关节编码器 θ<tspan dy="3" font-size="9">taught</tspan></text>
+          <text x="229" y="136" text-anchor="middle" font-size="11.2" fill="#5a6570">2. 再现时伺服直接闭环回到同一编码器计数 θ<tspan dy="3" font-size="9">taught</tspan></text>
 
           <!-- Target Bullseye Left -->
-          <g transform="translate(155, 252)">
-            <circle cx="0" cy="0" r="68" fill="#fff" stroke="#c8d4d0" stroke-width="1.5"/>
-            <circle cx="0" cy="0" r="44" fill="none" stroke="#c8d4d0" stroke-dasharray="4,4"/>
+          <g transform="translate(124, 252)">
+            <circle cx="0" cy="0" r="64" fill="#fff" stroke="#c8d4d0" stroke-width="1.5"/>
+            <circle cx="0" cy="0" r="42" fill="none" stroke="#c8d4d0" stroke-dasharray="4,4"/>
             <circle cx="0" cy="0" r="20" fill="none" stroke="#1d6b63" stroke-width="1.5"/>
-            <line x1="-76" y1="0" x2="76" y2="0" stroke="#cbd5d1"/>
-            <line x1="0" y1="-76" x2="0" y2="76" stroke="#cbd5d1"/>
+            <line x1="-70" y1="0" x2="70" y2="0" stroke="#cbd5d1"/>
+            <line x1="0" y1="-70" x2="0" y2="70" stroke="#cbd5d1"/>
             <!-- Tight cluster right at bullseye -->
             <circle cx="-3" cy="2" r="4.5" fill="#1d6b63"/>
             <circle cx="4" cy="-2" r="4.5" fill="#1d6b63"/>
@@ -373,30 +373,30 @@
             <circle cx="0" cy="0" r="11" fill="none" stroke="#1d6b63" stroke-width="2" stroke-dasharray="3,2"/>
           </g>
 
-          <g transform="translate(252, 192)">
-            <text x="0" y="0" font-size="12.5" font-weight="700" fill="#1d6b63">落点特征：中心准、散布极小</text>
-            <text x="0" y="22" font-size="11.5" fill="#1d232a">• 杆长/零点误差在示教时已被人眼抵消</text>
-            <text x="0" y="42" font-size="11.5" fill="#1d232a">• 仅受齿轮回差、编码器分辨率影响</text>
-            <text x="0" y="62" font-size="11.5" font-weight="700" fill="#1d6b63">• 典型量级：±0.02 ~ ±0.10 mm</text>
-            <text x="0" y="80" font-size="11" fill="#5a6570">（仅作概念量级示意）</text>
+          <g transform="translate(212, 192)">
+            <text x="0" y="0" font-size="12" font-weight="700" fill="#1d6b63">落点特征：中心准、散布极小</text>
+            <text x="0" y="22" font-size="10.8" fill="#1d232a">• 杆长/零点误差示教时已抵消</text>
+            <text x="0" y="42" font-size="10.8" fill="#1d232a">• 仅受齿轮回差与编码器影响</text>
+            <text x="0" y="62" font-size="10.8" font-weight="700" fill="#1d6b63">• 典型量级：±0.02 ~ ±0.10 mm</text>
+            <text x="0" y="80" font-size="10.5" fill="#5a6570">（仅作概念量级示意）</text>
           </g>
 
           <!-- Right Column: Computed Point & Accuracy -->
-          <rect x="452" y="30" width="396" height="330" rx="14" fill="#fff4ef" stroke="#b84a27" stroke-width="1.8"/>
-          <text x="650" y="58" text-anchor="middle" font-size="15.5" font-weight="700" fill="#b84a27">（b）去计算点（Computed Point）→ 严考“绝对定位精度”</text>
+          <rect x="450" y="30" width="402" height="330" rx="14" fill="#fff4ef" stroke="#b84a27" stroke-width="1.8"/>
+          <text x="651" y="57" text-anchor="middle" font-size="13.2" font-weight="700" fill="#b84a27">（b）去计算点（Computed Point）→ 严考“绝对定位精度”</text>
 
-          <rect x="474" y="74" width="352" height="74" rx="10" fill="#fff" stroke="#e4b7a7"/>
-          <text x="650" y="96" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1d232a">工作流：强依赖名义 DH 模型与全链路坐标标定</text>
-          <text x="650" y="117" text-anchor="middle" font-size="11.5" fill="#5a6570">1. 给定笛卡尔目标 ˢ_G T → 用名义参数算 ᴮ_W T 和逆解 θ*</text>
-          <text x="650" y="136" text-anchor="middle" font-size="11.5" fill="#5a6570">2. 真实连杆存在加工/零位/连杆受载形变 → 实际落点系统性偏离</text>
+          <rect x="468" y="74" width="366" height="74" rx="10" fill="#fff" stroke="#e4b7a7"/>
+          <text x="651" y="96" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1d232a">工作流：强依赖名义 DH 模型与全链路坐标标定</text>
+          <text x="651" y="117" text-anchor="middle" font-size="11.2" fill="#5a6570">1. 给定笛卡尔目标 <tspan dy="-3.5" font-size="8.5">S</tspan><tspan dy="6.5" font-size="8.5">G</tspan><tspan dy="-3">T → 用名义参数算 </tspan><tspan dy="-3.5" font-size="8.5">B</tspan><tspan dy="6.5" font-size="8.5">W</tspan><tspan dy="-3">T 和逆解 θ*</tspan></text>
+          <text x="651" y="136" text-anchor="middle" font-size="11.2" fill="#5a6570">2. 真实连杆存在加工/零位/受载形变 → 实际落点系统性偏离</text>
 
           <!-- Target Bullseye Right -->
-          <g transform="translate(568, 252)">
-            <circle cx="0" cy="0" r="68" fill="#fff" stroke="#e0cfc7" stroke-width="1.5"/>
-            <circle cx="0" cy="0" r="44" fill="none" stroke="#e0cfc7" stroke-dasharray="4,4"/>
+          <g transform="translate(546, 252)">
+            <circle cx="0" cy="0" r="64" fill="#fff" stroke="#e0cfc7" stroke-width="1.5"/>
+            <circle cx="0" cy="0" r="42" fill="none" stroke="#e0cfc7" stroke-dasharray="4,4"/>
             <circle cx="0" cy="0" r="20" fill="none" stroke="#225588" stroke-width="1.5"/>
-            <line x1="-76" y1="0" x2="76" y2="0" stroke="#e0cfc7"/>
-            <line x1="0" y1="-76" x2="0" y2="76" stroke="#e0cfc7"/>
+            <line x1="-70" y1="0" x2="70" y2="0" stroke="#e0cfc7"/>
+            <line x1="0" y1="-70" x2="0" y2="70" stroke="#e0cfc7"/>
             <!-- Desired Target at (0,0) -->
             <circle cx="0" cy="0" r="4" fill="#225588"/>
             <text x="-18" y="16" font-size="10.5" font-weight="700" fill="#225588">理论目标</text>
@@ -413,12 +413,12 @@
             <text x="4" y="-34" font-size="11" font-weight="700" fill="#b84a27">绝对偏差 ΔP</text>
           </g>
 
-          <g transform="translate(662, 192)">
-            <text x="0" y="0" font-size="12.5" font-weight="700" fill="#b84a27">落点特征：簇依然紧，但整体偏靶</text>
-            <text x="0" y="22" font-size="11.5" fill="#1d232a">• 多次往返同一点仍很集中（重复好）</text>
-            <text x="0" y="42" font-size="11.5" fill="#1d232a">• 但簇中心偏离理论坐标 ΔP（绝对差）</text>
-            <text x="0" y="62" font-size="11.5" font-weight="700" fill="#b84a27">• 未标定典型偏差：0.5 ~ 3.0 mm</text>
-            <text x="0" y="80" font-size="11" fill="#5a6570">（仅作概念量级示意）</text>
+          <g transform="translate(634, 192)">
+            <text x="0" y="0" font-size="12" font-weight="700" fill="#b84a27">落点特征：簇依然紧，但偏靶</text>
+            <text x="0" y="22" font-size="10.8" fill="#1d232a">• 多次往返同一点仍很集中</text>
+            <text x="0" y="42" font-size="10.8" fill="#1d232a">• 但簇中心偏离理论坐标 ΔP</text>
+            <text x="0" y="62" font-size="10.8" font-weight="700" fill="#b84a27">• 未标定偏差：0.5 ~ 3.0 mm</text>
+            <text x="0" y="80" font-size="10.5" fill="#5a6570">（仅作概念量级示意）</text>
           </g>
         </svg>
         <div class="svg-caption">

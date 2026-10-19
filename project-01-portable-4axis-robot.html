@@ -546,7 +546,7 @@
 
             <!-- Arc psi4 (theta_pen from +Z) -->
             <path id="svg-arc-psi4" d="" fill="none" stroke="#a855f7" stroke-width="2"/>
-            <text class="cad-txt" id="svg-txt-psi4" x="440" y="105" fill="#c084fc" font-size="11" font-weight="bold">ψ₄ (θ_pen): 180.0°</text>
+            <text class="cad-txt" id="svg-txt-psi4" x="440" y="105" fill="#c084fc" font-size="11" font-weight="bold">ψ₄ (笔尖角): 180.0°</text>
 
             <!-- Arc q4 (from L3 normal to L4) -->
             <path id="svg-arc-q4" d="" fill="none" stroke="#fbbf24" stroke-width="2"/>
@@ -1306,11 +1306,11 @@
 
             <!-- Base Coordinate Frame at (110, 240) -->
             <line x1="110" y1="240" x2="110" y2="100" stroke="#38bdf8" stroke-width="2" marker-end="url(#cal-arr-b)"/>
-            <text x="115" y="110" fill="#38bdf8" font-size="12" font-weight="bold">+Z_base (铅垂轴)</text>
+            <text x="115" y="110" fill="#38bdf8" font-size="12" font-weight="bold">+Z<tspan dy="3" font-size="9">base</tspan><tspan dy="-3"> (铅垂轴)</tspan></text>
             <line x1="110" y1="240" x2="230" y2="280" stroke="#ef4444" stroke-width="2" marker-end="url(#cal-arr-r)"/>
-            <text x="235" y="295" fill="#ef4444" font-size="12" font-weight="bold">+X_base</text>
+            <text x="235" y="295" fill="#ef4444" font-size="12" font-weight="bold">+X<tspan dy="3" font-size="9">base</tspan></text>
             <line x1="110" y1="240" x2="30" y2="280" stroke="#10b981" stroke-width="2" marker-end="url(#cal-arr-g)"/>
-            <text x="20" y="295" fill="#10b981" font-size="12" font-weight="bold">+Y_base</text>
+            <text x="20" y="295" fill="#10b981" font-size="12" font-weight="bold">+Y<tspan dy="3" font-size="9">base</tspan></text>
             
             <circle cx="110" cy="240" r="5" fill="#fff"/>
             <text x="100" y="255" fill="#94a3b8" font-size="12" font-weight="bold" text-anchor="end">基座原点 (0,0,0)</text>
@@ -1321,23 +1321,23 @@
 
             <!-- Teaching Vectors from Base to O, X, Y -->
             <line x1="110" y1="240" x2="345" y2="232" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#cal-arr-purple)"/>
-            <text x="220" y="250" fill="#c084fc" font-size="11" font-weight="bold">p_O = FK(q_O)</text>
+            <text x="220" y="250" fill="#c084fc" font-size="11" font-weight="bold">p<tspan dy="3" font-size="8.5">O</tspan><tspan dy="-3"> = FK(q</tspan><tspan dy="3" font-size="8.5">O</tspan><tspan dy="-3">)</tspan></text>
 
             <line x1="110" y1="240" x2="550" y2="177" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="3,3"/>
-            <text x="320" y="195" fill="#f87171" font-size="10">p_X = FK(q_X)</text>
+            <text x="320" y="195" fill="#f87171" font-size="10">p<tspan dy="3" font-size="8">X</tspan><tspan dy="-3"> = FK(q</tspan><tspan dy="3" font-size="8">X</tspan><tspan dy="-3">)</tspan></text>
 
             <line x1="110" y1="240" x2="288" y2="133" stroke="#10b981" stroke-width="1.2" stroke-dasharray="3,3"/>
-            <text x="185" y="170" fill="#34d399" font-size="10">p_Y = FK(q_Y)</text>
+            <text x="185" y="170" fill="#34d399" font-size="10">p<tspan dy="3" font-size="8">Y</tspan><tspan dy="-3"> = FK(q</tspan><tspan dy="3" font-size="8">Y</tspan><tspan dy="-3">)</tspan></text>
 
             <!-- Calibrated User Coordinate System at Point O (345, 232) -->
             <line x1="345" y1="232" x2="445" y2="205" stroke="#ef4444" stroke-width="2.5" marker-end="url(#cal-arr-r)"/>
-            <text x="450" y="222" fill="#ef4444" font-size="12" font-weight="bold">u_x (屏幕横向)</text>
+            <text x="450" y="222" fill="#ef4444" font-size="12" font-weight="bold">uₓ (屏幕横向)</text>
 
             <line x1="345" y1="232" x2="315" y2="180" stroke="#10b981" stroke-width="2.5" marker-end="url(#cal-arr-g)"/>
-            <text x="305" y="170" fill="#10b981" font-size="12" font-weight="bold">u_y (屏幕纵向)</text>
+            <text x="305" y="170" fill="#10b981" font-size="12" font-weight="bold">uᵧ (屏幕纵向)</text>
 
             <line x1="345" y1="232" x2="385" y2="140" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#cal-arr-b)"/>
-            <text x="390" y="135" fill="#38bdf8" font-size="12" font-weight="bold">u_z = u_x × u_y (法向量)</text>
+            <text x="390" y="135" fill="#38bdf8" font-size="12" font-weight="bold">u<tspan dy="3" font-size="9">z</tspan><tspan dy="-3"> = uₓ × uᵧ (法向量)</tspan></text>
 
             <!-- 3 Calibration Touch Nodes -->
             <circle cx="345" cy="232" r="5.5" fill="#a855f7" stroke="#fff" stroke-width="1.5"/>
@@ -1351,7 +1351,7 @@
 
             <!-- Target Click Point on Screen -->
             <circle cx="430" cy="150" r="5" fill="#fbbf24"/>
-            <text x="440" y="155" fill="#fbbf24" font-size="11" font-weight="bold">屏幕目标点 (x_s, y_s)</text>
+            <text x="440" y="155" fill="#fbbf24" font-size="11" font-weight="bold">屏幕目标点 (xₛ, yₛ)</text>
           </svg>
         </div>
 
@@ -2037,7 +2037,7 @@
         const arcPsi4 = createSvgArc(p3X, p3Y, 44, -Math.PI / 2, angL4);
         const arcPsi4El = document.getElementById('svg-arc-psi4');
         if (arcPsi4El) arcPsi4El.setAttribute('d', arcPsi4.d);
-        setText('svg-txt-psi4', p3X + 18, p3Y - 20, `ψ₄: ${penAngle.toFixed(1)}° (θ_pen)`);
+        setText('svg-txt-psi4', p3X + 18, p3Y - 20, `ψ₄: ${penAngle.toFixed(1)}° (笔尖角)`);
 
         // Arc q4
         const arcQ4 = createSvgArc(p3X, p3Y, 26, angL3_norm, angL4);

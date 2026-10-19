@@ -394,33 +394,33 @@
           <text x="235" y="44" text-anchor="middle" font-size="15" font-weight="700" fill="#1d232a">（a）SOLVE 选解三级裁决漏斗</text>
 
           <!-- Stage 0: Input -->
-          <rect x="55" y="60" width="360" height="46" rx="10" fill="#eef4fb" stroke="#225588" stroke-width="1.8"/>
-          <text x="235" y="81" text-anchor="middle" font-size="13" font-weight="700" fill="#225588">输入：数学候选解集合 {θ⁽¹⁾, θ⁽²⁾, …, θ⁽ᴹ⁾} 及当前角 θ_curr</text>
+          <rect x="45" y="60" width="380" height="46" rx="10" fill="#eef4fb" stroke="#225588" stroke-width="1.8"/>
+          <text x="235" y="81" text-anchor="middle" font-size="12.5" font-weight="700" fill="#225588">输入：数学候选解集合 {θ⁽¹⁾, θ⁽²⁾, …, θ⁽ᴹ⁾} 及当前角 θ<tspan dy="3" font-size="9.5">curr</tspan></text>
           <text x="235" y="98" text-anchor="middle" font-size="11.5" fill="#5a6570">（例如 2R 共 2 解，PUMA 球腕共 8 解）</text>
 
           <!-- Stage 1: Hard Constraint 1 -->
           <path d="M 235 106 L 235 124" stroke="#1d232a" stroke-width="2"/>
-          <rect x="70" y="124" width="330" height="54" rx="10" fill="#fff4ef" stroke="#b84a27" stroke-width="2"/>
+          <rect x="60" y="124" width="350" height="54" rx="10" fill="#fff4ef" stroke="#b84a27" stroke-width="2"/>
           <text x="235" y="146" text-anchor="middle" font-size="13" font-weight="700" fill="#b84a27">硬约束 ①：关节软/硬限位检查（§4.7 式 4.106）</text>
-          <text x="235" y="166" text-anchor="middle" font-size="11.5" fill="#5a6570">要求 ∀i, θ_i,min ≤ θ_i⁽ᵏ⁾ ≤ θ_i,max；越界直接剔除</text>
+          <text x="235" y="166" text-anchor="middle" font-size="11.5" fill="#5a6570">要求 ∀i, θ<tspan dy="3" font-size="9">i,min</tspan><tspan dy="-3"> ≤ θ</tspan><tspan dy="3" font-size="9">i</tspan><tspan dy="-3">⁽ᵏ⁾ ≤ θ</tspan><tspan dy="3" font-size="9">i,max</tspan><tspan dy="-3">；越界直接剔除</tspan></text>
 
           <!-- Stage 2: Hard Constraint 2 -->
           <path d="M 235 178 L 235 196" stroke="#1d232a" stroke-width="2"/>
-          <rect x="85" y="196" width="300" height="54" rx="10" fill="#fff4ef" stroke="#b84a27" stroke-width="2"/>
+          <rect x="75" y="196" width="320" height="54" rx="10" fill="#fff4ef" stroke="#b84a27" stroke-width="2"/>
           <text x="235" y="218" text-anchor="middle" font-size="13" font-weight="700" fill="#b84a27">硬约束 ②：连杆碰撞与奇异规避（§4.2 图 4-2）</text>
           <text x="235" y="238" text-anchor="middle" font-size="11.5" fill="#5a6570">剔除肘部/腕部擦碰障碍物或陷入死锁的分支</text>
 
           <!-- Stage 3: Soft Metric -->
           <path d="M 235 250 L 235 268" stroke="#1d232a" stroke-width="2"/>
-          <rect x="65" y="268" width="340" height="60" rx="12" fill="#f2faf8" stroke="#1d6b63" stroke-width="2.2"/>
-          <text x="235" y="290" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1d6b63">软指标排序：在可行解集合 𝓕 中最小化加权距离</text>
-          <text x="235" y="313" text-anchor="middle" font-size="12" font-weight="700" fill="#1d232a">θ* = arg min_{k ∈ 𝓕} ∑ w_i (θ_i⁽ᵏ⁾ − θ_i,curr)²  (w_i &gt; 0)</text>
+          <rect x="50" y="268" width="370" height="60" rx="12" fill="#f2faf8" stroke="#1d6b63" stroke-width="2.2"/>
+          <text x="235" y="290" text-anchor="middle" font-size="13" font-weight="700" fill="#1d6b63">软指标排序：在可行解集合 𝓕 中最小化加权距离</text>
+          <text x="235" y="313" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1d232a">θ* = arg min (k∈𝓕) ∑ w<tspan dy="3" font-size="9">i</tspan><tspan dy="-3"> (θ</tspan><tspan dy="3" font-size="9">i</tspan><tspan dy="-3">⁽ᵏ⁾ − θ</tspan><tspan dy="3" font-size="9">i,curr</tspan><tspan dy="-3">)²  (w</tspan><tspan dy="3" font-size="9">i</tspan><tspan dy="-3"> &gt; 0)</tspan></text>
 
           <!-- Divider -->
-          <line x1="455" y1="36" x2="455" y2="328" stroke="#dcd4c6" stroke-dasharray="6,6"/>
+          <line x1="450" y1="36" x2="450" y2="328" stroke="#dcd4c6" stroke-dasharray="6,6"/>
 
           <!-- Right Half: Geometric Illustration of Closest vs Obstacle (Craig Fig 4-2 / 4-3) -->
-          <text x="665" y="44" text-anchor="middle" font-size="15" font-weight="700" fill="#1d232a">（b）原书图 4-2 / 4-3：最近解 vs 避障/限位冲突</text>
+          <text x="660" y="44" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1d232a">（b）原书图 4-2 / 4-3：最近解 vs 避障/限位冲突</text>
 
           <!-- Base -->
           <rect x="495" y="220" width="44" height="16" rx="4" fill="#8b949e"/>
@@ -431,7 +431,7 @@
           <line x1="517" y1="220" x2="625" y2="232" stroke="#7f8c98" stroke-width="4" stroke-dasharray="5,4"/>
           <line x1="625" y1="232" x2="735" y2="165" stroke="#7f8c98" stroke-width="4" stroke-dasharray="5,4"/>
           <circle cx="625" cy="232" r="5" fill="#7f8c98"/>
-          <text x="530" y="198" font-size="11.5" fill="#5a6570">当前姿态 θ_curr（下肘）</text>
+          <text x="530" y="198" font-size="11.5" fill="#5a6570">当前姿态 θ<tspan dy="3" font-size="9">curr</tspan><tspan dy="-3">（下肘）</tspan></text>
 
           <!-- Branch B: Elbow-Down (Closer to θ_curr, but hits obstacle / limit) -->
           <line x1="517" y1="220" x2="650" y2="255" stroke="#b84a27" stroke-width="5" opacity="0.85"/>
@@ -439,9 +439,9 @@
           <circle cx="650" cy="255" r="6" fill="#b84a27"/>
 
           <!-- Obstacle Table Box -->
-          <rect x="622" y="242" width="115" height="48" rx="6" fill="#f8d7ce" stroke="#b84a27" stroke-width="2"/>
-          <text x="680" y="266" text-anchor="middle" font-size="12" font-weight="700" fill="#b84a27">障碍物 / 限位禁区</text>
-          <text x="680" y="282" text-anchor="middle" font-size="11" fill="#b84a27">下肘解虽近但被否决 ✗</text>
+          <rect x="610" y="242" width="142" height="48" rx="6" fill="#f8d7ce" stroke="#b84a27" stroke-width="2"/>
+          <text x="681" y="264" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b84a27">障碍物 / 限位禁区</text>
+          <text x="681" y="281" text-anchor="middle" font-size="10.5" fill="#b84a27">下肘解虽近但被否决 ✗</text>
 
           <!-- Branch A: Elbow-Up (Valid Winner) -->
           <line x1="517" y1="220" x2="605" y2="112" stroke="#1d6b63" stroke-width="6"/>
@@ -453,8 +453,8 @@
           <circle cx="770" cy="145" r="8" fill="#225588"/>
           <text x="770" y="125" text-anchor="middle" font-size="12.5" font-weight="700" fill="#225588">新目标点 P</text>
 
-          <rect x="485" y="302" width="360" height="32" rx="8" fill="#eef4fb"/>
-          <text x="665" y="323" text-anchor="middle" font-size="11.5" font-weight="700" fill="#225588">若无障碍且都不超限，选离 θ_curr 更近的下肘；一旦下肘碰障/超限，必须选上肘</text>
+          <rect x="466" y="300" width="388" height="32" rx="8" fill="#eef4fb"/>
+          <text x="660" y="321" text-anchor="middle" font-size="10.8" font-weight="700" fill="#225588">无障碍且未超限时选离当前角更近的下肘；一旦下肘碰障或超限，必选上肘</text>
         </svg>
         <div class="svg-caption">
           图 4.9-1：左图为 <code>SOLVE</code> 选解的三级漏斗；右图对应原书 P72 图 4-2 与图 4-3——当目标无障碍时优先保持当前下肘分支（避免大幅甩臂），但若下肘触碰障碍或越过关节限位，硬约束将一票否决下肘解。
