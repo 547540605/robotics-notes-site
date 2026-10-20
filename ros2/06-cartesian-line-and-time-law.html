@@ -7,13 +7,13 @@
 <section class="card guide"><h2 style="margin-top:0;border:0;padding:0">工程痛点：关节平滑，不代表末端走直线</h2><p>即使让 q1、q2、q3 各自做漂亮的三次或正弦曲线，末端在空间中仍会走出不可预测的曲线。若任务要求沿边缘靠近、沿直线插入或避开固定区域，路径必须先在<strong>笛卡尔空间</strong>定义，再逐点经 IK 变成关节目标。</p><div class="flow"><div><b>① 定 A、B</b>同一 base_link</div><div><b>② 定时间律</b>t → s(t)</div><div><b>③ 取目标点</b>P(t)</div><div><b>④ 连续 IK</b>选合法 q(t)</div><div><b>⑤ 发布显示</b>数字孪生</div></div></section>
 <section class="card warn"><strong>本篇边界：</strong>仍然只驱动 RViz 数字孪生。发布到 <code>/joint_states</code> 是显示状态，不是执行器命令；真实控制器的 <code>JointTrajectory</code> 在 ROS2-13 再接入。</section>
 <h2>1. 直线由位置公式定义，不由“看上去差不多”定义</h2>
-<p>先不用背公式：我们已知起点 <code>A</code> 和终点 <code>B</code>，想求“某一时刻末端<strong>应该</strong>在线段的哪里”。本篇用的 <code>A=(0.50, 0.00, 0.65) m</code>、<code>B=(0.40, 0.30, 0.75) m</code> 都属于 <code>base_link</code>；<code>P(t)</code> 是时刻 <code>t</code> 的<strong>目标位置</strong>，不是 <code>P × t</code>，也不是传感器量到的实际位置。</p>
+<p>已知 <code>base_link</code> 下的起点 <code>A=(0.50, 0.00, 0.65) m</code> 和终点 <code>B=(0.40, 0.30, 0.75) m</code>，求时刻 <code>t</code> 的期望目标位置 <code>P(t)</code>（注意它是规划目标，不是传感器测回的实际位置）：</p>
 <ol>
-  <li><strong>先算从 A 到 B 要走多少：</strong><code>B−A</code> 是三维位移，x、y、z 各自做“终点减起点”，不是两点间距离的一个数字。</li>
-  <li><strong>再决定走了几成：</strong><code>s(t)</code> 表示到了时刻 <code>t</code> 已走完线段的比例。<code>s=0</code> 还在 A，<code>s=0.5</code> 走到中点，<code>s=1</code> 到 B；括号里的 <code>t</code> 表示“比例随时间变化”，不是乘法。</li>
-  <li><strong>最后从 A 出发：</strong>把位移 <code>B−A</code> 的 <code>s(t)</code> 倍加到 A 上，就得到这一刻的目标位置。</li>
+  <li><strong>三维位移向量：</strong><code>B − A</code>，即 x、y、z 三轴各自的位移增量。</li>
+  <li><strong>归一化路径进度：</strong><code>s(t) ∈ [0, 1]</code> 表示时刻 <code>t</code> 已走完线段的比例（<code>s=0</code> 在起点 A，<code>s=0.5</code> 在中点，<code>s=1</code> 到达终点 B）。</li>
+  <li><strong>参数化直线方程：</strong>从起点 A 出发，加上位移向量 <code>B − A</code> 的 <code>s(t)</code> 倍：</li>
 </ol>
-<span class="formula">P(t) = A + s(t) × (B − A)</span>
+<span class="formula">P(t) = A + s(t)(B − A)</span>
 <p>拿下面同一组 A、B 验算：若 <code>s=0.5</code>，则 <code>P=A+0.5(B−A)=(0.45, 0.15, 0.70) m</code>。三个坐标<strong>共用同一个比例</strong>，所以这个点一定在连接 A、B 的三维直线上。公式只确定路径；“t 到底对应多少 s”由第 2 节的时间律决定。</p>
 <div class="grid"><section class="card"><h3>不要做：关节空间直线</h3><p><code>q(t)=qA+s(qB-qA)</code> 只保证关节向量走直线。经过 FK 后，末端一般会是一条弯曲轨迹。</p></section><section class="card"><h3>本篇要做：笛卡尔空间直线</h3><p>先计算 <code>P(t)</code>，每个 P(t) 都调用 ROS2-04/05 的 IK。关节角的曲线可以弯，但 FK 出来的末端位置要贴着 P(t)。</p></section></div>
 <section class="card good"><h3>先拿同一组坐标走一遍：A → B</h3>
