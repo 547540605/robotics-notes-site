@@ -25,32 +25,31 @@
 <p>若此刻路径进度 <code>s=0.5</code>，三个坐标<strong>同时</strong>走完各自差值的一半：<code>P=A+0.5(B−A)=(0.45, 0.15, 0.70) m</code>。注意同一个 <code>0.5</code> 乘在 x、y、z 上，才保证这个点真的在三维直线上。</p>
 <p class="small">A、B 和 P 都是末端<strong>位置</strong>，不是三个关节角；P 只有经过 04 求 IK、05 按上一帧选支后，才会变成这一帧的 <code>q=(q1,q2,q3)</code>。</p></section>
 <h2>2. 为什么不用匀速突起突停？先分清谁是位置、速度、加速度</h2>
-<p>在直线方程 <code>P(t) = A + s(t)(B − A)</code> 中，起点 <code>A</code> 与终点 <code>B</code> 是固定不变的常数坐标，只有 <code>s(t)</code> 随时间变化。对时间 <code>t</code> 连续求导，就能看清三个物理量各自是谁：</p>
+<p>物理上<strong>速度的定义就是位置随时间的变化率 \(\boldsymbol{v}(t) = \dfrac{d\boldsymbol{P}}{dt}\)</strong>。因为这里的 \(\boldsymbol{A}\)、\(\boldsymbol{B}\) 和 \(\boldsymbol{P}(t)\) 都定义在地面固定的底座坐标系 <code>base_link</code> 下（坐标轴本身不随时间旋转），所以求末端线速度就是直接对坐标 \(\boldsymbol{P}(t)\) 关于时间 \(t\) 求导。</p>
 <div class="grid">
   <section class="card">
-    <h3>① 位置、速度、加速度与 s(t) 的关系</h3>
+    <h3>① 为什么“对 P(t) 求导”会变成“对 s(t) 求导”？</h3>
+    <p class="small">它们不是求了两次不同的导，而是<strong>同一个等式的左边和右边</strong>！把 \(\boldsymbol{P}(t) = \boldsymbol{A} + s(t)(\boldsymbol{B}-\boldsymbol{A})\) 代入求导：</p>
     <ul>
-      <li><strong>末端位置 \(\boldsymbol{P}(t)\)</strong>：由<strong>位置进度 \(s(t)\in[0,1]\)</strong> 决定（表示走完了线段的百分之几）：
-        \[\boldsymbol{P}(t) = \boldsymbol{A} + s(t)(\boldsymbol{B}-\boldsymbol{A})\]
-      </li>
-      <li><strong>末端线速度 \(\boldsymbol{v}(t)\)</strong>：对 \(t\) 求一阶导（常数 \(\boldsymbol{A}\) 导数为 0），由<strong>进度变化率 \(\dfrac{ds}{dt}\)</strong> 决定：
-        \[\boldsymbol{v}(t) = \frac{d\boldsymbol{P}}{dt} = \frac{ds}{dt}(\boldsymbol{B}-\boldsymbol{A})\]
-      </li>
-      <li><strong>末端线加速度 \(\boldsymbol{a}(t)\)</strong>：对 \(t\) 求二阶导，由 <strong>\(\dfrac{d^2s}{dt^2}\)</strong> 决定：
-        \[\boldsymbol{a}(t) = \frac{d^2\boldsymbol{P}}{dt^2} = \frac{d^2s}{dt^2}(\boldsymbol{B}-\boldsymbol{A})\]
-      </li>
+      <li>等号右边的起点 \(\boldsymbol{A} = (0.50, 0.00, 0.65)\) 是固定死数字，对 \(t\) 求导为 \(\boldsymbol{0}\)；</li>
+      <li>总位移 \((\boldsymbol{B}-\boldsymbol{A}) = (-0.10, 0.30, 0.10)\) 也是固定死数字，求导时作为常数系数照抄；</li>
+      <li><strong>等号右边唯一随时间 \(t\) 变化的只有 \(s(t)\)！</strong>因此：</li>
     </ul>
-    <p class="small" style="margin-bottom:0">结论：<strong>\(s(t)\) 不是速度，只是位置比例；\(\dfrac{ds}{dt}\) 乘上总位移 \((\boldsymbol{B}-\boldsymbol{A})\) 才是末端速度 \(\boldsymbol{v}(t)\)。</strong></p>
+    \[\underbrace{\boldsymbol{v}(t) = \frac{d\boldsymbol{P}}{dt}}_{\text{想求的末端线速度}} = \underbrace{\frac{ds}{dt}}_{\text{必须先算出的 }s\text{ 的导数}} \cdot \underbrace{(\boldsymbol{B}-\boldsymbol{A})}_{\text{固定死数字}}\]
+    \[\underbrace{\boldsymbol{a}(t) = \frac{d^2\boldsymbol{P}}{dt^2}}_{\text{想求的末端线加速度}} = \underbrace{\frac{d^2s}{dt^2}}_{\text{必须先算出的 }s\text{ 的二阶导}} \cdot \underbrace{(\boldsymbol{B}-\boldsymbol{A})}_{\text{固定死数字}}\]
+    <p class="small" style="margin-bottom:0"><strong>拿 \(x\) 轴数字举例：</strong>\(x(t) = 0.50 + s(t)\times(-0.10)\)。求速度 \(v_x(t)=\dfrac{dx}{dt}\) 时，常数 \(0.50\) 求导没了，就变成 \(v_x(t) = \dfrac{ds}{dt}\times(-0.10)\)。所以<strong>不先把右边的 \(\dfrac{ds}{dt}\) 算出来，就拿不到具体的速度数值</strong>——左卡写出这层依赖关系，右卡接着代入具体的 \(s(t)\) 公式把 \(\dfrac{ds}{dt}\) 算出来。</p>
   </section>
   <section class="card">
-    <h3>② 匀速 vs 五次时间律</h3>
-    <p><strong>如果直接用匀速 \(s(t) = t/T\)：</strong>求导得 \(\dfrac{ds}{dt} = \dfrac{1}{T}\)（固定常数）。这意味着 \(t=0\) 启动瞬间，末端速度必须从静止 \(\boldsymbol{0}\) <strong>瞬间阶跃跳变</strong>到 \(\dfrac{\boldsymbol{B}-\boldsymbol{A}}{T}\)，终点又瞬间归零，需要无穷大瞬时加速度，电机必然顿挫冲击。</p>
+    <h3>② 代入具体公式算 ds/dt：匀速 vs 五次时间律</h3>
+    <p><strong>为什么匀速运动是 \(s(t) = t/T\)？</strong>设全程总路程为 \(L\)、总用时为 \(T\)。若全程保持恒定速率 \(v = L/T\)（路程 \(=\) 速度 \(\times\) 时间），则时刻 \(t\) 已走路程为 \(v\cdot t = (L/T)\cdot t\)，占总路程的比例就是：
+    \[s(t) = \frac{(L/T)\cdot t}{L} = \frac{t}{T}\]
+    即“时间过了几分之几，路程就走完几分之几”。对它求导得 \(\dfrac{ds}{dt} = \dfrac{1}{T}\)（固定常数），代回左卡意味着 \(t=0\) 启动瞬间末端速度必须从静止 \(\boldsymbol{0}\) <strong>瞬间阶跃跳变</strong>到 \(\dfrac{\boldsymbol{B}-\boldsymbol{A}}{T}\)，终点又瞬间归零，电机必然顿挫冲击。</p>
     <p><strong>改用五次时间律（令归一化时间 \(u = t/T \in [0,1]\)）：</strong></p>
     \[s(u) = 10u^3 - 15u^4 + 6u^5\]
-    <p>按链式法则 \(\dfrac{d}{dt} = \dfrac{1}{T}\dfrac{d}{du}\) 求一阶、二阶导数：</p>
+    <p>按链式法则 \(\dfrac{d}{dt} = \dfrac{1}{T}\dfrac{d}{du}\) 对 \(s\) 求一阶、二阶导数：</p>
     \[\frac{ds}{dt} = \frac{1}{T}(30u^2 - 60u^3 + 30u^4) = \frac{30}{T}\,u^2(1-u)^2\]
     \[\frac{d^2s}{dt^2} = \frac{1}{T^2}(60u - 180u^2 + 120u^3) = \frac{60}{T^2}\,u(1-u)(1-2u)\]
-    <p class="small" style="margin-bottom:0">代入起点 \(u=0\) 或终点 \(u=1\)，都有 \(\dfrac{ds}{dt}=0\) 且 \(\dfrac{d^2s}{dt^2}=0\)，从而保证<strong>起止瞬间末端速度 \(\boldsymbol{v}=\boldsymbol{0}\)、加速度 \(\boldsymbol{a}=\boldsymbol{0}\)</strong>。</p>
+    <p class="small" style="margin-bottom:0">代入起点 \(u=0\) 或终点 \(u=1\)，都有 \(\dfrac{ds}{dt}=0\) 且 \(\dfrac{d^2s}{dt^2}=0\)；再代回左卡，就保证了<strong>起止瞬间末端速度 \(\boldsymbol{v}=\boldsymbol{0}\)、加速度 \(\boldsymbol{a}=\boldsymbol{0}\)</strong>。</p>
   </section>
 </div>
 <p class="small">五次时间律并不改变几何路径（空间里还是同一条直线），只决定沿这条直线“什么时候走到哪里、什么时候加速与减速”。这正是<strong>几何路径</strong>与<strong>时间参数化</strong>的区别。</p>
