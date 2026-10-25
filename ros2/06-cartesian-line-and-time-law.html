@@ -57,12 +57,13 @@
     <p><strong>为什么匀速运动是 \(s(t) = t/T\)？</strong>设全程总路程为 \(L\)、总用时为 \(T\)。若全程保持恒定速率 \(v = L/T\)（路程 \(=\) 速度 \(\times\) 时间），则时刻 \(t\) 已走路程为 \(v\cdot t = (L/T)\cdot t\)，占总路程的比例就是：
     \[s(t) = \frac{(L/T)\cdot t}{L} = \frac{t}{T}\]
     即“时间过了几分之几，路程就走完几分之几”。对它求导得 \(\dfrac{ds}{dt} = \dfrac{1}{T}\)（固定常数），代回左卡意味着 \(t=0\) 启动瞬间末端速度必须从静止 \(\boldsymbol{0}\) <strong>瞬间阶跃跳变</strong>到 \(\dfrac{\boldsymbol{B}-\boldsymbol{A}}{T}\)，终点又瞬间归零，电机必然顿挫冲击。</p>
-    <p><strong>改用五次时间律（令归一化时间 \(u = t/T \in [0,1]\)）：</strong></p>
-    \[s(u) = 10u^3 - 15u^4 + 6u^5\]
-    <p>按链式法则 \(\dfrac{d}{dt} = \dfrac{1}{T}\dfrac{d}{du}\) 对 \(s\) 求一阶、二阶导数：</p>
-    \[\frac{ds}{dt} = \frac{1}{T}(30u^2 - 60u^3 + 30u^4) = \frac{30}{T}\,u^2(1-u)^2\]
-    \[\frac{d^2s}{dt^2} = \frac{1}{T^2}(60u - 180u^2 + 120u^3) = \frac{60}{T^2}\,u(1-u)(1-2u)\]
-    <p class="small" style="margin-bottom:0">代入起点 \(u=0\) 或终点 \(u=1\)，都有 \(\dfrac{ds}{dt}=0\) 且 \(\dfrac{d^2s}{dt^2}=0\)；再代回左卡，就保证了<strong>起止瞬间末端速度 \(\boldsymbol{v}=\boldsymbol{0}\)、加速度 \(\boldsymbol{a}=\boldsymbol{0}\)</strong>。</p>
+    <p><strong>改用五次时间律：</strong>刚才匀速是直接用 \(\left(\dfrac{t}{T}\right)\) 的一次方；现在为了起步慢、中间快、到终点前再慢下来，把 \(\left(\dfrac{t}{T}\right)\) 换成如下五次多项式：</p>
+    \[s(t) = 10\left(\frac{t}{T}\right)^3 - 15\left(\frac{t}{T}\right)^4 + 6\left(\frac{t}{T}\right)^5 = 10\frac{t^3}{T^3} - 15\frac{t^4}{T^4} + 6\frac{t^5}{T^5}\]
+    <p class="small">（注：因为把分式 \(\dfrac{t}{T}\) 连写三遍太啰嗦，工程和代码里习惯拿字母 \(u = \dfrac{t}{T}\) 当简写代号，把上式简记成 \(s(u) = 10u^3 - 15u^4 + 6u^5\)。<strong>\(u\) 不是什么新物理量，它就是刚才的 \(\dfrac{t}{T}\)！</strong>）</p>
+    <p>因为分母里的总时长 \(T\) 是固定常数，直接对分子里的 \(t^3, t^4, t^5\) 求导：</p>
+    \[\frac{ds}{dt} = 30\frac{t^2}{T^3} - 60\frac{t^3}{T^4} + 30\frac{t^4}{T^5} = \frac{1}{T}\left(30u^2 - 60u^3 + 30u^4\right)\]
+    \[\frac{d^2s}{dt^2} = 60\frac{t}{T^3} - 180\frac{t^2}{T^4} + 120\frac{t^3}{T^5} = \frac{1}{T^2}\left(60u - 180u^2 + 120u^3\right)\]
+    <p class="small" style="margin-bottom:0">现在验算两个端点：代入起点 \(t=0\)，分子全为 \(0\)；代入终点 \(t=T\)（即 \(u=1\)），一阶导分子 \(30-60+30=0\)，二阶导分子 \(60-180+120=0\)。再代回左卡，就保证了<strong>起点和终点瞬间末端速度 \(\boldsymbol{v}=\boldsymbol{0}\)、加速度 \(\boldsymbol{a}=\boldsymbol{0}\)</strong>。</p>
   </section>
 </div>
 <p class="small">五次时间律并不改变几何路径（空间里还是同一条直线），只决定沿这条直线“什么时候走到哪里、什么时候加速与减速”。这正是<strong>几何路径</strong>与<strong>时间参数化</strong>的区别。</p>
