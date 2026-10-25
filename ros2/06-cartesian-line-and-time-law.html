@@ -73,16 +73,24 @@
   </section>
 </div>
 <p class="small">五次时间律并不改变几何路径（空间里还是同一条直线），只决定沿这条直线“什么时候走到哪里、什么时候加速与减速”。这正是<strong>几何路径</strong>与<strong>时间参数化</strong>的区别。</p>
-<section class="card"><h3>把 3 秒拆成五个时刻：同时看位置进度 s 与速度 ds/dt</h3>
-<p>已知 \(|\boldsymbol{B}-\boldsymbol{A}| = \sqrt{(-0.10)^2 + 0.30^2 + 0.10^2} \approx 0.3317\text{ m}\)，总时长 \(T=3\text{ s}\)。先算 \(u=t/T\)，再算位置比例 \(s(u)\) 与速度比例 \(\dfrac{ds}{dt}\)，乘上总长就是末端线速度大小 \(|\boldsymbol{v}(t)|\)：</p>
-<div style="overflow-x:auto"><table class="table"><thead><tr><th>t (s)</th><th>u=t/T</th><th>位置进度 s(u)</th><th>速度比例 ds/dt (s⁻¹)</th><th>末端速率 |v(t)| (m/s)</th><th>P(t)=(x,y,z)，单位 m</th><th>运动状态</th></tr></thead><tbody>
-<tr><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0000</td><td>(0.5000, 0.0000, 0.6500)</td><td>起点 A，静止起步</td></tr>
-<tr><td>0.75</td><td>0.25</td><td>0.1035</td><td>0.3516</td><td>0.1166</td><td>(0.4896, 0.0311, 0.6604)</td><td>平滑加速中，路程刚走 10.35%</td></tr>
-<tr><td>1.50</td><td>0.50</td><td>0.5000</td><td>0.6250</td><td>0.2073</td><td>(0.4500, 0.1500, 0.7000)</td><td>经过空间中点，速度达到峰值（加速度过零）</td></tr>
-<tr><td>2.25</td><td>0.75</td><td>0.8965</td><td>0.3516</td><td>0.1166</td><td>(0.4104, 0.2689, 0.7396)</td><td>对称减速中，准备接近终点</td></tr>
-<tr><td>3.00</td><td>1.00</td><td>1.0000</td><td>0</td><td>0.0000</td><td>(0.4000, 0.3000, 0.7500)</td><td>到达终点 B，速度与加速度平缓归零</td></tr>
+<section class="card"><h3>把 3 秒拆成五个时刻：一步步看代码每一帧到底在算什么</h3>
+<p>在写代码时，每到一个时刻 \(t\)，程序其实只按顺序做下面 <strong>3 步最简单的算术</strong>（拿表里第 2 行 \(t = 0.75\text{ s}\) 举例）：</p>
+<ol>
+  <li><strong>先算时间过了几成（\(u = t/T\)）：</strong>总时长 \(T = 3\text{ s}\)，在 \(t = 0.75\text{ s}\) 时，\(u = 0.75 / 3 = 0.25\)（时间过去了 \(25\%\)）。</li>
+  <li><strong>再算路程该走几成（代入五次时间律求 \(s\)）：</strong>把 \(u = 0.25\) 代入 \(s = 10u^3 - 15u^4 + 6u^5\)，算出 \(s \approx 0.1035\)。因为刚起步还在慢加速，时间虽然过了 \(25\%\)，路程其实只走了 \(10.35\%\)。</li>
+  <li><strong>最后算此刻的三维目标坐标 \(\boldsymbol{P}(t)\)：</strong>代入 \(\boldsymbol{P}(t) = \boldsymbol{A} + s(\boldsymbol{B}-\boldsymbol{A})\)，让总位移 \((-0.10, +0.30, +0.10)\text{ m}\) 乘上 \(0.1035\) 再加到起点 \(\boldsymbol{A}\) 上：
+    \[\boldsymbol{P}(0.75) = (0.50, 0.00, 0.65) + 0.1035\times(-0.10, +0.30, +0.10) \approx (0.4896, 0.0311, 0.6604)\text{ m}\]
+  </li>
+</ol>
+<p class="small">（表格顺带列出了导数 \(\dfrac{ds}{dt}\)，它的直观含义是“此刻每秒钟走完几个全程”——在 \(t=0\) 和 \(t=3\text{ s}\) 时它都是 \(0\)，在中间 \(t=1.5\text{ s}\) 时达到最大 \(0.625\)。）</p>
+<div style="overflow-x:auto"><table class="table"><thead><tr><th>时刻 t (s)</th><th>时间比例 u=t/T</th><th>路程比例 s(u)</th><th>ds/dt (s⁻¹)</th><th>末端目标坐标 P(t)=(x,y,z)，单位 m</th><th>物理状态怎么读</th></tr></thead><tbody>
+<tr><td>0</td><td>0</td><td>0</td><td>0</td><td>(0.5000, 0.0000, 0.6500)</td><td>在起点 A，速度为 0，准备静止起步</td></tr>
+<tr><td>0.75</td><td>0.25</td><td>0.1035</td><td>0.3516</td><td>(0.4896, 0.0311, 0.6604)</td><td>时间过 25%，因起步慢加速，路程刚走 10.35%</td></tr>
+<tr><td>1.50</td><td>0.50</td><td>0.5000</td><td>0.6250</td><td>(0.4500, 0.1500, 0.7000)</td><td>时间过半，刚好经过线段中点，此时速度最快</td></tr>
+<tr><td>2.25</td><td>0.75</td><td>0.8965</td><td>0.3516</td><td>(0.4104, 0.2689, 0.7396)</td><td>已完成 89.65% 路程，开始对称减速收尾</td></tr>
+<tr><td>3.00</td><td>1.00</td><td>1.0000</td><td>0</td><td>(0.4000, 0.3000, 0.7500)</td><td>到达终点 B，速度与加速度平缓归零</td></tr>
 </tbody></table></div>
-<p class="small">表格四舍五入到四位小数；程序使用未舍入的 <code>s</code> 计算。<code>u</code> 是“过去了多少时间”，<code>s</code> 是“走完了多少路程”，<code>ds/dt</code> 则是“此刻推进得有多快”。</p></section>
+<p class="small">表格四舍五入到四位小数；程序使用未舍入的 <code>s</code> 计算。五次时间律只改变到达直线上各点的快慢节奏，不会把直线弯成曲线。</p></section>
 <h2>3. 拖动时间：左边算数，右边分两张坐标纸看</h2>
 <div class="lab">
   <section class="card"><h3>还是同一条 A→B</h3><p class="small">A=(0.50, 0.00, 0.65) m，B=(0.40, 0.30, 0.75) m。拖动 t，看 <code>u=t/T</code>、<code>s(u)</code> 和三个坐标如何一起变化。下面的导数描述沿路径进度变化的快慢，并不是某个关节角速度。</p>
