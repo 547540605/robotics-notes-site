@@ -8,18 +8,31 @@
 </style></head><body><main>
 <p class="crumb"><a href="00-progress.html">ROS 2 全景看板</a> · <a href="05-ik-continuity-and-limits.html">ROS2-05：连续选支</a> · <a href="04-13-engineering-roadmap.md">04–13 路线</a></p>
 <h1>ROS 2 工程实战 06：笛卡尔直线与五次时间律</h1><p class="small">把“从 A 到 B”变成连续目标点列。机械臂的关节角通常不是直线，但末端在 <code>base_link</code> 中必须是直线。</p>
-<section class="card guide"><h2 style="margin-top:0;border:0;padding:0">工程痛点：关节平滑，不代表末端走直线</h2><p>即使让 q1、q2、q3 各自做漂亮的三次或正弦曲线，末端在空间中仍会走出不可预测的曲线。若任务要求沿边缘靠近、沿直线插入或避开固定区域，路径必须先在<strong>笛卡尔空间</strong>定义，再逐点经 IK 变成关节目标。</p><div class="flow"><div><b>① 定 A、B</b>同一 base_link</div><div><b>② 定时间律</b>t → s(t)</div><div><b>③ 取目标点</b>P(t)</div><div><b>④ 连续 IK</b>选合法 q(t)</div><div><b>⑤ 发布显示</b>数字孪生</div></div></section>
+<section class="card guide"><h2 style="margin-top:0;border:0;padding:0">工程痛点：关节平滑，不代表末端走直线</h2><p>即使让 <code>joint1, joint2, joint3</code> 各自做漂亮的三次或正弦曲线，机械臂末端 <code>tool0</code> 在三维空间中仍会走出弯曲弧线。若任务要求沿边缘靠近、沿直线插入或避开固定区域，路径必须先在<strong>笛卡尔空间（<code>base_link</code> 三维坐标）</strong>按直线生成每一时刻的末端目标点，再逐点经 IK 变成关节角。</p><div class="flow"><div><b>① 定起点 A、终点 B</b>同一 base_link 三维坐标</div><div><b>② 算路程比例 s(t)</b>0→1 走完全程的几成</div><div><b>③ 算末端目标点 P(t)</b>时刻 t 的 (x, y, z) 坐标</div><div><b>④ 逐帧连续 IK</b>由 P(t) 解出关节角 q(t)</div><div><b>⑤ 发布显示</b>驱动 RViz 数字孪生</div></div></section>
 <section class="card warn"><strong>本篇边界：</strong>仍然只驱动 RViz 数字孪生。发布到 <code>/joint_states</code> 是显示状态，不是执行器命令；真实控制器的 <code>JointTrajectory</code> 在 ROS2-13 再接入。</section>
-<h2>1. 直线由位置公式定义，不由“看上去差不多”定义</h2>
-<p>已知 <code>base_link</code> 下的起点 <code>A=(0.50, 0.00, 0.65) m</code> 和终点 <code>B=(0.40, 0.30, 0.75) m</code>，求时刻 <code>t</code> 的期望目标位置 <code>P(t)</code>（注意它是规划目标，不是传感器测回的实际位置）：</p>
-<ol>
-  <li><strong>三维位移向量：</strong><code>B − A</code>，即 x、y、z 三轴各自的位移增量。</li>
-  <li><strong>归一化路径进度：</strong><code>s(t) ∈ [0, 1]</code> 表示时刻 <code>t</code> 已走完线段的比例（<code>s=0</code> 在起点 A，<code>s=0.5</code> 在中点，<code>s=1</code> 到达终点 B）。</li>
-  <li><strong>参数化直线方程：</strong>从起点 A 出发，加上位移向量 <code>B − A</code> 的 <code>s(t)</code> 倍：</li>
-</ol>
-<span class="formula">P(t) = A + s(t)(B − A)</span>
-<p>拿下面同一组 A、B 验算：若 <code>s=0.5</code>，则 <code>P=A+0.5(B−A)=(0.45, 0.15, 0.70) m</code>。三个坐标<strong>共用同一个比例</strong>，所以这个点一定在连接 A、B 的三维直线上。公式只确定路径；“t 到底对应多少 s”由第 2 节的时间律决定。</p>
-<div class="grid"><section class="card"><h3>不要做：关节空间直线</h3><p><code>q(t)=qA+s(qB-qA)</code> 只保证关节向量走直线。经过 FK 后，末端一般会是一条弯曲轨迹。</p></section><section class="card"><h3>本篇要做：笛卡尔空间直线</h3><p>先计算 <code>P(t)</code>，每个 P(t) 都调用 ROS2-04/05 的 IK。关节角的曲线可以弯，但 FK 出来的末端位置要贴着 P(t)。</p></section></div>
+<h2>1. 先对齐所有符号与变量含义，再写直线公式</h2>
+<p>在看任何公式前，先把本篇出现的<strong>每一个符号代表什么物理对象、在哪个坐标系、是什么维度和单位</strong>彻底定死：</p>
+<div style="overflow-x:auto"><table class="table">
+  <thead><tr><th>符号</th><th>物理含义（到底是谁？）</th><th>类型 / 维度</th><th>所属坐标系与单位</th></tr></thead>
+  <tbody>
+    <tr><td>\(\boldsymbol{A} = (x_A, y_A, z_A)\)</td><td><strong>直线起点</strong>：机械臂末端 <code>tool0</code> 出发时刻的目标坐标（固定常数，本例取 \((0.50, 0.00, 0.65)\)）</td><td>三维位置向量 \(\mathbb{R}^3\)</td><td><code>base_link</code>，单位 \(\text{m}\)</td></tr>
+    <tr><td>\(\boldsymbol{B} = (x_B, y_B, z_B)\)</td><td><strong>直线终点</strong>：机械臂末端 <code>tool0</code> 结束时刻的目标坐标（固定常数，本例取 \((0.40, 0.30, 0.75)\)）</td><td>三维位置向量 \(\mathbb{R}^3\)</td><td><code>base_link</code>，单位 \(\text{m}\)</td></tr>
+    <tr><td>\(\boldsymbol{B} - \boldsymbol{A}\)</td><td><strong>全程总位移向量</strong>：\((x_B-x_A,\ y_B-y_A,\ z_B-z_A)\)，从起点指向终点的固定三维增量；其模长 \(L = |\boldsymbol{B}-\boldsymbol{A}|\) 为直线段总长度</td><td>三维位移向量 \(\mathbb{R}^3\)</td><td><code>base_link</code>，单位 \(\text{m}\)</td></tr>
+    <tr><td>\(t\)</td><td><strong>当前时间</strong>：从运动开始计时的秒数，取值范围 \(0 \le t \le T\)</td><td>标量（随时间递增）</td><td>单位 \(\text{s}\)（秒）</td></tr>
+    <tr><td>\(T\)</td><td><strong>总时长</strong>：规定走完 \(\boldsymbol{A}\to\boldsymbol{B}\) 整段直线所用的总时间（固定正数，本例取 \(T = 3\text{ s}\)）</td><td>标量常数</td><td>单位 \(\text{s}\)（秒）</td></tr>
+    <tr><td>\(u = t/T\)</td><td><strong>归一化时间进度</strong>：当前时间过去了总时长的百分之几，取值 \(0 \le u \le 1\)</td><td>无量纲标量</td><td>无单位（\(0\sim 1\)）</td></tr>
+    <tr><td>\(s(t)\) 或 \(s(u)\)</td><td><strong>归一化路程进度</strong>：时刻 \(t\) 末端应该走完全程线段的百分之几，取值 \(0 \le s \le 1\)（\(s=0\) 在 \(\boldsymbol{A}\)，\(s=0.5\) 在中点，\(s=1\) 到 \(\boldsymbol{B}\)）</td><td>无量纲标量函数</td><td>无单位（\(0\sim 1\)）</td></tr>
+    <tr><td>\(\boldsymbol{P}(t) = (x(t), y(t), z(t))\)</td><td><strong>时刻 \(t\) 末端 <code>tool0</code> 的期望目标位置</strong>：规划器算出的“这一刻末端应该在直线的哪个三维坐标点”。<strong>它就是这一帧直接传给 ROS2-04 函数 <code>solve_position_ik(x, y, z)</code> 的三个坐标输入！</strong></td><td>三维位置向量函数 \(\mathbb{R}^3\)</td><td><code>base_link</code>，单位 \(\text{m}\)</td></tr>
+    <tr><td>\(\boldsymbol{v}(t),\ \boldsymbol{a}(t)\)</td><td><strong>时刻 \(t\) 末端 <code>tool0</code> 的期望线速度与线加速度</strong>：\(\boldsymbol{v}(t)=\dfrac{d\boldsymbol{P}}{dt}\)，\(\boldsymbol{a}(t)=\dfrac{d^2\boldsymbol{P}}{dt^2}\)</td><td>三维向量函数 \(\mathbb{R}^3\)</td><td><code>base_link</code>，单位 \(\text{m/s}\)、\(\text{m/s}^2\)</td></tr>
+    <tr><td>\(\boldsymbol{q}(t) = (q_1(t), q_2(t), q_3(t))\)</td><td><strong>时刻 \(t\) 的关节角向量</strong>：把 \(\boldsymbol{P}(t)\) 交给 IK 与连续选支后解出的三轴关节角；\(\boldsymbol{q}_A, \boldsymbol{q}_B\) 分别代表起点 \(\boldsymbol{A}\)、终点 \(\boldsymbol{B}\) 对应的关节角</td><td>三轴角度向量 \(\mathbb{R}^3\)</td><td>关节空间，单位 \(\text{rad}\)</td></tr>
+  </tbody>
+</table></div>
+
+<h3>三维参数化直线方程</h3>
+<p>有了上面的定义，想求时刻 \(t\) 末端 <code>tool0</code> 的期望坐标 \(\boldsymbol{P}(t)\)，只需从起点 \(\boldsymbol{A}\) 出发，加上全程总位移向量 \((\boldsymbol{B} - \boldsymbol{A})\) 的 \(s(t)\) 倍（按 \(x, y, z\) 三个坐标分量展开就是右边的三条式子）：</p>
+\[\boldsymbol{P}(t) = \boldsymbol{A} + s(t)(\boldsymbol{B} - \boldsymbol{A}) \quad\Longleftrightarrow\quad \begin{cases} x(t) = x_A + s(t)(x_B - x_A) \\ y(t) = y_A + s(t)(y_B - y_A) \\ z(t) = z_A + s(t)(z_B - z_A) \end{cases}\]
+<p>为什么这一定是一条三维直线？因为 \(x(t), y(t), z(t)\) 三个坐标<strong>共用同一个标量比例 \(s(t)\)</strong>：当 \(x\) 走完全程增量的 \(30\%\) 时，\(y\) 和 \(z\) 也严格走完全程增量的 \(30\%\)，三轴增量始终成固定比例，因此点 \(\boldsymbol{P}(t)\) 永远落在连接 \(\boldsymbol{A}\) 与 \(\boldsymbol{B}\) 的三维直线段上。至于是哪一时刻 \(t\) 走到哪个比例 \(s(t)\)，由第 2 节的时间律决定。</p>
+<div class="grid"><section class="card"><h3>不要做：关节空间直线插值</h3><p>如果先求起点、终点的关节角 \(\boldsymbol{q}_A, \boldsymbol{q}_B\)，再按 \(\boldsymbol{q}(t) = \boldsymbol{q}_A + s(t)(\boldsymbol{q}_B - \boldsymbol{q}_A)\) 让三个关节角按比例变化，只能保证“关节角数值变化是线性的”；经过含有 \(\sin/\cos\) 的正运动学 FK 后，末端 <code>tool0</code> 在三维空间里走的是一条弯曲弧线。</p></section><section class="card"><h3>本篇要做：笛卡尔空间直线 + 逐点 IK</h3><p>先在 <code>base_link</code> 下按直线公式算出每一帧的末端三维坐标 \(\boldsymbol{P}(t) = (x(t), y(t), z(t))\)，再把每一个 \(\boldsymbol{P}(t)\) 交给 ROS2-04/05 的 IK 反解出 \(\boldsymbol{q}(t)\)。此时关节角曲线 \(\boldsymbol{q}(t)\) 是弯曲的，但末端 <code>tool0</code> 在三维空间走出的是真直线。</p></section></div>
 <section class="card good"><h3>先拿同一组坐标走一遍：A → B</h3>
 <p>本篇始终使用 <code>base_link</code> 下的 <code>A=(0.50, 0.00, 0.65) m</code>、<code>B=(0.40, 0.30, 0.75) m</code>，总时长 <code>T=3 s</code>。先按坐标逐项相减，得到 <code>B−A=(−0.10, +0.30, +0.10) m</code>。这表示从 A 走到 B 时，x 减少 0.10 m、y 增加 0.30 m、z 增加 0.10 m；它不是关节角的变化量。</p>
 <p>若此刻路径进度 <code>s=0.5</code>，三个坐标<strong>同时</strong>走完各自差值的一半：<code>P=A+0.5(B−A)=(0.45, 0.15, 0.70) m</code>。注意同一个 <code>0.5</code> 乘在 x、y、z 上，才保证这个点真的在三维直线上。</p>
