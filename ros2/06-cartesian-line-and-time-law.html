@@ -91,6 +91,16 @@
 <tr><td>3.00</td><td>1.00</td><td>1.0000</td><td>0</td><td>(0.4000, 0.3000, 0.7500)</td><td>到达终点 B，速度与加速度平缓归零</td></tr>
 </tbody></table></div>
 <p class="small">表格四舍五入到四位小数；程序使用未舍入的 <code>s</code> 计算。五次时间律只改变到达直线上各点的快慢节奏，不会把直线弯成曲线。</p></section>
+<section class="card guide">
+  <h3>工程追问：总时长 T（代码里的 duration）是怎么定出来的？为什么这里取 3 秒？</h3>
+  <ul>
+    <li><strong>在代码调用层：</strong>\(T\) 是你传给函数的输入参数 <code>duration</code>（想让它 \(3\text{ s}\) 走完就传 <code>3.0</code>，想慢一倍就传 <code>6.0</code>）。</li>
+    <li><strong>按末端最大允许线速度 \(v_{\max}\) 算（最常用）：</strong>因为五次时间律“两头慢、中间快”，它在中点 \(u=0.5\) 处的峰值速度正好是平均速度 \(\dfrac{L}{T}\) 的 \(1.875\) 倍（\(\frac{15}{8}=1.875\)）。若工艺规定末端最快不能超过 \(v_{\max}\)，则总时长必须满足：
+      \[T \ge \frac{1.875\,L}{v_{\max}}\]
+      本例直线总长 \(L = |\boldsymbol{B}-\boldsymbol{A}| \approx 0.3317\text{ m}\)，若限制末端最高线速度不超过 \(v_{\max} \approx 0.21\text{ m/s}\)，代入得 \(T \ge \dfrac{1.875\times 0.3317}{0.21} \approx 2.96\text{ s}\)，向上取整就是本篇采用的 <strong>\(T = 3\text{ s}\)</strong>。</li>
+    <li><strong>按关节电机最高转速兜底：</strong>预扫描整段路径时，若发现某相邻两帧的关节角速度 \(\dfrac{|\Delta q_i|}{\Delta t}\) 超过了 URDF 的 <code>velocity</code> 上限（如 \(1.0\text{ rad/s}\)），就按超速比例把 \(T\) 拉长。</li>
+  </ul>
+</section>
 <h2>3. 拖动时间：左边算数，右边分两张坐标纸看</h2>
 <div class="lab">
   <section class="card"><h3>还是同一条 A→B</h3><p class="small">A=(0.50, 0.00, 0.65) m，B=(0.40, 0.30, 0.75) m。拖动 t，看 <code>u=t/T</code>、<code>s(u)</code> 和三个坐标如何一起变化。下面的导数描述沿路径进度变化的快慢，并不是某个关节角速度。</p>
