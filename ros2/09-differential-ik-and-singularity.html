@@ -15,8 +15,8 @@
     <tr><td>\(\sigma_{\min}(\boldsymbol{J})\)</td><td><strong>雅可比矩阵 \(\boldsymbol{J}\) 的最小奇异值</strong>：衡量当前姿态离奇异位形有多近的数值指标（\(\sigma_{\min}\to 0\) 表示进入奇异区）</td><td>非负标量</td><td>单位 \(\text{m/rad}\)</td></tr>
   </tbody>
 </table></div>
-<p>当机械臂远离奇异位形、\(\boldsymbol{J}\) 可逆且良态时，直接对 \(\boldsymbol{v}_{\text{des}} = \boldsymbol{J}\dot{\boldsymbol{q}}\) 左乘逆矩阵即可：</p>
-<span class="formula">\[\dot{\boldsymbol{q}}=\boldsymbol{J}^{-1}\boldsymbol{v}_{\text{des}}\quad(\text{仅在 }\boldsymbol{J}\text{ 良态且 }\sigma_{\min}\text{ 足够大时可用})\]</span>
+<p>当机械臂远离奇异位形、\(\boldsymbol{J}\) 可逆且良态（\(\sigma_{\min}\) 足够大）时，直接对 \(\boldsymbol{v}_{\text{des}} = \boldsymbol{J}\dot{\boldsymbol{q}}\) 左乘逆矩阵即可：</p>
+<span class="formula">\[\dot{\boldsymbol{q}}=\boldsymbol{J}^{-1}\boldsymbol{v}_{\text{des}}\]</span>
 <p>一旦接近奇异位形（例如大小臂完全伸直 \(q_3=0\)），\(\boldsymbol{J}\) 近似不可逆，\(\boldsymbol{J}^{-1}\) 会算出趋近无穷大的关节速度。工程上改用<strong>阻尼最小二乘（Damped Least Squares, DLS）</strong>，它等价于同时最小化“末端速度跟踪误差 \(\|\boldsymbol{J}\dot{\boldsymbol{q}}-\boldsymbol{v}_{\text{des}}\|^2\)”和“关节速度代价 \(\lambda^2\|\dot{\boldsymbol{q}}\|^2\)”：</p>
 <span class="formula">\[\dot{\boldsymbol{q}}=\boldsymbol{J}^T\left(\boldsymbol{J}\boldsymbol{J}^T+\lambda^2\boldsymbol{I}\right)^{-1}\boldsymbol{v}_{\text{des}}\]</span>
 <div class="card warn"><strong>\(\lambda\) 的物理意义：</strong>当 \(\lambda=0\) 时，DLS 退化为普通求逆；当接近奇异位形、\(\lambda\) 增大时，\(\lambda^2\boldsymbol{I}\) 保证了括号内的矩阵永远可逆且良态——它不再偏执于“末端速度必须一丝不差”，而是用一点点末端速度偏差，换取关节角速度 \(\dot{\boldsymbol{q}}\) 平稳受控、绝不爆速。</div>

@@ -46,29 +46,29 @@
     <ul>
       <li>等号右边的起点 \(\boldsymbol{A} = (0.50, 0.00, 0.65)\) 是固定死数字，对 \(t\) 求导为 \(\boldsymbol{0}\)；</li>
       <li>总位移 \((\boldsymbol{B}-\boldsymbol{A}) = (-0.10, 0.30, 0.10)\) 也是固定死数字，求导时作为常数系数照抄；</li>
-      <li><strong>等号右边唯一随时间 \(t\) 变化的只有 \(s(t)\)！</strong>因此：</li>
+      <li><strong>等号右边唯一随时间 \(t\) 变化的只有 \(s(t)\)！</strong>因此左边对 \(\boldsymbol{P}\) 求导，右边就归结为对 \(s\) 求导：</li>
     </ul>
-    \[\underbrace{\boldsymbol{v}(t) = \frac{d\boldsymbol{P}}{dt}}_{\text{想求的末端线速度}} = \underbrace{\frac{ds}{dt}}_{\text{必须先算出的 }s\text{ 的导数}} \cdot \underbrace{(\boldsymbol{B}-\boldsymbol{A})}_{\text{固定死数字}}\]
-    \[\underbrace{\boldsymbol{a}(t) = \frac{d^2\boldsymbol{P}}{dt^2}}_{\text{想求的末端线加速度}} = \underbrace{\frac{d^2s}{dt^2}}_{\text{必须先算出的 }s\text{ 的二阶导}} \cdot \underbrace{(\boldsymbol{B}-\boldsymbol{A})}_{\text{固定死数字}}\]
-    <p class="small" style="margin-bottom:0"><strong>拿 \(x\) 轴数字举例：</strong>\(x(t) = 0.50 + s(t)\times(-0.10)\)。求速度 \(v_x(t)=\dfrac{dx}{dt}\) 时，常数 \(0.50\) 求导没了，就变成 \(v_x(t) = \dfrac{ds}{dt}\times(-0.10)\)。所以<strong>不先把右边的 \(\dfrac{ds}{dt}\) 算出来，就拿不到具体的速度数值</strong>——左卡写出这层依赖关系，右卡接着代入具体的 \(s(t)\) 公式把 \(\dfrac{ds}{dt}\) 算出来。</p>
+    \[\boldsymbol{v}(t) = \frac{d\boldsymbol{P}}{dt} = \frac{ds}{dt}(\boldsymbol{B}-\boldsymbol{A})\]
+    \[\boldsymbol{a}(t) = \frac{d^2\boldsymbol{P}}{dt^2} = \frac{d^2s}{dt^2}(\boldsymbol{B}-\boldsymbol{A})\]
+    <p class="small" style="margin-bottom:0"><strong>拿 \(x\) 轴数字举例：</strong>\(x(t) = 0.50 + s(t)\times(-0.10)\)。求速度 \(v_x(t)=\dfrac{dx}{dt}\) 时，常数 \(0.50\) 求导没了，就变成 \(v_x(t) = \dfrac{ds}{dt}\times(-0.10)\)。所以<strong>不先把右边的 \(\dfrac{ds}{dt}\) 算出来，就拿不到具体的速度数值</strong>——左卡写出这层依赖关系，右卡接着代入具体的函数把导数算出来。</p>
   </section>
   <section class="card">
-    <h3>② 两种不同的“油门方案”：淘汰匀速，换用五次时间律</h3>
-    <p class="small"><strong>关键前提：\(s(t)\) 不是客观算出来的唯一答案，而是你作为工程师自己设计的“油门踩法”！</strong>从 \(A\) 走到 \(B\) 规定 \(T=3\text{ s}\) 走完，只要满足“第 \(0\) 秒在起点 \(s(0)=0\)、第 \(3\) 秒到终点 \(s(T)=1\)”，中间这 \(3\) 秒里<strong>怎么分配进度 \(s(t)\)</strong> 完全由你决定。就像开车走同一段路，下面不是把同一个式子变形改写，而是<strong>枪毙方案一，改用方案二</strong>：</p>
-    <p><strong>❌ 方案一（笨方案：匀速时间律 \(s_{\text{匀速}}\)，直接作废）：</strong>假设“全程定速巡航、匀速硬跑”，则时间过了几分之几，路程就走几分之几：
-    \[s_{\text{匀速}}(t) = \frac{t}{T}\]
-    求导得 \(\dfrac{ds_{\text{匀速}}}{dt} = \dfrac{1}{T}\)（常数）。这意味着第 \(0\) 秒启动瞬间速度必须从 \(0\) 直接跳到常数，终点又瞬间归零，电机受不了。<strong>因此这个方案不及格，直接扔进垃圾桶不用了！</strong></p>
-    <p><strong>✅ 方案二（好方案：五次时间律 \(s_{\text{五次}}\)，实际采用）：</strong>既然匀速废了，我们<strong>重新设计一个新函数</strong>模拟老司机开车：“起步轻踩油门慢加速 \(\to\) 中段跑快点把时间抢回来 \(\to\) 终点前轻踩刹车慢停下”。为此列出 <strong>6 个硬指标（方程）</strong>：</p>
+    <h3>② 两种不同的“油门方案”：淘汰匀速 s₁(t)，换用五次时间律 s(t)</h3>
+    <p class="small"><strong>关键前提：进度函数不是客观算出来的唯一答案，而是你作为工程师自己设计的“油门踩法”！</strong>从 \(A\) 走到 \(B\) 规定 \(T=3\text{ s}\) 走完，只要满足“第 \(0\) 秒在起点、第 \(3\) 秒到终点”，中间这 \(3\) 秒里<strong>怎么分配进度</strong>完全由你决定。就像开车走同一段路，下面不是把同一个式子变形改写，而是<strong>枪毙方案一 \(s_1(t)\)，改用方案二 \(s(t)\)</strong>：</p>
+    <p><strong>❌ 方案一 \(s_1(t)\)（匀速时间律，直接作废）：</strong>假设“全程定速巡航、匀速硬跑”，则时间过了几分之几，路程就走几分之几：
+    \[s_1(t) = \frac{t}{T}, \qquad \frac{ds_1}{dt} = \frac{1}{T}\]
+    导数等于常数 \(\dfrac{1}{T}\)，意味着第 \(0\) 秒启动瞬间速度必须从 \(0\) 直接跳到常数，终点又瞬间归零，电机受不了。<strong>因此方案一 \(s_1(t)\) 不及格，直接扔进垃圾桶不用了！</strong></p>
+    <p><strong>✅ 方案二 \(s(t)\)（五次时间律，实际采用）：</strong>既然匀速废了，我们<strong>重新设计一个新函数 \(s(t)\)</strong> 模拟老司机开车：“起步轻踩油门慢加速 \(\to\) 中段跑快点把时间抢回来 \(\to\) 终点前轻踩刹车慢停下”。为此列出 <strong>6 个硬指标（方程）</strong>：</p>
     <ul class="small" style="margin:4px 0 8px">
       <li>起止位置对：\(s(0)=0,\quad s(T)=1\)</li>
       <li>起止速度为 0：\(s'(0)=0,\quad s'(T)=0\)</li>
       <li>起止加速度为 0：\(s''(0)=0,\quad s''(T)=0\)</li>
     </ul>
-    <p class="small">6 个方程正好解 6 个未知系数，设五次多项式 \(\sum_{k=0}^{5} a_k\left(\frac{t}{T}\right)^k\) 代入上面 6 个条件解方程组，唯一解出 \(a_0=a_1=a_2=0,\ a_3=10,\ a_4=-15,\ a_5=6\)，这才得到新方案：</p>
-    \[s_{\text{五次}}(t) = 10\frac{t^3}{T^3} - 15\frac{t^4}{T^4} + 6\frac{t^5}{T^5}\]
+    <p class="small">6 个方程正好解 6 个未知系数，设五次多项式 \(\sum_{k=0}^{5} a_k\left(\frac{t}{T}\right)^k\) 代入上面 6 个条件解方程组，唯一解出 \(a_0=a_1=a_2=0,\ a_3=10,\ a_4=-15,\ a_5=6\)，这才得到实际采用的 \(s(t)\)：</p>
+    \[s(t) = 10\frac{t^3}{T^3} - 15\frac{t^4}{T^4} + 6\frac{t^5}{T^5}\]
     <p class="small">（代码里为免连写三次除法，令 \(u = t/T\)，简写为 \(s(u) = 10u^3 - 15u^4 + 6u^5\)。）对 \(t^3, t^4, t^5\) 求一阶、二阶导数：</p>
-    \[\frac{ds_{\text{五次}}}{dt} = 30\frac{t^2}{T^3} - 60\frac{t^3}{T^4} + 30\frac{t^4}{T^5}\]
-    \[\frac{d^2s_{\text{五次}}}{dt^2} = 60\frac{t}{T^3} - 180\frac{t^2}{T^4} + 120\frac{t^3}{T^5}\]
+    \[\frac{ds}{dt} = 30\frac{t^2}{T^3} - 60\frac{t^3}{T^4} + 30\frac{t^4}{T^5}\]
+    \[\frac{d^2s}{dt^2} = 60\frac{t}{T^3} - 180\frac{t^2}{T^4} + 120\frac{t^3}{T^5}\]
     <p class="small" style="margin-bottom:0">验算两端：代入 \(t=0\)，两式全为 \(0\)；代入 \(t=T\)，一阶导分子 \(30-60+30=0\)，二阶导分子 \(60-180+120=0\)。<strong>起止瞬间末端速度 \(\boldsymbol{v}=\boldsymbol{0}\)、加速度 \(\boldsymbol{a}=\boldsymbol{0}\)</strong>！</p>
   </section>
 </div>
