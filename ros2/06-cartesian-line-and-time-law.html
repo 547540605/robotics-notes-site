@@ -137,49 +137,152 @@
     </div>
   </section>
 </div>
-<h2>4. 生成器与 IK 的职责边界</h2>
+<h2>4. 动手写代码：把直线采样与 04/05 整段预扫描写进 <code>cartesian_path.py</code></h2>
 <section class="card guide"><h3>这一帧怎样接到 04、05？</h3>
-<p>仍看表里的 <code>t=1.50 s</code>：本篇先给出 <code>target=(0.45, 0.15, 0.70) m</code>。把这个三维位置传给 04 的 <code>solve_position_ik(*target)</code>，得到 <code>reachable</code> 与候选列表；几何可达时，再把候选列表和<strong>上一帧实际选用的关节角</strong> <code>q_prev</code> 传给 05 的 <code>select_nearest_valid_solution(...)</code>。最后拿选中候选的 <code>["q"]</code>，得到这一帧三个关节角。这里没有从时间律直接算出关节角的捷径。</p>
-<p>如果 04 报不可达，或 05 没有合法候选，就在这个 <code>t</code>、<code>target</code> 停下并报告；不能跳过该点继续画“直线”。初始 <code>q_prev</code> 应来自已知的当前关节状态，不能凭空填一个看着顺眼的角度。执行前要对<strong>整段</strong>先做同样的预扫描，见第 5 节。</p>
-<p class="small">下面的纯 Python 生成器对应<a href="implementation-handoff.md">规划中的</a> <code>~/ros2_ws/src/my_arm_motion/my_arm_motion/cartesian_path.py</code>；它只产出目标点，不替代 04 的 <code>kinematics_3r.py</code>，也不是完整 ROS 节点。若你还没有创建标准包，这个路径是待建目标，不代表工作区里已有该文件。</p></section>
-<pre class="code"># 规划文件：my_arm_motion/my_arm_motion/cartesian_path.py；需由调用者逐帧取样。
+<p>仍看表里的 <code>t=1.50 s</code>：本篇先由 <code>cartesian_line</code> 算出 <code>target=(0.45, 0.15, 0.70) m</code>。接着：</p>
+<ol>
+  <li>把这个三维坐标传给 04 的 <code>solve_position_ik(*target)</code>，得到 <code>reachable</code> 与两支候选列表；</li>
+  <li>几何可达时，把候选列表和<strong>上一帧实际选用的关节角</strong> <code>q_prev</code> 传给 05 的 <code>select_nearest_valid_solution(candidates, q_prev)</code>；</li>
+  <li>取出选中候选的 <code>selected["q"]</code> 作为本帧关节角 <code>q_now</code>，并用 04 的 <code>forward_position(*q_now)</code> 做 FK 回代核对位置误差，最后令 <code>q_prev = q_now</code> 进入下一帧。</li>
+</ol>
+<p class="small">如果中途任意一帧 04 报几何不可达，或 05 报无合法限位解，预扫描就立即在该帧停下并返回失败点信息（第几步、哪一秒、哪个坐标、什么原因），绝不跳过坏点继续执行。</p></section>
+
+<h3>第一步：新建 <code>~/ros2_ws/src/my_arm_motion/my_arm_motion/cartesian_path.py</code></h3>
+<p>在你已经建好的 <code>my_arm_motion</code> 包内层模块目录下新建 <code>cartesian_path.py</code>，写入以下完整代码（含五次时间律 <code>quintic_s</code>、直线点列生成器 <code>cartesian_line</code> 和整段预扫描函数 <code>plan_cartesian_line</code>）：</p>
+<pre class="code"># 文件路径：~/ros2_ws/src/my_arm_motion/my_arm_motion/cartesian_path.py
 import math
+from my_arm_motion.kinematics_3r import (
+    forward_position,
+    solve_position_ik,
+    select_nearest_valid_solution,
+)
+
 
 def quintic_s(u):
-    """归一化进度 u→路径比例 s；起终点速度、加速度都为零。"""
-    # 调用者保证 0 &lt;= u &lt;= 1；越界时多项式不再表示这段路径。
-    return 10*u**3 - 15*u**4 + 6*u**5
+    """归一化时间进度 u∈[0,1] → 路程比例 s∈[0,1]；起止速度、加速度均为 0。"""
+    if not (0.0 &lt;= u &lt;= 1.0):
+        raise ValueError("u must be within [0, 1]")
+    return 10.0 * u**3 - 15.0 * u**4 + 6.0 * u**5
+
 
 def cartesian_line(start, end, duration, dt=0.02):
-    """在同一 base_link 下采样 A→B；每次 yield (t秒, (x,y,z)米)。
+    """在同一 base_link 下按 dt(秒)采样 A→B 直线；每次 yield (t秒, (x,y,z)米)。
 
-    这里只生成末端目标点，不求关节角；IK/限位检查交给调用方。
+    这里只生成末端三维目标点，不求关节角；IK 与限位预扫描交给 plan_cartesian_line。
     """
-    # start/end 都是 (x,y,z)，单位 m；duration/dt 单位 s 且必须为正。
     if duration &lt;= 0 or dt &lt;= 0 or len(start) != 3 or len(end) != 3:
         raise ValueError("need 3D endpoints and positive duration/dt")
-    # 向上取整才能保证最后一次采样正好落在终点 B。
+    # 向上取整保证最后一次采样刚好落在 t = duration (终点 B)
     steps = math.ceil(duration / dt)
     for k in range(steps + 1):
-        # t 限于 [0,T]，u=t/T 是无量纲时间；s 只负责走到线段哪一处。
         t = min(k * dt, duration)
         s = quintic_s(t / duration)
-        # zip 把 A/B 的 x、y、z 分别配对；同一个 s 同时插值三轴，
-        # 因而目标点落在 A→B 直线上。yield 逐帧送出，不一次存整条路径。
         target = tuple(a + s * (b - a) for a, b in zip(start, end))
         yield t, target
 
-# 在 ROS 节点中（调用顺序示意，不是可直接运行的完整节点）：
-# 1) target 来自 cartesian_line
-# 2) ik_result = solve_position_ik(*target)：* 把 (x,y,z) 拆成三个参数
-#    若 not ik_result["reachable"]，报告 reason 并停；否则取 ik_result["candidates"]
-# 3) choice = select_nearest_valid_solution(ik_result["candidates"], q_prev)
-#    selected = choice["selected"]；它是含 q=(q1,q2,q3) 的字典，不是角度列表
-# 4) 若 selected 为空：停止本段，并报告 t 与 target
-# 5) 若存在：取 selected["q"] 给数字孪生，并令 q_prev = selected["q"]
-#    真机不能把 /joint_states 当成运动命令；整段执行还须先完成预扫描</pre>
-<p class="small">生成器不知道关节限位；IK 也不知道路径时间。二者之间只交接 <code>target</code> 和 <code>selected q</code>，这样才能准确指出路径在哪一帧失败。</p>
-<h2>5. 运行前必须做整段预扫描</h2><table class="table"><thead><tr><th>检查</th><th>为什么不能省</th><th>失败时正确处理</th></tr></thead><tbody><tr><td>逐点 IK</td><td>A、B 都有解不代表中间每一点都有解或在限位内。</td><td>不启动该段；缩短路径、换姿态或重设目标。</td></tr><tr><td>连续选支</td><td>每一帧独立求解会让双解随机切换。</td><td>用 ROS2-05 的 q_prev 代价选择。</td></tr><tr><td>FK 位置误差</td><td>目标点和实际关节 FK 必须对照。</td><td>记录最大误差；异常时回查 IK/URDF 约定。</td></tr><tr><td>速度、加速度限值</td><td>五次时间律不自动保证每个关节都不过速。</td><td>先拉长 T；真实控制阶段再由控制器限速。</td></tr></tbody></table>
+
+def plan_cartesian_line(start, end, duration, q_start, dt=0.02):
+    """整段预扫描：将 A→B 直线点列逐帧经 04 IK 与 05 连续选支转换为关节角序列。
+
+    输入：
+      start, end : base_link 下起点 A、终点 B 坐标 (x, y, z)，单位 m
+      duration   : 总时长 T，单位 s
+      q_start    : 运动开始前机械臂所处的合法起始关节角 (q1, q2, q3)，单位 rad
+      dt         : 采样步长，默认 0.02 s (50 Hz)
+    返回字典：
+      ok           : 整段所有采样点是否全部求解成功 (bool)
+      trajectory   : 成功时为列表，每项含 {"t", "target", "q", "fk", "fk_error", "cost"}
+      max_fk_error : 整段最大 FK 回代位置误差 (单位 m)
+      failed_step  : 失败时记录第一处失败点的 {"step", "t", "target", "reason"}
+    """
+    q_prev = tuple(q_start)
+    trajectory = []
+    max_fk_error = 0.0
+
+    for step_idx, (t, target) in enumerate(cartesian_line(start, end, duration, dt)):
+        # 1) 调用 04 求当前目标点的双支几何 IK 候选
+        ik_res = solve_position_ik(*target)
+        if not ik_res["reachable"]:
+            return {
+                "ok": False,
+                "trajectory": [],
+                "max_fk_error": max_fk_error,
+                "failed_step": {
+                    "step": step_idx,
+                    "t": t,
+                    "target": target,
+                    "reason": ik_res["reason"],
+                },
+            }
+
+        # 2) 调用 05 筛三轴限位，并选出离上一帧 q_prev 最近的合法候选
+        choice = select_nearest_valid_solution(ik_res["candidates"], q_prev)
+        selected = choice["selected"]
+        if selected is None:
+            return {
+                "ok": False,
+                "trajectory": [],
+                "max_fk_error": max_fk_error,
+                "failed_step": {
+                    "step": step_idx,
+                    "t": t,
+                    "target": target,
+                    "reason": choice["reason"],
+                },
+            }
+
+        # 3) 调用 04 的 FK 回代验算真实末端位置与目标点的误差
+        q_now = selected["q"]
+        fk_xyz = forward_position(*q_now)
+        fk_err = math.dist(fk_xyz, target)
+        max_fk_error = max(max_fk_error, fk_err)
+
+        trajectory.append({
+            "t": t,
+            "target": target,
+            "q": q_now,
+            "fk": fk_xyz,
+            "fk_error": fk_err,
+            "cost": selected["cost"],
+        })
+        # 4) 将本帧选中的关节角作为下一帧的上一时刻基准 q_prev
+        q_prev = q_now
+
+    return {
+        "ok": True,
+        "trajectory": trajectory,
+        "max_fk_error": max_fk_error,
+        "failed_step": None,
+    }</pre>
+
+<h3>第二步：编译并在终端验收（正常路径 + 故意越界失败路径）</h3>
+<p>保存文件后，回到 <code>~/ros2_ws</code> 编译 <code>my_arm_motion</code>，然后用下面这段命令一次性验证<strong>正常直线预扫描（151 帧全部通过）</strong>和<strong>故意越界直线预扫描（准确报出第几帧失败）</strong>：</p>
+<pre class="code">cd ~/ros2_ws
+colcon build --packages-select my_arm_motion
+source install/setup.bash
+
+python3 -c "
+from my_arm_motion.kinematics_3r import solve_position_ik
+from my_arm_motion.cartesian_path import plan_cartesian_line
+
+A = (0.50, 0.00, 0.65)
+B = (0.40, 0.30, 0.75)
+q_start = solve_position_ik(*A)['candidates'][0]['q']
+
+ok_plan = plan_cartesian_line(A, B, duration=3.0, q_start=q_start, dt=0.02)
+print('=== 1. 正常直线 A->B ===')
+print('ok:', ok_plan['ok'], '| 采样帧数:', len(ok_plan['trajectory']), '| 最大FK误差(m):', f\"{ok_plan['max_fk_error']:.2e}\")
+print('起点 q(rad):', [round(v, 4) for v in ok_plan['trajectory'][0]['q']])
+print('中点 P(m):  ', [round(v, 4) for v in ok_plan['trajectory'][75]['target']], '-> q(rad):', [round(v, 4) for v in ok_plan['trajectory'][75]['q']])
+print('终点 q(rad):', [round(v, 4) for v in ok_plan['trajectory'][-1]['q']])
+
+bad_plan = plan_cartesian_line(A, (0.95, 0.50, 0.95), duration=3.0, q_start=q_start, dt=0.02)
+print('=== 2. 故意越界直线 ===')
+print('ok:', bad_plan['ok'], '| 失败定位:', bad_plan['failed_step'])
+"</pre>
+<p class="small">预期现象：正常直线输出 <code>ok: True | 采样帧数: 151 | 最大FK误差(m): ~1e-16</code>，中点第 75 帧（\(t=1.50\text{ s}\)）坐标刚好是 <code>[0.45, 0.15, 0.7]</code>；故意越界直线输出 <code>ok: False</code> 并精准指出在哪一帧（<code>step</code>、<code>t</code>、<code>target</code>）因为 <code>geometrically unreachable</code> 停下。</p>
+
+<h2>5. 运行前为什么必须做整段预扫描？</h2><table class="table"><thead><tr><th>检查</th><th>为什么不能省</th><th>失败时正确处理</th></tr></thead><tbody><tr><td>逐点 IK</td><td>A、B 都有解不代表中间每一点都有解或在限位内。</td><td>不启动该段；缩短路径、换姿态或重设目标。</td></tr><tr><td>连续选支</td><td>每一帧独立求解会让双解随机切换。</td><td>用 ROS2-05 的 q_prev 代价选择。</td></tr><tr><td>FK 位置误差</td><td>目标点和实际关节 FK 必须对照。</td><td>记录最大误差；异常时回查 IK/URDF 约定。</td></tr><tr><td>速度、加速度限值</td><td>五次时间律不自动保证每个关节都不过速。</td><td>先拉长 T；真实控制阶段再由控制器限速。</td></tr></tbody></table>
 <section class="card end"><h2 style="margin-top:0;border:0;padding:0">本篇结束时的闭环</h2><ul><li><strong>你能解释：末端直线来自 P(t)，而不是来自某条 q(t)。</strong></li><li>你有一条从 A 到 B 的目标点列，每一点都必须经连续 IK 才能进入数字孪生。</li><li>下一篇不会改运动学，只增加可视化：目标轨迹、FK 实际轨迹和当前点同时显示。</li></ul></section>
 </main><script>
 (()=>{
